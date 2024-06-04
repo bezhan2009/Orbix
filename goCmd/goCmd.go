@@ -46,16 +46,25 @@ func GoCmd() {
 		commandLower := strings.ToLower(command)
 
 		if commandLower == "prompt" {
-			fmt.Print("Enter the desired promptSet: ")
-			reader := bufio.NewReader(os.Stdin)
-			promptSet, err := reader.ReadString('\n')
-			if err != nil {
-				fmt.Println("Error reading promptSet:", err)
-			} else {
-				promptSet = strings.TrimSpace(promptSet)
-				fmt.Printf("Prompt set to: %s\n", promptSet)
-				prompt = promptSet
+			if len(commandArgs) < 1 {
+				fmt.Println("prompt <name_prompt>")
+				fmt.Println("to delete prompt enter:")
+				fmt.Println("prompt delete")
+				continue
 			}
+
+			namePrompt := commandArgs[0]
+
+			if namePrompt != "delete" {
+				namePrompt = strings.TrimSpace(namePrompt)
+				prompt = namePrompt
+				fmt.Printf("Prompt set to: %s\n", prompt)
+			} else {
+				prompt, _ = os.Getwd()
+				fmt.Printf("Prompt set to: %s\n", prompt)
+				prompt = ""
+			}
+
 			continue
 		}
 
@@ -100,6 +109,7 @@ func GoCmd() {
 		switch commandLower {
 		case "systemgocmd":
 			utils.SystemInformation()
+
 		case "gocmd":
 			GoCmd()
 
@@ -122,7 +132,9 @@ func GoCmd() {
 				fmt.Println("Использование: write <файл> <данные>")
 				continue
 			}
+
 			nameFileForWrite := commandArgs[0]
+
 			data := strings.Join(commandArgs[1:], " ")
 
 			if nameFileForWrite == "debug.txt" {
@@ -132,6 +144,7 @@ func GoCmd() {
 			}
 
 			errWriting := Write.File(nameFileForWrite, data+"\n")
+
 			if errWriting != nil {
 				debug.Commands(command, false)
 				fmt.Println(errWriting)
