@@ -3,6 +3,8 @@ package goCmd
 import (
 	"bufio"
 	"fmt"
+	"goCmd/commands/CD"
+	"goCmd/commands/Clean"
 	"goCmd/commands/Create"
 	"goCmd/commands/Read"
 	"goCmd/commands/Remove"
@@ -11,32 +13,9 @@ import (
 	"goCmd/debug"
 	"goCmd/utils"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
-
-func clearScreen() {
-	cmd := exec.Command("cmd", "/c", "cls")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
-}
-
-func changeDirectory(path string) error {
-	err := os.Chdir(path)
-	if err != nil {
-		return fmt.Errorf("не удалось сменить директорию: %v", err)
-	}
-	return nil
-}
-
-func runExternalCommand(command []string) error {
-	cmd := exec.Command(command[0], command[1:]...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
-	return cmd.Run()
-}
 
 func GoCmd() {
 	utils.SystemInformation()
@@ -81,11 +60,11 @@ func GoCmd() {
 
 		if !isValid {
 			fullCommand := append([]string{command}, commandArgs...)
-			err := runExternalCommand(fullCommand)
+			err := utils.ExternalCommand(fullCommand)
 			if err != nil {
 				fullPath := filepath.Join(dir, command)
 				fullCommand[0] = fullPath
-				err = runExternalCommand(fullCommand)
+				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
 					fmt.Printf("Ошибка при запуске команды '%s': %v\n", commandLine, err)
 				}
@@ -175,13 +154,13 @@ func GoCmd() {
 			}
 
 		case "clean":
-			clearScreen()
+			Clean.Screen()
 
 		case "cd":
 			if len(commandArgs) == 0 {
 				fmt.Println("Введите путь")
 			} else {
-				err := changeDirectory(commandArgs[0])
+				err := CD.ChangeDirectory(commandArgs[0])
 				if err != nil {
 					fmt.Println(err)
 				}
