@@ -22,9 +22,16 @@ func GoCmd() {
 	isWorking := true
 	reader := bufio.NewReader(os.Stdin)
 
+	prompt := ""
+
 	for isWorking {
 		dir, _ := os.Getwd()
-		fmt.Printf("\n%s>", dir)
+		if prompt != "" {
+			fmt.Printf("\n%s", prompt)
+		} else {
+			fmt.Printf("\n%s>", dir)
+		}
+
 		commandLine, _ := reader.ReadString('\n')
 
 		commandLine = strings.TrimSpace(commandLine)
@@ -38,29 +45,47 @@ func GoCmd() {
 		commandArgs := commandParts[1:]
 		commandLower := strings.ToLower(command)
 
+		if commandLower == "prompt" {
+			fmt.Print("Enter the desired promptSet: ")
+			reader := bufio.NewReader(os.Stdin)
+			promptSet, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Println("Error reading promptSet:", err)
+			} else {
+				promptSet = strings.TrimSpace(promptSet)
+				fmt.Printf("Prompt set to: %s\n", promptSet)
+				prompt = promptSet
+			}
+			continue
+		}
+
 		if commandLower == "gohelp" {
 			fmt.Println("Для получения сведений об командах наберите GOHELP")
 			fmt.Println("CREATE             создает новый файл")
 			fmt.Println("CLEAN              очистка экрана")
+			fmt.Println("CD                 смена текущего каталога")
 			fmt.Println("REMOVE             удаляет файл")
 			fmt.Println("READ               выводит на экран содержимое файла")
-			fmt.Println("WRITE              записывает данные в файл")
-			fmt.Println("GOCMD              запускает ещё одну GoCMD")
-			fmt.Println("CD                 смена текущего каталога")
+			fmt.Println("PROMPT             Изменяет GoCMD.")
+			fmt.Println("SYSTEMGOCMD        вывод информации о GoCMD")
 			fmt.Println("SYSTEMINFO         вывод информации о системе")
-			fmt.Println("SYSTEMGOCMD          вывод информации о GoCMD")
+			fmt.Println("GOCMD              запускает ещё одну GoCMD")
+			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EXIT               Выход")
 			debug.Commands(command, true)
 			continue
 		}
 
-		commands := []string{"systemgocmd", "rename", "remove", "read", "write", "create", "gohelp", "exit", "gocmd", "clean", "cd"}
+		commands := []string{"promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "gohelp", "exit", "gocmd", "clean", "cd"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
 		if !isValid {
 			fullCommand := append([]string{command}, commandArgs...)
 			err := utils.ExternalCommand(fullCommand)
+			if commandLower == "help" {
+				continue
+			}
 			if err != nil {
 				fullPath := filepath.Join(dir, command)
 				fullCommand[0] = fullPath
@@ -158,12 +183,14 @@ func GoCmd() {
 
 		case "cd":
 			if len(commandArgs) == 0 {
-				fmt.Println("Введите путь")
+				dir, _ := os.Getwd()
+				fmt.Println(dir)
 			} else {
 				err := CD.ChangeDirectory(commandArgs[0])
 				if err != nil {
 					fmt.Println(err)
 				}
+				continue
 			}
 
 		default:
