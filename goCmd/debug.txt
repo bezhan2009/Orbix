@@ -1,0 +1,6 @@
+Command: read ; isSuccess: True;
+Command: gohelp ; isSuccess: True;
+Command: gohelp ; isSuccess: True;
+Command: read ; isSuccess: True;
+Command: remove ; isSuccess: False;
+Command: remove ; isSuccess: False;
