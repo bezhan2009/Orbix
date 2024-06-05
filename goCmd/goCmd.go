@@ -81,7 +81,10 @@ func GoCmd() {
 			fmt.Println("GOCMD              запускает ещё одну GoCMD")
 			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EXIT               Выход")
-			debug.Commands(command, true)
+			errDebug := debug.Commands(command, true)
+			if errDebug != nil {
+				fmt.Println(errDebug)
+			}
 			continue
 		}
 
