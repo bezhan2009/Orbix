@@ -6,6 +6,7 @@ import (
 	"goCmd/commands/CD"
 	"goCmd/commands/Clean"
 	"goCmd/commands/Create"
+	"goCmd/commands/Edit"
 	"goCmd/commands/Read"
 	"goCmd/commands/Remove"
 	"goCmd/commands/Rename"
@@ -80,6 +81,7 @@ func GoCmd() {
 			fmt.Println("SYSTEMINFO         вывод информации о системе")
 			fmt.Println("GOCMD              запускает ещё одну GoCMD")
 			fmt.Println("WRITE              записывает данные в файл")
+			fmt.Println("EDIT               редактирует файл")
 			fmt.Println("EXIT               Выход")
 			errDebug := debug.Commands(command, true)
 			if errDebug != nil {
@@ -88,7 +90,7 @@ func GoCmd() {
 			continue
 		}
 
-		commands := []string{"promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "gohelp", "exit", "gocmd", "clean", "cd"}
+		commands := []string{"promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "gohelp", "exit", "gocmd", "clean", "cd", "edit"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -207,6 +209,17 @@ func GoCmd() {
 					fmt.Println(err)
 				}
 				continue
+			}
+
+		case "edit":
+			if len(commandArgs) < 1 {
+				fmt.Println("Использование: edit <файл>")
+				continue
+			}
+			filename := commandArgs[0]
+			err := Edit.File(filename)
+			if err != nil {
+				fmt.Println(err)
 			}
 
 		default:
