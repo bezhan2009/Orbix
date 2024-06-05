@@ -5,14 +5,14 @@ import (
 	"os"
 )
 
-func BunCommand(command string) {
+func UserGoCMD(command string, intentionallyBan bool) bool {
 	isFile := utils.BunGoCMD(command)
 
-	if isFile {
-		_, err := os.Open("bunnedCommand.json")
+	if isFile || intentionallyBan {
+		os.Create("security/block/bun/component/bunnedUser.json")
 
-		if err != nil {
-			os.Create("bunnedCommand.json")
-		}
+		isFile = true
 	}
+
+	return isFile
 }

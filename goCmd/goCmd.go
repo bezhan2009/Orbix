@@ -19,6 +19,8 @@ import (
 )
 
 func GoCmd() {
+	//attempt := 0
+
 	utils.SystemInformation()
 	isWorking := true
 	reader := bufio.NewReader(os.Stdin)
@@ -26,6 +28,11 @@ func GoCmd() {
 	prompt := ""
 
 	for isWorking {
+		if utils.IsHidden() {
+			fmt.Println("You are BLOCKED!!!")
+			return
+		}
+
 		dir, _ := os.Getwd()
 		if prompt != "" {
 			fmt.Printf("\n%s", prompt)
@@ -45,6 +52,18 @@ func GoCmd() {
 		command := commandParts[0]
 		commandArgs := commandParts[1:]
 		commandLower := strings.ToLower(command)
+
+		//isBanned := bun.UserGoCMD(command, true)
+		//fmt.Println(isBanned)
+		//
+		//if isBanned {
+		//	if attempt > 3 {
+		//		bun.UserGoCMD(command, true)
+		//		commandLower = "exit"
+		//	} else {
+		//		attempt += 1
+		//	}
+		//}
 
 		if commandLower == "prompt" {
 			if len(commandArgs) < 1 {
