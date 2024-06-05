@@ -20,6 +20,7 @@ func File(filename string) error {
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
+
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("error reading file: %v", err)
 	}
@@ -53,6 +54,7 @@ func File(filename string) error {
 			return fmt.Errorf("error writing to file: %v", err)
 		}
 	}
+
 	writer.Flush()
 
 	return nil
