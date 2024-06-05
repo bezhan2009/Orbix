@@ -7,3 +7,4 @@ Command: read ; isSuccess: True;
 Command: read ; isSuccess: True;
 Command: read ; isSuccess: True;
 Command: gohelp ; isSuccess: True;
+Command: gohelp ; isSuccess: True;
