@@ -1,7 +1,7 @@
 package debug
 
 import (
-	"goCmd/commands/Write"
+	"goCmd/commands/Write/utils"
 	"os"
 )
 
@@ -27,7 +27,7 @@ func Commands(command string, isSuccess bool) error {
 		dataCommands += "False;\n"
 	}
 
-	errWriteDebug := Write.File("debug.txt", dataCommands)
+	errWriteDebug := utils.WriteFile("debug.txt", dataCommands)
 
 	if errWriteDebug != nil {
 		return errWriteDebug

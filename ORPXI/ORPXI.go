@@ -156,31 +156,7 @@ func CMD() {
 			}
 
 		case "write":
-			if len(commandArgs) < 2 {
-				fmt.Println("Использование: write <файл> <данные>")
-				continue
-			}
-
-			nameFileForWrite := commandArgs[0]
-
-			data := strings.Join(commandArgs[1:], " ")
-
-			if nameFileForWrite == "debug.txt" {
-				debug.Commands(command, false)
-				fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
-				continue
-			}
-
-			errWriting := Write.File(nameFileForWrite, data+"\n")
-
-			if errWriting != nil {
-				debug.Commands(command, false)
-				fmt.Println(errWriting)
-			} else {
-				debug.Commands(command, true)
-				fmt.Printf("Мы успешно записали данные в файл %s\n", nameFileForWrite)
-			}
-
+			Write.File(commandLower, commandArgs)
 		case "read":
 			if len(commandArgs) < 1 {
 				fmt.Println("Использование: read <файл>")

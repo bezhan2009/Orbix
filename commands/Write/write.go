@@ -1,25 +1,35 @@
 package Write
 
 import (
-	"goCmd/commands/Read"
-	"os"
+	"fmt"
+	"goCmd/commands/Write/utils"
+	"goCmd/debug"
+	"strings"
 )
 
-func File(name string, data string) error {
-	errOpening := IsExists(name)
-	if errOpening != nil {
-		return errOpening
+func File(command string, commandArgs []string) {
+	if len(commandArgs) < 2 {
+		fmt.Println("Использование: write <файл> <данные>")
+		return
 	}
 
-	oldData, errReadFile := Read.File(name)
+	nameFileForWrite := commandArgs[0]
 
-	var err error
-	if errReadFile == nil {
-		oldData = append(oldData, []byte(data)...)
-		err = os.WriteFile(name, oldData, 0666)
+	data := strings.Join(commandArgs[1:], " ")
+
+	if nameFileForWrite == "debug.txt" {
+		debug.Commands(command, false)
+		fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
+		return
+	}
+
+	errWriting := utils.WriteFile(nameFileForWrite, data+"\n")
+
+	if errWriting != nil {
+		debug.Commands(command, false)
+		fmt.Println(errWriting)
 	} else {
-		return err
+		debug.Commands(command, true)
+		fmt.Printf("Мы успешно записали данные в файл %s\n", nameFileForWrite)
 	}
-
-	return err
 }
