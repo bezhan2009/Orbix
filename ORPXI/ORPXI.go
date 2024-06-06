@@ -9,6 +9,7 @@ import (
 	"goCmd/commands/commandsWithSignaiture/Remove"
 	"goCmd/commands/commandsWithSignaiture/Rename"
 	"goCmd/commands/commandsWithSignaiture/Write"
+	"goCmd/commands/commandsWithSignaiture/newShablon"
 	"goCmd/commands/commandsWithoutSignature/CD"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/debug"
@@ -93,11 +94,13 @@ func CMD() {
 			fmt.Println("CREATE             создает новый файл")
 			fmt.Println("CLEAN              очистка экрана")
 			fmt.Println("CD                 смена текущего каталога")
+			fmt.Println("NEWSHABLON         создает новый шаблон комманд для выполнения")
 			fmt.Println("REMOVE             удаляет файл")
 			fmt.Println("READ               выводит на экран содержимое файла")
 			fmt.Println("PROMPT             Изменяет ORPXI.")
 			fmt.Println("PASSWORD           пароль для ORPXI.")
 			fmt.Println("ORPXI              запускает ещё одну ORPXI")
+			fmt.Println("SHABLON            выполняет определенный шаблон комманд")
 			fmt.Println("SYSTEMGOCMD        вывод информации о ORPXI")
 			fmt.Println("SYSTEMINFO         вывод информации о системе")
 			fmt.Println("TREE               Графически отображает структуру каталогов диска или пути.")
@@ -112,7 +115,7 @@ func CMD() {
 			continue
 		}
 
-		commands := []string{"password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "orpxihelp", "exit", "orpxi", "clean", "cd", "edit"}
+		commands := []string{"newshablon", "shablon", "password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "orpxihelp", "exit", "orpxi", "clean", "cd", "edit"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -134,6 +137,8 @@ func CMD() {
 		}
 
 		switch commandLower {
+		case "newshablon":
+			newShablon.Make()
 		case "password":
 			Password()
 
