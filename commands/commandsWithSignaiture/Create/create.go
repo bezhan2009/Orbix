@@ -5,26 +5,27 @@ import (
 	"goCmd/commands/commandsWithSignaiture/Create/utils"
 )
 
-func File() (error, string) {
+func File() (string, error) {
 	var name string
 	fmt.Print("Введите названия для файла:")
 	fmt.Scan(&name)
 
 	if name == "debug.txt" {
-		panic("PermissionDenied: You cannot write, delete or create a debug.txt file")
+		fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
+		return name, nil
 	}
 
-	errExisting := IsExists(name)
+	errExisting := utils.IsExists(name)
 
 	if errExisting == nil {
-		return errExisting, name
+		return name, errExisting
 	}
 
 	name, err := utils.CreateFile(name)
 
 	if err != nil {
-		return err, name
+		return name, err
 	} else {
-		return nil, name
+		return name, err
 	}
 }

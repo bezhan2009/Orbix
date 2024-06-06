@@ -97,12 +97,14 @@ func CMD() {
 			fmt.Println("READ               выводит на экран содержимое файла")
 			fmt.Println("PROMPT             Изменяет ORPXI.")
 			fmt.Println("PASSWORD           пароль для ORPXI.")
+			fmt.Println("ORPXI              запускает ещё одну ORPXI")
 			fmt.Println("SYSTEMGOCMD        вывод информации о ORPXI")
 			fmt.Println("SYSTEMINFO         вывод информации о системе")
-			fmt.Println("ORPXICMD           запускает ещё одну ORPXI")
+			fmt.Println("TREE               Графически отображает структуру каталогов диска или пути.")
 			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EDIT               редактирует файл")
 			fmt.Println("EXIT               Выход")
+
 			errDebug := debug.Commands(command, true)
 			if errDebug != nil {
 				fmt.Println(errDebug)
@@ -110,7 +112,7 @@ func CMD() {
 			continue
 		}
 
-		commands := []string{"password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "orpxihelp", "exit", "orpxicmd", "clean", "cd", "edit"}
+		commands := []string{"password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "orpxihelp", "exit", "orpxi", "clean", "cd", "edit"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -138,7 +140,7 @@ func CMD() {
 		case "systemgocmd":
 			utils.SystemInformation()
 
-		case "gocmd":
+		case "orpxi":
 			CMD()
 
 		case "exit":
@@ -154,10 +156,13 @@ func CMD() {
 				fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
 				debug.Commands(command, true)
 			}
+
 		case "write":
 			Write.File(commandLower, commandArgs)
+
 		case "read":
 			Read.File(commandLower, commandArgs)
+
 		case "remove":
 			name, err := Remove.File(commandArgs)
 			if err != nil {

@@ -16,6 +16,7 @@ func File(commandArgs []string) (string, error) {
 
 	if name == "debug.txt" {
 		fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
+		return name, nil
 	}
 
 	errExisting := utils.IsExists(name)

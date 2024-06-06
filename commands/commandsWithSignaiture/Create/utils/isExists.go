@@ -1,4 +1,4 @@
-package Create
+package utils
 
 import "os"
 
