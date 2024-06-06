@@ -3,6 +3,7 @@ package ORPXI
 import (
 	"bufio"
 	"fmt"
+	"goCmd/commands/Create/utils"
 	"goCmd/validators"
 	"os"
 )
@@ -33,9 +34,11 @@ func Password() {
 
 	fmt.Println("Your password(file):", password)
 
-	_, err := os.Create(password)
+	password, err := utils.CreateFile(password)
+
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	err = os.WriteFile(password, []byte(*passwordByte), os.ModePerm)

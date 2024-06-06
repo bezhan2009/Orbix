@@ -6,6 +6,11 @@ import (
 )
 
 func File(name string, data string) error {
+	errOpening := IsExists(name)
+	if errOpening != nil {
+		return errOpening
+	}
+
 	oldData, errReadFile := Read.File(name)
 
 	var err error
