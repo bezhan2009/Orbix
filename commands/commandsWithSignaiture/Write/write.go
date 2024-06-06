@@ -2,7 +2,7 @@ package Write
 
 import (
 	"fmt"
-	"goCmd/commands/Write/utils"
+	"goCmd/commands/commandsWithSignaiture/Write/utils"
 	"goCmd/debug"
 	"strings"
 )

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"goCmd/commands/Read/utils"
+	"goCmd/commands/commandsWithSignaiture/Read/utils"
 	"os"
 )
 

@@ -1,7 +1,7 @@
 package debug
 
 import (
-	"goCmd/commands/Write/utils"
+	"goCmd/commands/commandsWithSignaiture/Write/utils"
 	"os"
 )
 
