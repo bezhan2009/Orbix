@@ -3,12 +3,12 @@ package ORPXI
 import (
 	"bufio"
 	"fmt"
-	"goCmd/commands/Create"
-	"goCmd/commands/Edit"
-	"goCmd/commands/Read"
-	"goCmd/commands/Remove"
-	"goCmd/commands/Rename"
-	"goCmd/commands/Write"
+	"goCmd/commands/commandsWithSignaiture/Create"
+	"goCmd/commands/commandsWithSignaiture/Edit"
+	"goCmd/commands/commandsWithSignaiture/Read"
+	"goCmd/commands/commandsWithSignaiture/Remove"
+	"goCmd/commands/commandsWithSignaiture/Rename"
+	"goCmd/commands/commandsWithSignaiture/Write"
 	"goCmd/commands/commandsWithoutSignature/CD"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/debug"
@@ -159,7 +159,7 @@ func CMD() {
 		case "read":
 			Read.File(commandLower, commandArgs)
 		case "remove":
-			err, name := Remove.File()
+			err, name := Remove.File(commandArgs)
 			if err != nil {
 				debug.Commands(command, false)
 				fmt.Println(err)
@@ -169,7 +169,7 @@ func CMD() {
 			}
 
 		case "rename":
-			errRename := Rename.Rename()
+			errRename := Rename.Rename(commandArgs)
 			if errRename != nil {
 				debug.Commands(command, false)
 				fmt.Println(errRename)

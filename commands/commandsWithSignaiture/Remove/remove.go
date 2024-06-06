@@ -5,10 +5,14 @@ import (
 	"os"
 )
 
-func File() (error, string) {
+func File(commandArgs []string) (error, string) {
+	if len(commandArgs) < 1 {
+		fmt.Println("Использования: remove <файл>")
+	}
+
 	var name string
-	fmt.Print("Введите названия файла для удаления:")
-	fmt.Scan(&name)
+
+	name = commandArgs[0]
 
 	if name == "debug.txt" {
 		fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
