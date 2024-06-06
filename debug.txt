@@ -19,3 +19,6 @@ Command: create ; isSuccess: True;
 Command: create ; isSuccess: False;
 Command: orpxihelp ; isSuccess: True;
 Command: read ; isSuccess: True;
+Command: orpxihelp ; isSuccess: True;
+Command: help ; isSuccess: True;
+Command: help ; isSuccess: True;

@@ -3,6 +3,7 @@ package ORPXI
 import (
 	"bufio"
 	"fmt"
+	"goCmd/cmdPress"
 	"goCmd/commands/commandsWithSignaiture/Create"
 	"goCmd/commands/commandsWithSignaiture/Edit"
 	"goCmd/commands/commandsWithSignaiture/Read"
@@ -24,6 +25,7 @@ func CMD() {
 
 	utils.SystemInformation()
 	isWorking := true
+	counterORPXI := 1
 	reader := bufio.NewReader(os.Stdin)
 
 	prompt := ""
@@ -35,10 +37,14 @@ func CMD() {
 		}
 
 		dir, _ := os.Getwd()
+		dirC := cmdPress.CmdDir(dir)
+		user := cmdPress.CmdUser(dir)
+
 		if prompt != "" {
 			fmt.Printf("\n%s", prompt)
 		} else {
-			fmt.Printf("\nORPXI %s>", dir)
+			fmt.Printf("\n┌─(ORPXI %s)-[~%s]\n", user, dirC)
+			fmt.Printf("└─$ ")
 		}
 
 		commandLine, _ := reader.ReadString('\n')
@@ -89,7 +95,7 @@ func CMD() {
 			continue
 		}
 
-		if commandLower == "orpxihelp" {
+		if commandLower == "help" {
 			fmt.Println("Для получения сведений об командах наберите ORPXIHELP")
 			fmt.Println("CREATE             создает новый файл")
 			fmt.Println("CLEAN              очистка экрана")
@@ -115,7 +121,11 @@ func CMD() {
 			continue
 		}
 
-		commands := []string{"newshablon", "shablon", "password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "orpxihelp", "exit", "orpxi", "clean", "cd", "edit"}
+		if commandLower == "help" {
+			continue
+		}
+
+		commands := []string{"newshablon", "shablon", "password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -146,6 +156,7 @@ func CMD() {
 			utils.SystemInformation()
 
 		case "orpxi":
+			counterORPXI += 1
 			CMD()
 
 		case "exit":
