@@ -2,10 +2,10 @@ package Remove
 
 import (
 	"fmt"
-	"os"
+	"goCmd/commands/commandsWithSignaiture/Remove/utils"
 )
 
-func File(commandArgs []string) (error, string) {
+func File(commandArgs []string) (string, error) {
 	if len(commandArgs) < 1 {
 		fmt.Println("Использования: remove <файл>")
 	}
@@ -18,16 +18,11 @@ func File(commandArgs []string) (error, string) {
 		fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
 	}
 
-	errExisting := IsExists(name)
+	errExisting := utils.IsExists(name)
 
 	if errExisting != nil {
-		return errExisting, name
+		return name, errExisting
 	}
 
-	err := os.Remove(name)
-	if err != nil {
-		return err, name
-	} else {
-		return nil, name
-	}
+	return utils.RemoveFile(name)
 }

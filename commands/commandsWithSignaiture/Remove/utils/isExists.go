@@ -1,4 +1,4 @@
-package Remove
+package utils
 
 import "os"
 

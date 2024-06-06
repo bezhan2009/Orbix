@@ -159,7 +159,7 @@ func CMD() {
 		case "read":
 			Read.File(commandLower, commandArgs)
 		case "remove":
-			err, name := Remove.File(commandArgs)
+			name, err := Remove.File(commandArgs)
 			if err != nil {
 				debug.Commands(command, false)
 				fmt.Println(err)

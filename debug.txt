@@ -10,3 +10,5 @@ Command: gohelp ; isSuccess: True;
 Command: gohelp ; isSuccess: True;
 Command: gohelp ; isSuccess: True;
 Command: gohelp ; isSuccess: True;
+Command: rename ; isSuccess: True;
+Command: read ; isSuccess: True;
