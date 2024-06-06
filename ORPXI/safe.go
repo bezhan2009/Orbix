@@ -1,16 +1,22 @@
 package ORPXI
 
 import (
+	"bufio"
 	"fmt"
 	"goCmd/validators"
 	"os"
 )
 
 func Password() {
+	reader := bufio.NewReader(os.Stdin)
+
 	var password string
 	var passwordByte *string
-	fmt.Println("Enter Password: ")
-	fmt.Scan(password)
+
+	fmt.Print("Enter Password: ")
+
+	password, _ = reader.ReadString('\n')
+
 	isValid := validators.Password(password)
 
 	if isValid {
@@ -21,11 +27,21 @@ func Password() {
 	}
 
 	Copy(password, passwordByte)
+
 	bytes := []byte(password)
 	password = string(bytes)
+
 	fmt.Println("Your password(file):", password)
-	os.Create(password)
-	os.WriteFile(password, []byte(*passwordByte), os.ModePerm)
+
+	_, err := os.Create(password)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = os.WriteFile(password, []byte(*passwordByte), os.ModePerm)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func Copy(origin string, dest *string) {

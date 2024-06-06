@@ -2,7 +2,7 @@ package Create
 
 import (
 	"fmt"
-	"os"
+	"goCmd/commands/Create/utils"
 )
 
 func File() (error, string) {
@@ -20,14 +20,11 @@ func File() (error, string) {
 		return errExisting, name
 	}
 
-	if name == "" {
-		panic("NameError: Name cannot be empty!!!")
+	name, err := utils.CreateFile(name)
+
+	if err != nil {
+		return err, name
 	} else {
-		_, err := os.Create(name)
-		if err != nil {
-			return err, name
-		} else {
-			return nil, name
-		}
+		return nil, name
 	}
 }

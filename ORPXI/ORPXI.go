@@ -134,6 +134,7 @@ func CMD() {
 		switch commandLower {
 		case "password":
 			Password()
+
 		case "systemgocmd":
 			utils.SystemInformation()
 

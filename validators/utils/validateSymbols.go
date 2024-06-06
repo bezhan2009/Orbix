@@ -1,4 +1,4 @@
-package validators
+package utils
 
 func GetValidateSymbols() []string {
 	return []string{"/", "*", "-", "+", "=", "_", "{", "}", "'", "\"", "[", "]", ";", ":", "#", "@", "!", "№", ",", ".", "$", "%", "^", "&", "?", "(", ")", "`"}
