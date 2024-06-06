@@ -147,11 +147,11 @@ func CMD() {
 			isWorking = false
 
 		case "create":
-			err, name := Create.File()
+			name, err := Create.File(commandArgs)
 			if err != nil {
 				fmt.Println(err)
 				debug.Commands(command, false)
-			} else {
+			} else if name != "" {
 				fmt.Printf("Файл %s успешно создан!!!\n", name)
 				fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
 				debug.Commands(command, true)
