@@ -3,6 +3,7 @@ package ORPXI
 import (
 	"bufio"
 	"fmt"
+	"github.com/fatih/color"
 	"goCmd/cmdPress"
 	"goCmd/commands/commandsWithSignaiture/Create"
 	"goCmd/commands/commandsWithSignaiture/Edit"
@@ -15,13 +16,13 @@ import (
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/debug"
 	"goCmd/utils"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 func CMD() {
-
 	utils.SystemInformation()
 	isWorking := true
 	counterORPXI := 1
@@ -35,6 +36,9 @@ func CMD() {
 			return
 		}
 
+		cyan := color.New(color.FgCyan).SprintFunc()
+		green := color.New(color.FgGreen).SprintFunc()
+
 		dir, _ := os.Getwd()
 		dirC := cmdPress.CmdDir(dir)
 		user := cmdPress.CmdUser(dir)
@@ -42,12 +46,11 @@ func CMD() {
 		if prompt != "" {
 			fmt.Printf("\n%s", prompt)
 		} else {
-			fmt.Printf("\n┌─(ORPXI %s)-[~%s]\n", user, dirC)
-			fmt.Printf("└─$ ")
+			fmt.Printf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC))
+			fmt.Printf("└─$ %s", green(""))
 		}
 
 		commandLine, _ := reader.ReadString('\n')
-
 		commandLine = strings.TrimSpace(commandLine)
 		commandParts := strings.Fields(commandLine)
 
@@ -58,18 +61,6 @@ func CMD() {
 		command := commandParts[0]
 		commandArgs := commandParts[1:]
 		commandLower := strings.ToLower(command)
-
-		//isBanned := bun.UserGoCMD(command, true)
-		//fmt.Println(isBanned)
-		//
-		//if isBanned {
-		//	if attempt > 3 {
-		//		bun.UserGoCMD(command, true)
-		//		commandLower = "exit"
-		//	} else {
-		//		attempt += 1
-		//	}
-		//}
 
 		if commandLower == "prompt" {
 			if len(commandArgs) < 1 {
@@ -112,6 +103,7 @@ func CMD() {
 			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EDIT               редактирует файл")
 			fmt.Println("EXIT               Выход")
+			fmt.Println("LS                 выводит содержимое каталога")
 
 			errDebug := debug.Commands(command, true)
 			if errDebug != nil {
@@ -124,7 +116,7 @@ func CMD() {
 			continue
 		}
 
-		commands := []string{"newshablon", "shablon", "password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit"}
+		commands := []string{"newshablon", "shablon", "password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -150,17 +142,13 @@ func CMD() {
 			newShablon.Make()
 		case "password":
 			Password()
-
 		case "systemgocmd":
 			utils.SystemInformation()
-
 		case "orpxi":
 			counterORPXI += 1
 			CMD()
-
 		case "exit":
 			isWorking = false
-
 		case "create":
 			name, err := Create.File(commandArgs)
 			if err != nil {
@@ -171,13 +159,10 @@ func CMD() {
 				fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
 				debug.Commands(command, true)
 			}
-
 		case "write":
 			Write.File(commandLower, commandArgs)
-
 		case "read":
 			Read.File(commandLower, commandArgs)
-
 		case "remove":
 			name, err := Remove.File(commandArgs)
 			if err != nil {
@@ -187,7 +172,6 @@ func CMD() {
 				debug.Commands(command, true)
 				fmt.Printf("Файл %s успешно удален!!!\n", name)
 			}
-
 		case "rename":
 			errRename := Rename.Rename(commandArgs)
 			if errRename != nil {
@@ -196,10 +180,8 @@ func CMD() {
 			} else {
 				debug.Commands(command, true)
 			}
-
 		case "clean":
 			Clean.Screen()
-
 		case "cd":
 			if len(commandArgs) == 0 {
 				dir, _ := os.Getwd()
@@ -211,7 +193,6 @@ func CMD() {
 				}
 				continue
 			}
-
 		case "edit":
 			if len(commandArgs) < 1 {
 				fmt.Println("Использование: edit <файл>")
@@ -222,12 +203,28 @@ func CMD() {
 			if err != nil {
 				fmt.Println(err)
 			}
-
+		case "ls":
+			printLS()
 		default:
 			validCommand := utils.ValidCommand(commandLower, commands)
 			if !validCommand {
 				fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
 			}
+		}
+	}
+}
+
+func printLS() {
+	files, err := ioutil.ReadDir(".")
+	if err != nil {
+		fmt.Println("Error reading directory:", err)
+		return
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			fmt.Printf("%s/\t", file.Name())
+		} else {
+			fmt.Print(file.Name(), "\t")
 		}
 	}
 }

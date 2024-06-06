@@ -22,3 +22,6 @@ Command: read ; isSuccess: True;
 Command: orpxihelp ; isSuccess: True;
 Command: help ; isSuccess: True;
 Command: help ; isSuccess: True;
+Command: help ; isSuccess: True;
+Command: help ; isSuccess: True;
+Command: help ; isSuccess: True;
