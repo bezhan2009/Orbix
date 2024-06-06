@@ -3,6 +3,6 @@ package utils
 import "fmt"
 
 func SystemInformation() {
-	fmt.Println("GoCmd [Version 0.03]")
-	fmt.Println("(c) Учебный проект Алиф Академия (Alif Academy), 2024. Все права защищены")
+	fmt.Println("ORPXI [Version 0.04]")
+	fmt.Println("(c) Optimized Resource Planning and eXecution Interface (ORPXI), 2024. Все права защищены")
 }

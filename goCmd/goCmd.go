@@ -37,7 +37,7 @@ func GoCmd() {
 		if prompt != "" {
 			fmt.Printf("\n%s", prompt)
 		} else {
-			fmt.Printf("\n%s>", dir)
+			fmt.Printf("\nORPXI %s>", dir)
 		}
 
 		commandLine, _ := reader.ReadString('\n')
