@@ -5,17 +5,12 @@ import (
 	"os"
 )
 
-func Rename() error {
-	var (
-		oldPath string
-		newPath string
-	)
+func Rename(commandArgs []string) error {
+	if len(commandArgs) < 2 {
+		fmt.Println("Использование: rename <файл> <новое имя для файла>")
+	}
 
-	fmt.Println("Введите старое имя файла:")
-	fmt.Scan(&oldPath)
-	fmt.Println("Введите новое имя файла:")
-	fmt.Scan(&newPath)
-	err := os.Rename(oldPath, newPath)
+	err := os.Rename(commandArgs[0], commandArgs[1])
 	if err == nil {
 		return err
 	} else {

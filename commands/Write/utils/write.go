@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"goCmd/commands/Read"
+	"goCmd/commands/Read/utils"
 	"os"
 )
 
@@ -11,7 +11,7 @@ func WriteFile(name string, data string) error {
 		return errOpening
 	}
 
-	oldData, errReadFile := Read.File(name)
+	oldData, errReadFile := utils.File(name)
 
 	var err error
 	if errReadFile == nil {

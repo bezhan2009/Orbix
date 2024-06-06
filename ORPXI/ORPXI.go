@@ -154,28 +154,10 @@ func CMD() {
 				fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
 				debug.Commands(command, true)
 			}
-
 		case "write":
 			Write.File(commandLower, commandArgs)
 		case "read":
-			if len(commandArgs) < 1 {
-				fmt.Println("Использование: read <файл>")
-				continue
-			}
-			nameFileForRead := commandArgs[0]
-
-			dataRead, errReading := Read.File(nameFileForRead)
-			if errReading != nil {
-				debug.Commands(command, false)
-				fmt.Println(errReading)
-			} else {
-				debug.Commands(command, true)
-				_, errWrite := os.Stdout.Write(dataRead)
-				if errWrite != nil {
-					fmt.Println(errWrite)
-				}
-			}
-
+			Read.File(commandLower, commandArgs)
 		case "remove":
 			err, name := Remove.File()
 			if err != nil {
