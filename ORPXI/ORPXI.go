@@ -88,17 +88,18 @@ func CMD() {
 			continue
 		}
 
-		if commandLower == "gohelp" {
-			fmt.Println("Для получения сведений об командах наберите GOHELP")
+		if commandLower == "orpxihelp" {
+			fmt.Println("Для получения сведений об командах наберите ORPXIHELP")
 			fmt.Println("CREATE             создает новый файл")
 			fmt.Println("CLEAN              очистка экрана")
 			fmt.Println("CD                 смена текущего каталога")
 			fmt.Println("REMOVE             удаляет файл")
 			fmt.Println("READ               выводит на экран содержимое файла")
-			fmt.Println("PROMPT             Изменяет GoCMD.")
-			fmt.Println("SYSTEMGOCMD        вывод информации о GoCMD")
+			fmt.Println("PROMPT             Изменяет ORPXI.")
+			fmt.Println("PASSWORD           пароль для ORPXI.")
+			fmt.Println("SYSTEMGOCMD        вывод информации о ORPXI")
 			fmt.Println("SYSTEMINFO         вывод информации о системе")
-			fmt.Println("GOCMD              запускает ещё одну GoCMD")
+			fmt.Println("ORPXICMD           запускает ещё одну ORPXI")
 			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EDIT               редактирует файл")
 			fmt.Println("EXIT               Выход")
@@ -109,7 +110,7 @@ func CMD() {
 			continue
 		}
 
-		commands := []string{"promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "gohelp", "exit", "gocmd", "clean", "cd", "edit"}
+		commands := []string{"password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "orpxihelp", "exit", "orpxicmd", "clean", "cd", "edit"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -131,6 +132,8 @@ func CMD() {
 		}
 
 		switch commandLower {
+		case "password":
+			Password()
 		case "systemgocmd":
 			utils.SystemInformation()
 
