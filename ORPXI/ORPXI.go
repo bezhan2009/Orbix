@@ -21,7 +21,6 @@ import (
 )
 
 func CMD() {
-	//attempt := 0
 
 	utils.SystemInformation()
 	isWorking := true
