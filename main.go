@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"goCmd/ORPXI"
 	"goCmd/editCMD"
-	"goCmd/goCmd"
 	"goCmd/utils"
 )
 
@@ -15,5 +15,5 @@ func main() {
 
 	editCMD.StartEditing()
 
-	goCmd.GoCmd()
+	ORPXI.CMD()
 }

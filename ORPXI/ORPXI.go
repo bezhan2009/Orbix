@@ -1,4 +1,4 @@
-package goCmd
+package ORPXI
 
 import (
 	"bufio"
@@ -18,7 +18,7 @@ import (
 	"strings"
 )
 
-func GoCmd() {
+func CMD() {
 	//attempt := 0
 
 	utils.SystemInformation()
@@ -135,7 +135,7 @@ func GoCmd() {
 			utils.SystemInformation()
 
 		case "gocmd":
-			GoCmd()
+			CMD()
 
 		case "exit":
 			isWorking = false
