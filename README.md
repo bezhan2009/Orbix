@@ -13,7 +13,7 @@ ORPXI - это альтернативная командная строка, н�
 ## Установка и Запуск
 
 склонируйте репозиторий
-git clone https://github.com/bezhan2009/goCMD.git
+git clone https://github.com/bezhan2009/ORPXI.git
 
 перейдите в ORPXI
 cd ORPXI
