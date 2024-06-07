@@ -3,6 +3,7 @@ package ORPXI
 import (
 	"bufio"
 	"fmt"
+	"github.com/c-bata/go-prompt"
 	"github.com/fatih/color"
 	"goCmd/Network"
 	"goCmd/cmdPress"
@@ -26,6 +27,56 @@ import (
 	"time"
 )
 
+var commands = []string{
+	"whois", "pingview", "traceroute", "extractzip", "signout", "newshablon", "shablon",
+	"newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create",
+	"exit", "orpxi", "clean", "cd", "edit", "ls", "scanport", "dnslookup", "ipinfo", "geoip",
+}
+
+// autoComplete provides suggestions for the command line
+func autoComplete(d prompt.Document) []prompt.Suggest {
+	text := d.TextBeforeCursor()
+	if len(text) == 0 {
+		return []prompt.Suggest{}
+	}
+
+	parts := strings.Split(text, " ")
+	if len(parts) == 1 {
+		// Suggest command names
+		return prompt.FilterHasPrefix(createCommandSuggestions(), text, true)
+	} else {
+		// Suggest file or directory names
+		dir := "."
+		if len(parts) > 2 {
+			dir = strings.Join(parts[:len(parts)-1], " ")
+		}
+		return prompt.FilterHasPrefix(createFileSuggestions(dir), parts[len(parts)-1], true)
+	}
+}
+
+// createCommandSuggestions generates command suggestions
+func createCommandSuggestions() []prompt.Suggest {
+	suggestions := []prompt.Suggest{}
+	for _, cmd := range commands {
+		suggestions = append(suggestions, prompt.Suggest{Text: cmd})
+	}
+	return suggestions
+}
+
+// createFileSuggestions generates file and directory suggestions
+func createFileSuggestions(dir string) []prompt.Suggest {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return []prompt.Suggest{}
+	}
+
+	suggestions := []prompt.Suggest{}
+	for _, file := range files {
+		suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
+	}
+	return suggestions
+}
+
 func animatedPrint(text string) {
 	for _, char := range text {
 		fmt.Print(string(char))
@@ -38,9 +89,8 @@ func CMD(commandInput string) {
 
 	isWorking := true
 	isPermission := true
-	reader := bufio.NewReader(os.Stdin)
 
-	var prompt string
+	var promptText string
 
 	// Проверка пароля
 	isEmpty, err := isPasswordDirectoryEmpty()
@@ -68,8 +118,8 @@ func CMD(commandInput string) {
 		dirC := cmdPress.CmdDir(dir)
 		user := cmdPress.CmdUser(dir)
 
-		if prompt != "" {
-			animatedPrint("\n" + prompt)
+		if promptText != "" {
+			animatedPrint("\n" + promptText)
 		} else {
 			animatedPrint(fmt.Sprintf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC)))
 			animatedPrint(fmt.Sprintf("└─$ %s", green(commandInput)))
@@ -92,7 +142,7 @@ func CMD(commandInput string) {
 			commandArgs = commandParts[1:]
 			commandLower = strings.ToLower(command)
 		} else {
-			commandLine, _ = reader.ReadString('\n')
+			commandLine = prompt.Input("> ", autoComplete)
 			commandLine = strings.TrimSpace(commandLine)
 			commandParts = utils.SplitCommandLine(commandLine)
 
@@ -119,12 +169,12 @@ func CMD(commandInput string) {
 
 			if namePrompt != "delete" {
 				namePrompt = strings.TrimSpace(namePrompt)
-				prompt = namePrompt
-				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", prompt))
+				promptText = namePrompt
+				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", promptText))
 			} else {
-				prompt, _ = os.Getwd()
-				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", prompt))
-				prompt = ""
+				promptText, _ = os.Getwd()
+				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", promptText))
+				promptText = ""
 			}
 
 			continue
@@ -172,8 +222,6 @@ EXIT               Выход
 			continue
 		}
 
-		commands := []string{"whois", "pingview", "tracerout", "extractzip", "signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls", "scanport", "whois", "dnslookup", "ipinfo", "geoip"}
-
 		isValid := utils.ValidCommand(commandLower, commands)
 
 		if !isValid {
@@ -187,14 +235,17 @@ EXIT               Выход
 				fullCommand[0] = fullPath
 				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
+					suggestedCommand := suggestCommand(commandLower)
 					animatedPrint(fmt.Sprintf("Ошибка при запуске команды '%s': %v\n", commandLine, err))
+					if suggestedCommand != "" {
+						animatedPrint(fmt.Sprintf("Возможно, вы имели в виду: %s?\n", suggestedCommand))
+					}
 				}
 			}
 			continue
 		}
 
 		executeCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
-
 	}
 }
 
@@ -346,6 +397,10 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		validCommand := utils.ValidCommand(commandLower, commands)
 		if !validCommand {
 			animatedPrint(fmt.Sprintf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine))
+			suggestedCommand := suggestCommand(commandLower)
+			if suggestedCommand != "" {
+				animatedPrint(fmt.Sprintf("Возможно, вы имели в виду: %s?\n", suggestedCommand))
+			}
 		}
 	}
 }
@@ -373,4 +428,55 @@ func Start(shablonName string) error {
 	}
 
 	return nil
+}
+
+// suggestCommand suggests the most similar command
+func suggestCommand(input string) string {
+	closestMatch := ""
+	closestDistance := len(input)
+
+	for _, cmd := range commands {
+		distance := levenshtein(input, cmd)
+		if distance < closestDistance {
+			closestMatch = cmd
+			closestDistance = distance
+		}
+	}
+
+	if closestDistance < len(input)/2 {
+		return closestMatch
+	}
+
+	return ""
+}
+
+// levenshtein calculates the Levenshtein distance between two strings
+func levenshtein(a, b string) int {
+	if len(a) == 0 {
+		return len(b)
+	}
+	if len(b) == 0 {
+		return len(a)
+	}
+
+	if a[0] == b[0] {
+		return levenshtein(a[1:], b[1:])
+	}
+
+	ins := levenshtein(a, b[1:])
+	del := levenshtein(a[1:], b)
+	sub := levenshtein(a[1:], b[1:])
+
+	return 1 + min(ins, min(del, sub))
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func main() {
+	CMD("")
 }
