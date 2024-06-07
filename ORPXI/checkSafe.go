@@ -1,10 +1,12 @@
 package ORPXI
 
 import (
+	"bufio"
 	"crypto/sha256"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Функция, которая проверяет, есть ли файлы в директории passwords.
@@ -26,9 +28,11 @@ func CheckUser(username string) bool {
 	}
 
 	if !isIt {
+		reader := bufio.NewReader(os.Stdin)
 		var password string
 		fmt.Print("Введите пароль:")
-		fmt.Scan(&password)
+		password, _ = reader.ReadString('\n')
+		password = strings.TrimSpace(password)
 		// Хешируем пароль
 		hash := sha256.New()
 		hash.Write([]byte(password))

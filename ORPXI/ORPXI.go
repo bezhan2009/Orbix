@@ -26,27 +26,41 @@ func CMD() {
 	utils.SystemInformation()
 
 	isWorking := true
-	counterORPXI := 1
 	reader := bufio.NewReader(os.Stdin)
 
-	prompt := ""
+	var prompt string
 
-	for isWorking {
-		if utils.IsHidden() {
-			fmt.Println("You are BLOCKED!!!")
+	// Проверка пароля
+	isEmpty, err := isPasswordDirectoryEmpty()
+	if err != nil {
+		fmt.Println("Ошибка при проверке директории с паролями:", err)
+		return
+	}
+
+	if !isEmpty {
+		//fmt.Print("Введите имя пользователя: ")
+		//username, _ := reader.ReadString('\n')
+		//username = strings.TrimSpace(username)
+		//
+		//fmt.Print("Введите пароль: ")
+		//password, _ := reader.ReadString('\n')
+		//password = strings.TrimSpace(password)
+
+		dir, _ := os.Getwd()
+		user := cmdPress.CmdUser(dir)
+
+		if !CheckUser(user) {
 			return
 		}
+	}
 
+	for isWorking {
 		cyan := color.New(color.FgCyan).SprintFunc()
 		green := color.New(color.FgGreen).SprintFunc()
 
 		dir, _ := os.Getwd()
 		dirC := cmdPress.CmdDir(dir)
 		user := cmdPress.CmdUser(dir)
-
-		if !CheckUser(user) {
-			break
-		}
 
 		if prompt != "" {
 			fmt.Printf("\n%s", prompt)
@@ -57,7 +71,7 @@ func CMD() {
 
 		commandLine, _ := reader.ReadString('\n')
 		commandLine = strings.TrimSpace(commandLine)
-		commandParts := strings.Fields(commandLine)
+		commandParts := splitCommandLine(commandLine)
 
 		if len(commandParts) == 0 {
 			continue
@@ -150,7 +164,6 @@ func CMD() {
 		case "systemgocmd":
 			utils.SystemInformation()
 		case "orpxi":
-			counterORPXI += 1
 			CMD()
 		case "exit":
 			isWorking = false
@@ -232,4 +245,27 @@ func printLS() {
 			fmt.Print(file.Name(), "\t")
 		}
 	}
+}
+
+func splitCommandLine(input string) []string {
+	var result []string
+	var current strings.Builder
+	inQuotes := false
+	for _, r := range input {
+		switch {
+		case r == ' ' && !inQuotes:
+			if current.Len() > 0 {
+				result = append(result, current.String())
+				current.Reset()
+			}
+		case r == '"':
+			inQuotes = !inQuotes
+		default:
+			current.WriteRune(r)
+		}
+	}
+	if current.Len() > 0 {
+		result = append(result, current.String())
+	}
+	return result
 }
