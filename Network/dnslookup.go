@@ -2,16 +2,17 @@ package Network
 
 import (
 	"fmt"
+	"goCmd/utils"
 	"net"
 )
 
 func DNSLookup(domain string) {
 	ips, err := net.LookupIP(domain)
 	if err != nil {
-		fmt.Println("Error resolving DNS:", err)
+		utils.AnimatedPrint(fmt.Sprint("Error resolving DNS:", err))
 		return
 	}
 	for _, ip := range ips {
-		fmt.Printf("%s IN A %s\n", domain, ip.String())
+		utils.AnimatedPrint(fmt.Sprintf("%s IN A %s\n", domain, ip.String()))
 	}
 }

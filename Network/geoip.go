@@ -3,13 +3,14 @@ package Network
 import (
 	"encoding/json"
 	"fmt"
+	"goCmd/utils"
 	"net/http"
 )
 
 func GeoIP(ip string) {
 	resp, err := http.Get("http://ip-api.com/json/" + ip)
 	if err != nil {
-		fmt.Println("Error fetching Geo IP info:", err)
+		utils.AnimatedPrint(fmt.Sprint("Error fetching Geo IP info:", err, "\n"))
 		return
 	}
 	defer resp.Body.Close()
@@ -18,6 +19,6 @@ func GeoIP(ip string) {
 	json.NewDecoder(resp.Body).Decode(&result)
 
 	for key, value := range result {
-		fmt.Printf("%s: %v\n", key, value)
+		utils.AnimatedPrint(fmt.Sprintf("%s: %v\n", key, value))
 	}
 }

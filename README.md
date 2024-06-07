@@ -1,4 +1,3 @@
-
 ## ORPXI - Расширяемая командная строка на Go
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI) 
@@ -10,7 +9,7 @@
 ![GitHub User's stars](https://img.shields.io/github/stars/bezhan2009?style=social)
 
 <p align="left">
-<img src="https://visitor-badge.laobi.icu/badge?page_id=bezhan2009.ORPXI" alt="visitors"/>
+    <img src="https://visitor-badge.laobi.icu/badge?page_id=bezhan2009.ORPXI" alt="visitors"/>
 </p>
 
 Читать на [English](README.eng.md)
@@ -35,9 +34,31 @@ go run .
 
 ### Список доступных команд
 
-```
-gohelp
-```
+- **CREATE**: Создает новый файл.
+- **CLEAN**: Очищает экран.
+- **CD**: Смена текущего каталога.
+- **LS**: Выводит содержимое каталога.
+- **NEWSHABLON**: Создает новый шаблон команд для выполнения.
+- **REMOVE**: Удаляет файл.
+- **READ**: Выводит на экран содержимое файла.
+- **PROMPT**: Изменяет ORPXI.
+- **PINGVIEW**: Показывает пинг.
+- **NEWUSER**: Новый пользователь для ORPXI.
+- **ORPXI**: Запускает еще одну ORPXI.
+- **SHABLON**: Выполняет определенный шаблон команд.
+- **SYSTEMGOCMD**: Вывод информации о ORPXI.
+- **SYSTEMINFO**: Вывод информации о системе.
+- **SIGNOUT**: Пользователь выходит из ORPXI.
+- **TREE**: Графически отображает структуру каталогов диска или пути.
+- **WRITE**: Записывает данные в файл.
+- **EDIT**: Редактирует файл.
+- **EXTRACTZIP**: Распаковывает архивы .zip.
+- **SCANPORT**: Сканирование портов.
+- **WHOIS**: Информация о домене.
+- **DNSLOOKUP**: DNS-запросы.
+- **IPINFO**: Информация об IP-адресе.
+- **GEOIP**: Геолокация IP-адреса.
+- **EXIT**: Выход.
 
 ### Руководство по разработке
 
