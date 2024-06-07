@@ -105,7 +105,7 @@ func CMD() {
 		}
 
 		if commandLower == "help" {
-			fmt.Println("Для получения сведений об командах наберите ORPXIHELP")
+			fmt.Println("Для получения сведений об командах наберите HELP")
 			fmt.Println("CREATE             создает новый файл")
 			fmt.Println("CLEAN              очистка экрана")
 			fmt.Println("CD                 смена текущего каталога")
