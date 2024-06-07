@@ -21,6 +21,7 @@ import (
 	"goCmd/utils"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -128,9 +129,7 @@ func CMD(commandInput string) {
 
 			continue
 		}
-
-		if commandLower == "help" {
-			helpText := `
+		helpText := `
 Для получения сведений об командах наберите HELP
 CREATE             создает новый файл
 CLEAN              очистка экрана
@@ -151,8 +150,15 @@ TREE               Графически отображает структуру 
 WRITE              записывает данные в файл
 EDIT               редактирует файл
 EXTRACTZIP         распаковывает архивы .zip
+SCANPORT           Сканирование портов
+WHOIS              Информация о домене
+DNSLOOKUP          DNS-запросы
+IPINFO             Информация об IP-адресе
+GEOIP              Геолокация IP-адреса
 EXIT               Выход
 `
+
+		if commandLower == "help" {
 			animatedPrint(helpText)
 
 			errDebug := debug.Commands(command, true)
@@ -166,7 +172,7 @@ EXIT               Выход
 			continue
 		}
 
-		commands := []string{"pingview", "tracerout", "extractzip", "signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
+		commands := []string{"pingview", "tracerout", "extractzip", "signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls", "scanport", "whois", "dnslookup", "ipinfo", "geoip"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -205,8 +211,47 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		} else {
 			err := ExtractZip.ExtractZip(commandArgs[0], commandArgs[1])
 			if err != nil {
-				animatedPrint("Error extracting ZIP file: " + err.Error() + "\n")
+				animatedPrint("Error extracting ZIP file:" + err.Error() + "\n")
 			}
+		}
+	case "scanport":
+		if len(commandArgs) < 2 {
+			animatedPrint("Usage: scanport <host> <ports>\n")
+		} else {
+			ports := []int{}
+			for _, p := range commandArgs[1:] {
+				port, err := strconv.Atoi(p)
+				if err != nil {
+					animatedPrint(fmt.Sprintf("Invalid port: %s\n", p))
+					return
+				}
+				ports = append(ports, port)
+			}
+			Network.ScanPort(commandArgs[0], ports)
+		}
+	case "whois":
+		if len(commandArgs) < 1 {
+			animatedPrint("Usage: whois <domain>\n")
+		} else {
+			Network.Whois(commandArgs[0])
+		}
+	case "dnslookup":
+		if len(commandArgs) < 1 {
+			animatedPrint("Usage: dnslookup <domain>\n")
+		} else {
+			Network.DNSLookup(commandArgs[0])
+		}
+	case "ipinfo":
+		if len(commandArgs) < 1 {
+			animatedPrint("Usage: ipinfo <ip>\n")
+		} else {
+			Network.IPInfo(commandArgs[0])
+		}
+	case "geoip":
+		if len(commandArgs) < 1 {
+			animatedPrint("Usage: geoip <ip>\n")
+		} else {
+			Network.GeoIP(commandArgs[0])
 		}
 	case "orpxi":
 		if isPermission {
