@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/fatih/color"
+	"goCmd/Network"
 	"goCmd/cmdPress"
 	"goCmd/commands/commandsWithSignaiture/Create"
 	"goCmd/commands/commandsWithSignaiture/Edit"
+	"goCmd/commands/commandsWithSignaiture/ExtractZip"
 	"goCmd/commands/commandsWithSignaiture/Read"
 	"goCmd/commands/commandsWithSignaiture/Remove"
 	"goCmd/commands/commandsWithSignaiture/Rename"
@@ -151,7 +153,7 @@ func CMD(commandInput string) {
 			continue
 		}
 
-		commands := []string{"signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
+		commands := []string{"pingview", "tracerout", "extractzip", "signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -180,6 +182,19 @@ func CMD(commandInput string) {
 func executeCommand(commandLower string, command string, commandLine string, dir string, commands []string, commandArgs []string, isWorking *bool, isPermission bool) {
 	user := cmdPress.CmdUser(dir)
 	switch commandLower {
+	case "pingview":
+		Network.Ping(commandArgs)
+	case "traceroute":
+		Network.Traceroute(commandArgs)
+	case "extractzip":
+		if len(commandArgs) < 2 {
+			fmt.Println("Usage: extractzip <zipfile> <destination>")
+		} else {
+			err := ExtractZip.ExtractZip(commandArgs[0], commandArgs[1])
+			if err != nil {
+				fmt.Println("Error extracting ZIP file:", err)
+			}
+		}
 	case "orpxi":
 		if isPermission {
 			CMD("")
