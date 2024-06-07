@@ -1,3 +1,4 @@
+
 ## ORPXI - Расширяемая командная строка на Go
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI) 
@@ -11,6 +12,8 @@
 <p align="left">
 <img src="https://visitor-badge.laobi.icu/badge?page_id=bezhan2009.ORPXI" alt="visitors"/>
 </p>
+
+Читать на [English](README.eng.md)
 
 **ORPXI** - это альтернативная командная строка, написанная на языке программирования Go. Она предоставляет те же основные команды, что и стандартная CMD, но также включает в себя дополнительные команды, специфичные для этого инструмента.
 
