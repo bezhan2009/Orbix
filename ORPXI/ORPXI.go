@@ -33,7 +33,8 @@ var commands = []string{
 	"exit", "orpxi", "clean", "cd", "edit", "ls", "scanport", "dnslookup", "ipinfo", "geoip",
 }
 
-// autoComplete provides suggestions for the command line
+var commandHistory []string
+
 func autoComplete(d prompt.Document) []prompt.Suggest {
 	text := d.TextBeforeCursor()
 	if len(text) == 0 {
@@ -43,7 +44,7 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 	parts := strings.Split(text, " ")
 	if len(parts) == 1 {
 		// Suggest command names
-		return prompt.FilterHasPrefix(createCommandSuggestions(), text, true)
+		return prompt.FilterHasPrefix(createUniqueCommandSuggestions(), text, true)
 	} else {
 		// Suggest file or directory names
 		dir := "."
@@ -54,23 +55,33 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 	}
 }
 
-// createCommandSuggestions generates command suggestions
-func createCommandSuggestions() []prompt.Suggest {
-	suggestions := []prompt.Suggest{}
+func createUniqueCommandSuggestions() []prompt.Suggest {
+	uniqueCommands := make(map[string]struct{})
+	var suggestions []prompt.Suggest
+
 	for _, cmd := range commands {
-		suggestions = append(suggestions, prompt.Suggest{Text: cmd})
+		if _, exists := uniqueCommands[cmd]; !exists {
+			uniqueCommands[cmd] = struct{}{}
+			suggestions = append(suggestions, prompt.Suggest{Text: cmd})
+		}
 	}
+	for _, cmd := range commandHistory {
+		if _, exists := uniqueCommands[cmd]; !exists {
+			uniqueCommands[cmd] = struct{}{}
+			suggestions = append(suggestions, prompt.Suggest{Text: cmd})
+		}
+	}
+
 	return suggestions
 }
 
-// createFileSuggestions generates file and directory suggestions
 func createFileSuggestions(dir string) []prompt.Suggest {
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		return []prompt.Suggest{}
 	}
 
-	suggestions := []prompt.Suggest{}
+	var suggestions []prompt.Suggest
 	for _, file := range files {
 		suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
 	}
@@ -124,11 +135,13 @@ func CMD(commandInput string) {
 			animatedPrint(fmt.Sprintf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC)))
 			animatedPrint(fmt.Sprintf("└─$ %s", green(commandInput)))
 		}
+
 		var commandLine string
 		var commandParts []string
 		var commandArgs []string
 		var commandLower string
 		var command string
+
 		if commandInput != "" {
 			isWorking = false
 			isPermission = false
@@ -154,6 +167,8 @@ func CMD(commandInput string) {
 			commandArgs = commandParts[1:]
 			commandLower = strings.ToLower(command)
 		}
+
+		commandHistory = append(commandHistory, commandLine) // Save to history
 
 		animatedPrint("\n")
 
@@ -218,18 +233,11 @@ EXIT               Выход
 			continue
 		}
 
-		if commandLower == "help" {
-			continue
-		}
-
 		isValid := utils.ValidCommand(commandLower, commands)
 
 		if !isValid {
 			fullCommand := append([]string{command}, commandArgs...)
 			err := utils.ExternalCommand(fullCommand)
-			if commandLower == "help" {
-				continue
-			}
 			if err != nil {
 				fullPath := filepath.Join(dir, command)
 				fullCommand[0] = fullPath
@@ -430,7 +438,6 @@ func Start(shablonName string) error {
 	return nil
 }
 
-// suggestCommand suggests the most similar command
 func suggestCommand(input string) string {
 	closestMatch := ""
 	closestDistance := len(input)
@@ -450,7 +457,6 @@ func suggestCommand(input string) string {
 	return ""
 }
 
-// levenshtein calculates the Levenshtein distance between two strings
 func levenshtein(a, b string) int {
 	if len(a) == 0 {
 		return len(b)
@@ -475,8 +481,4 @@ func min(a, b int) int {
 		return a
 	}
 	return b
-}
-
-func main() {
-	CMD("")
 }

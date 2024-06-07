@@ -8,6 +8,7 @@ import (
 func File(commandArgs []string) (string, error) {
 	if len(commandArgs) < 1 {
 		fmt.Println("Использования: remove <файл>")
+		return "", nil
 	}
 
 	var name string
