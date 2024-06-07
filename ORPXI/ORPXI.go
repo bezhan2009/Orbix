@@ -14,9 +14,9 @@ import (
 	"goCmd/commands/commandsWithSignaiture/newShablon"
 	"goCmd/commands/commandsWithoutSignature/CD"
 	"goCmd/commands/commandsWithoutSignature/Clean"
+	"goCmd/commands/commandsWithoutSignature/Ls"
 	"goCmd/debug"
 	"goCmd/utils"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,7 +71,7 @@ func CMD() {
 
 		commandLine, _ := reader.ReadString('\n')
 		commandLine = strings.TrimSpace(commandLine)
-		commandParts := splitCommandLine(commandLine)
+		commandParts := utils.SplitCommandLine(commandLine)
 
 		if len(commandParts) == 0 {
 			continue
@@ -222,7 +222,7 @@ func CMD() {
 				fmt.Println(err)
 			}
 		case "ls":
-			printLS()
+			Ls.PrintLS()
 		default:
 			validCommand := utils.ValidCommand(commandLower, commands)
 			if !validCommand {
@@ -230,42 +230,4 @@ func CMD() {
 			}
 		}
 	}
-}
-
-func printLS() {
-	files, err := ioutil.ReadDir(".")
-	if err != nil {
-		fmt.Println("Error reading directory:", err)
-		return
-	}
-	for _, file := range files {
-		if file.IsDir() {
-			fmt.Printf("%s/\t", file.Name())
-		} else {
-			fmt.Print(file.Name(), "\t")
-		}
-	}
-}
-
-func splitCommandLine(input string) []string {
-	var result []string
-	var current strings.Builder
-	inQuotes := false
-	for _, r := range input {
-		switch {
-		case r == ' ' && !inQuotes:
-			if current.Len() > 0 {
-				result = append(result, current.String())
-				current.Reset()
-			}
-		case r == '"':
-			inQuotes = !inQuotes
-		default:
-			current.WriteRune(r)
-		}
-	}
-	if current.Len() > 0 {
-		result = append(result, current.String())
-	}
-	return result
 }
