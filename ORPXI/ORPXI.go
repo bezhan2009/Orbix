@@ -131,6 +131,7 @@ func CMD(commandInput string) {
 			fmt.Println("REMOVE             удаляет файл")
 			fmt.Println("READ               выводит на экран содержимое файла")
 			fmt.Println("PROMPT             Изменяет ORPXI.")
+			fmt.Println("PINGVIEW           показывает пинг.")
 			fmt.Println("NEWUSER            новый пользователь для ORPXI.")
 			fmt.Println("ORPXI              запускает ещё одну ORPXI")
 			fmt.Println("SHABLON            выполняет определенный шаблон комманд")
@@ -140,6 +141,7 @@ func CMD(commandInput string) {
 			fmt.Println("TREE               Графически отображает структуру каталогов диска или пути.")
 			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EDIT               редактирует файл")
+			fmt.Println("EXTRACTZIP         распаковывает архивы .zip")
 			fmt.Println("EXIT               Выход")
 
 			errDebug := debug.Commands(command, true)
