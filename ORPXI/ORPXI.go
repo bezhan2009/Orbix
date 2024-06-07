@@ -114,7 +114,7 @@ func CMD() {
 			fmt.Println("REMOVE             удаляет файл")
 			fmt.Println("READ               выводит на экран содержимое файла")
 			fmt.Println("PROMPT             Изменяет ORPXI.")
-			fmt.Println("PASSWORD           пароль для ORPXI.")
+			fmt.Println("NEWUSER            новый пользователь для ORPXI.")
 			fmt.Println("ORPXI              запускает ещё одну ORPXI")
 			fmt.Println("SHABLON            выполняет определенный шаблон комманд")
 			fmt.Println("SYSTEMGOCMD        вывод информации о ORPXI")
@@ -135,7 +135,7 @@ func CMD() {
 			continue
 		}
 
-		commands := []string{"newshablon", "shablon", "password", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
+		commands := []string{"newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -159,7 +159,7 @@ func CMD() {
 		switch commandLower {
 		case "newshablon":
 			newShablon.Make()
-		case "password":
+		case "newuser":
 			Password()
 		case "systemgocmd":
 			utils.SystemInformation()

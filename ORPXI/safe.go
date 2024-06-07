@@ -13,10 +13,12 @@ import (
 
 func Password() {
 	reader := bufio.NewReader(os.Stdin)
-
+	fmt.Print("Enter username: ")
+	username, _ := reader.ReadString('\n')
+	username = strings.TrimSpace(username)
 	fmt.Print("Enter Password: ")
 	password, _ := reader.ReadString('\n')
-	password = strings.TrimSpace(password) // remove newline and any surrounding spaces
+	password = strings.TrimSpace(password)
 
 	isValid := validators.Password(password)
 
@@ -26,9 +28,9 @@ func Password() {
 	}
 
 	// Create the 'passwords' directory if it doesn't exist
-	passwordDir := "passwords"
+	passwordDir := filepath.Join("passwords", username)
 	if _, err := os.Stat(passwordDir); os.IsNotExist(err) {
-		err = os.Mkdir(passwordDir, os.ModePerm)
+		err = os.MkdirAll(passwordDir, os.ModePerm)
 		if err != nil {
 			fmt.Println("Error creating passwords directory:", err)
 			return
@@ -39,8 +41,7 @@ func Password() {
 	hashedPassword := hashPassword(password)
 
 	// Use the hash of the password as the filename
-	filename := hashPassword(password)
-	passwordFilePath := filepath.Join(passwordDir, filename)
+	passwordFilePath := filepath.Join(passwordDir, hashedPassword)
 	err := os.WriteFile(passwordFilePath, []byte(hashedPassword), os.ModePerm)
 	if err != nil {
 		fmt.Println("Error writing to password file:", err)
