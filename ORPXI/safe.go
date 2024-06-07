@@ -11,19 +11,19 @@ import (
 	"strings"
 )
 
-func Password() {
+func NewUser() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter username: ")
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
-	fmt.Print("Enter Password: ")
+	fmt.Print("Enter NewUser: ")
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
 
 	isValid := validators.Password(password)
 
 	if !isValid {
-		fmt.Println("Password is Invalid")
+		fmt.Println("NewUser is Invalid")
 		return
 	}
 

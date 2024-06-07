@@ -22,7 +22,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+func animatedPrint(text string) {
+	for _, char := range text {
+		fmt.Print(string(char))
+		time.Sleep(2 * time.Millisecond)
+	}
+}
 
 func CMD(commandInput string) {
 	utils.SystemInformation()
@@ -36,7 +44,7 @@ func CMD(commandInput string) {
 	// Проверка пароля
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
-		fmt.Println("Ошибка при проверке директории с паролями:", err)
+		animatedPrint("Ошибка при проверке директории с паролями:" + err.Error() + "\n")
 		return
 	}
 
@@ -60,10 +68,10 @@ func CMD(commandInput string) {
 		user := cmdPress.CmdUser(dir)
 
 		if prompt != "" {
-			fmt.Printf("\n%s", prompt)
+			animatedPrint("\n" + prompt)
 		} else {
-			fmt.Printf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC))
-			fmt.Printf("└─$ %s", green(commandInput))
+			animatedPrint(fmt.Sprintf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC)))
+			animatedPrint(fmt.Sprintf("└─$ %s", green(commandInput)))
 		}
 		var commandLine string
 		var commandParts []string
@@ -96,13 +104,13 @@ func CMD(commandInput string) {
 			commandLower = strings.ToLower(command)
 		}
 
-		fmt.Println()
+		animatedPrint("\n")
 
 		if commandLower == "prompt" {
 			if len(commandArgs) < 1 {
-				fmt.Println("prompt <name_prompt>")
-				fmt.Println("to delete prompt enter:")
-				fmt.Println("prompt delete")
+				animatedPrint("prompt <name_prompt>\n")
+				animatedPrint("to delete prompt enter:\n")
+				animatedPrint("prompt delete\n")
 				continue
 			}
 
@@ -111,10 +119,10 @@ func CMD(commandInput string) {
 			if namePrompt != "delete" {
 				namePrompt = strings.TrimSpace(namePrompt)
 				prompt = namePrompt
-				fmt.Printf("Prompt set to: %s\n", prompt)
+				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", prompt))
 			} else {
 				prompt, _ = os.Getwd()
-				fmt.Printf("Prompt set to: %s\n", prompt)
+				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", prompt))
 				prompt = ""
 			}
 
@@ -122,31 +130,34 @@ func CMD(commandInput string) {
 		}
 
 		if commandLower == "help" {
-			fmt.Println("Для получения сведений об командах наберите HELP")
-			fmt.Println("CREATE             создает новый файл")
-			fmt.Println("CLEAN              очистка экрана")
-			fmt.Println("CD                 смена текущего каталога")
-			fmt.Println("LS                 выводит содержимое каталога")
-			fmt.Println("NEWSHABLON         создает новый шаблон комманд для выполнения")
-			fmt.Println("REMOVE             удаляет файл")
-			fmt.Println("READ               выводит на экран содержимое файла")
-			fmt.Println("PROMPT             Изменяет ORPXI.")
-			fmt.Println("PINGVIEW           показывает пинг.")
-			fmt.Println("NEWUSER            новый пользователь для ORPXI.")
-			fmt.Println("ORPXI              запускает ещё одну ORPXI")
-			fmt.Println("SHABLON            выполняет определенный шаблон комманд")
-			fmt.Println("SYSTEMGOCMD        вывод информации о ORPXI")
-			fmt.Println("SYSTEMINFO         вывод информации о системе")
-			fmt.Println("SIGNOUT            пользователь выходит из ORPXI")
-			fmt.Println("TREE               Графически отображает структуру каталогов диска или пути.")
-			fmt.Println("WRITE              записывает данные в файл")
-			fmt.Println("EDIT               редактирует файл")
-			fmt.Println("EXTRACTZIP         распаковывает архивы .zip")
-			fmt.Println("EXIT               Выход")
+			helpText := `
+Для получения сведений об командах наберите HELP
+CREATE             создает новый файл
+CLEAN              очистка экрана
+CD                 смена текущего каталога
+LS                 выводит содержимое каталога
+NEWSHABLON         создает новый шаблон комманд для выполнения
+REMOVE             удаляет файл
+READ               выводит на экран содержимое файла
+PROMPT             Изменяет ORPXI.
+PINGVIEW           показывает пинг.
+NEWUSER            новый пользователь для ORPXI.
+ORPXI              запускает ещё одну ORPXI
+SHABLON            выполняет определенный шаблон комманд
+SYSTEMGOCMD        вывод информации о ORPXI
+SYSTEMINFO         вывод информации о системе
+SIGNOUT            пользователь выходит из ORPXI
+TREE               Графически отображает структуру каталогов диска или пути.
+WRITE              записывает данные в файл
+EDIT               редактирует файл
+EXTRACTZIP         распаковывает архивы .zip
+EXIT               Выход
+`
+			animatedPrint(helpText)
 
 			errDebug := debug.Commands(command, true)
 			if errDebug != nil {
-				fmt.Println(errDebug)
+				animatedPrint(errDebug.Error() + "\n")
 			}
 			continue
 		}
@@ -170,7 +181,7 @@ func CMD(commandInput string) {
 				fullCommand[0] = fullPath
 				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
-					fmt.Printf("Ошибка при запуске команды '%s': %v\n", commandLine, err)
+					animatedPrint(fmt.Sprintf("Ошибка при запуске команды '%s': %v\n", commandLine, err))
 				}
 			}
 			continue
@@ -190,20 +201,20 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		Network.Traceroute(commandArgs)
 	case "extractzip":
 		if len(commandArgs) < 2 {
-			fmt.Println("Usage: extractzip <zipfile> <destination>")
+			animatedPrint("Usage: extractzip <zipfile> <destination>\n")
 		} else {
 			err := ExtractZip.ExtractZip(commandArgs[0], commandArgs[1])
 			if err != nil {
-				fmt.Println("Error extracting ZIP file:", err)
+				animatedPrint("Error extracting ZIP file: " + err.Error() + "\n")
 			}
 		}
 	case "orpxi":
 		if isPermission {
 			CMD("")
 		}
-	case "password":
+	case "newuser":
 		if isPermission {
-			Password()
+			NewUser()
 		}
 	case "signout":
 		if isPermission {
@@ -215,14 +226,14 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		shablon.Make()
 	case "shablon":
 		if len(commandArgs) < 1 {
-			fmt.Println("Использования: shablon <названия_шаблона>")
+			animatedPrint("Использования: shablon <названия_шаблона>\n")
 			return
 		}
 
 		nameShablon := commandArgs[0]
 		err := Start(nameShablon)
 		if err != nil {
-			fmt.Println(err)
+			animatedPrint(err.Error() + "\n")
 		}
 	case "systemgocmd":
 		utils.SystemInformation()
@@ -233,11 +244,11 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 	case "create":
 		name, err := Create.File(commandArgs)
 		if err != nil {
-			fmt.Println(err)
+			animatedPrint(err.Error() + "\n")
 			debug.Commands(command, false)
 		} else if name != "" {
-			fmt.Printf("Файл %s успешно создан!!!\n", name)
-			fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
+			animatedPrint(fmt.Sprintf("Файл %s успешно создан!!!\n", name))
+			animatedPrint(fmt.Sprintf("Директория нового файла: %s\n", filepath.Join(dir, name)))
 			debug.Commands(command, true)
 		}
 	case "write":
@@ -248,16 +259,16 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		name, err := Remove.File(commandArgs)
 		if err != nil {
 			debug.Commands(command, false)
-			fmt.Println(err)
+			animatedPrint(err.Error() + "\n")
 		} else {
 			debug.Commands(command, true)
-			fmt.Printf("Файл %s успешно удален!!!\n", name)
+			animatedPrint(fmt.Sprintf("Файл %s успешно удален!!!\n", name))
 		}
 	case "rename":
 		errRename := Rename.Rename(commandArgs)
 		if errRename != nil {
 			debug.Commands(command, false)
-			fmt.Println(errRename)
+			animatedPrint(errRename.Error() + "\n")
 		} else {
 			debug.Commands(command, true)
 		}
@@ -266,30 +277,30 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 	case "cd":
 		if len(commandArgs) == 0 {
 			dir, _ := os.Getwd()
-			fmt.Println(dir)
+			animatedPrint(dir + "\n")
 		} else {
 			err := CD.ChangeDirectory(commandArgs[0])
 			if err != nil {
-				fmt.Println(err)
+				animatedPrint(err.Error() + "\n")
 			}
 			return
 		}
 	case "edit":
 		if len(commandArgs) < 1 {
-			fmt.Println("Использование: edit <файл>")
+			animatedPrint("Использование: edit <файл>\n")
 			return
 		}
 		filename := commandArgs[0]
 		err := Edit.File(filename)
 		if err != nil {
-			fmt.Println(err)
+			animatedPrint(err.Error() + "\n")
 		}
 	case "ls":
 		Ls.PrintLS()
 	default:
 		validCommand := utils.ValidCommand(commandLower, commands)
 		if !validCommand {
-			fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
+			animatedPrint(fmt.Sprintf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine))
 		}
 	}
 }

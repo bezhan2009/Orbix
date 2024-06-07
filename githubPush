@@ -1,3 +1,3 @@
 git add .
-git commit -m "fix files"
+git commit -m "fix commands and add animated print"
 git push origin main
