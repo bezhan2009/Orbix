@@ -210,7 +210,9 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 	case "systemgocmd":
 		utils.SystemInformation()
 	case "exit":
-		*isWorking = false
+		if isPermission {
+			*isWorking = false
+		}
 	case "create":
 		name, err := Create.File(commandArgs)
 		if err != nil {
