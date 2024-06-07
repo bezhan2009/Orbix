@@ -4,3 +4,6 @@ Command: gohelp ; isSuccess: True;
 Command: read ; isSuccess: True;
 Command: remove ; isSuccess: False;
 Command: remove ; isSuccess: False;
+Command: read ; isSuccess: True;
+Command: read ; isSuccess: False;
+Command: read ; isSuccess: True;

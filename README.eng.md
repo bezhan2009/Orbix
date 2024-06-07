@@ -12,7 +12,7 @@
     <img src="https://visitor-badge.laobi.icu/badge?page_id=bezhan2009.ORPXI" alt="visitors"/>
 </p>
 
-Read in [Russian](README.md)
+Read in [Русский](README.md)
 
 **ORPXI** is an alternative command line interface written in the Go programming language. It provides the same basic commands as the standard CMD, but also includes additional commands specific to this tool.
 

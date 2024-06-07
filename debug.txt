@@ -66,3 +66,4 @@ Command: read ; isSuccess: True;
 Command: read ; isSuccess: True;
 Command: help ; isSuccess: True;
 Command: help ; isSuccess: True;
+Command: help ; isSuccess: True;
