@@ -172,7 +172,7 @@ EXIT               Выход
 			continue
 		}
 
-		commands := []string{"pingview", "tracerout", "extractzip", "signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls", "scanport", "whois", "dnslookup", "ipinfo", "geoip"}
+		commands := []string{"whois", "pingview", "tracerout", "extractzip", "signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls", "scanport", "whois", "dnslookup", "ipinfo", "geoip"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
