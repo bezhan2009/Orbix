@@ -134,6 +134,7 @@ func CMD(commandInput string) {
 			fmt.Println("SHABLON            выполняет определенный шаблон комманд")
 			fmt.Println("SYSTEMGOCMD        вывод информации о ORPXI")
 			fmt.Println("SYSTEMINFO         вывод информации о системе")
+			fmt.Println("SIGNOUT            пользователь выходит из ORPXI")
 			fmt.Println("TREE               Графически отображает структуру каталогов диска или пути.")
 			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EDIT               редактирует файл")
@@ -150,7 +151,7 @@ func CMD(commandInput string) {
 			continue
 		}
 
-		commands := []string{"newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
+		commands := []string{"signout", "newshablon", "shablon", "newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create", "exit", "orpxi", "clean", "cd", "edit", "ls"}
 
 		isValid := utils.ValidCommand(commandLower, commands)
 
@@ -177,7 +178,6 @@ func CMD(commandInput string) {
 }
 
 func executeCommand(commandLower string, command string, commandLine string, dir string, commands []string, commandArgs []string, isWorking *bool, isPermission bool) {
-	reader := bufio.NewReader(os.Stdin)
 	user := cmdPress.CmdUser(dir)
 	switch commandLower {
 	case "orpxi":
@@ -190,14 +190,19 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		}
 	case "signout":
 		if isPermission {
-			CheckUser(user)
+			if !CheckUser(user) {
+				*isWorking = false
+			}
 		}
 	case "newshablon":
 		shablon.Make()
 	case "shablon":
-		fmt.Print("Названия шаблона для запуска:")
-		nameShablon, _ := reader.ReadString('\n')
-		nameShablon = strings.TrimSpace(nameShablon) // Удаление символов новой строки и пробелов
+		if len(commandArgs) < 1 {
+			fmt.Println("Использования: shablon <названия_шаблона>")
+			return
+		}
+
+		nameShablon := commandArgs[0]
 		err := Start(nameShablon)
 		if err != nil {
 			fmt.Println(err)
