@@ -57,7 +57,7 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 
 func createUniqueCommandSuggestions() []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
-	var suggestions []prompt.Suggest
+	suggestions := []prompt.Suggest{}
 
 	for _, cmd := range commands {
 		if _, exists := uniqueCommands[cmd]; !exists {
@@ -81,7 +81,7 @@ func createFileSuggestions(dir string) []prompt.Suggest {
 		return []prompt.Suggest{}
 	}
 
-	var suggestions []prompt.Suggest
+	suggestions := []prompt.Suggest{}
 	for _, file := range files {
 		suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
 	}

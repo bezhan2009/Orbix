@@ -7,3 +7,4 @@ Command: remove ; isSuccess: False;
 Command: read ; isSuccess: True;
 Command: read ; isSuccess: False;
 Command: read ; isSuccess: True;
+Command: read ; isSuccess: True;
