@@ -11,7 +11,7 @@ import (
 	"goCmd/commands/commandsWithSignaiture/Remove"
 	"goCmd/commands/commandsWithSignaiture/Rename"
 	"goCmd/commands/commandsWithSignaiture/Write"
-	"goCmd/commands/commandsWithSignaiture/newShablon"
+	"goCmd/commands/commandsWithSignaiture/shablon"
 	"goCmd/commands/commandsWithoutSignature/CD"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/commands/commandsWithoutSignature/Ls"
@@ -22,10 +22,11 @@ import (
 	"strings"
 )
 
-func CMD() {
+func CMD(commandInput string) {
 	utils.SystemInformation()
 
 	isWorking := true
+	isPermission := true
 	reader := bufio.NewReader(os.Stdin)
 
 	var prompt string
@@ -38,19 +39,13 @@ func CMD() {
 	}
 
 	if !isEmpty {
-		//fmt.Print("Введите имя пользователя: ")
-		//username, _ := reader.ReadString('\n')
-		//username = strings.TrimSpace(username)
-		//
-		//fmt.Print("Введите пароль: ")
-		//password, _ := reader.ReadString('\n')
-		//password = strings.TrimSpace(password)
+		if commandInput == "" {
+			dir, _ := os.Getwd()
+			user := cmdPress.CmdUser(dir)
 
-		dir, _ := os.Getwd()
-		user := cmdPress.CmdUser(dir)
-
-		if !CheckUser(user) {
-			return
+			if !CheckUser(user) {
+				return
+			}
 		}
 	}
 
@@ -66,20 +61,40 @@ func CMD() {
 			fmt.Printf("\n%s", prompt)
 		} else {
 			fmt.Printf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC))
-			fmt.Printf("└─$ %s", green(""))
+			fmt.Printf("└─$ %s", green(commandInput))
+		}
+		var commandLine string
+		var commandParts []string
+		var commandArgs []string
+		var commandLower string
+		var command string
+		if commandInput != "" {
+			isWorking = false
+			isPermission = false
+			commandLine = strings.TrimSpace(commandInput) // Исправлено использование commandInput
+			commandParts = utils.SplitCommandLine(commandLine)
+			if len(commandParts) == 0 {
+				continue
+			}
+
+			command = commandParts[0]
+			commandArgs = commandParts[1:]
+			commandLower = strings.ToLower(command)
+		} else {
+			commandLine, _ = reader.ReadString('\n')
+			commandLine = strings.TrimSpace(commandLine)
+			commandParts = utils.SplitCommandLine(commandLine)
+
+			if len(commandParts) == 0 {
+				continue
+			}
+
+			command = commandParts[0]
+			commandArgs = commandParts[1:]
+			commandLower = strings.ToLower(command)
 		}
 
-		commandLine, _ := reader.ReadString('\n')
-		commandLine = strings.TrimSpace(commandLine)
-		commandParts := utils.SplitCommandLine(commandLine)
-
-		if len(commandParts) == 0 {
-			continue
-		}
-
-		command := commandParts[0]
-		commandArgs := commandParts[1:]
-		commandLower := strings.ToLower(command)
+		fmt.Println()
 
 		if commandLower == "prompt" {
 			if len(commandArgs) < 1 {
@@ -156,78 +171,126 @@ func CMD() {
 			continue
 		}
 
-		switch commandLower {
-		case "newshablon":
-			newShablon.Make()
-		case "newuser":
+		executeCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
+
+	}
+}
+
+func executeCommand(commandLower string, command string, commandLine string, dir string, commands []string, commandArgs []string, isWorking *bool, isPermission bool) {
+	reader := bufio.NewReader(os.Stdin)
+	user := cmdPress.CmdUser(dir)
+	switch commandLower {
+	case "orpxi":
+		if isPermission {
+			CMD("")
+		}
+	case "password":
+		if isPermission {
 			Password()
-		case "systemgocmd":
-			utils.SystemInformation()
-		case "orpxi":
-			CMD()
-		case "exit":
-			isWorking = false
-		case "create":
-			name, err := Create.File(commandArgs)
+		}
+	case "signout":
+		if isPermission {
+			CheckUser(user)
+		}
+	case "newshablon":
+		shablon.Make()
+	case "shablon":
+		fmt.Print("Названия шаблона для запуска:")
+		nameShablon, _ := reader.ReadString('\n')
+		nameShablon = strings.TrimSpace(nameShablon) // Удаление символов новой строки и пробелов
+		err := Start(nameShablon)
+		if err != nil {
+			fmt.Println(err)
+		}
+	case "systemgocmd":
+		utils.SystemInformation()
+	case "exit":
+		*isWorking = false
+	case "create":
+		name, err := Create.File(commandArgs)
+		if err != nil {
+			fmt.Println(err)
+			debug.Commands(command, false)
+		} else if name != "" {
+			fmt.Printf("Файл %s успешно создан!!!\n", name)
+			fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
+			debug.Commands(command, true)
+		}
+	case "write":
+		Write.File(commandLower, commandArgs)
+	case "read":
+		Read.File(commandLower, commandArgs)
+	case "remove":
+		name, err := Remove.File(commandArgs)
+		if err != nil {
+			debug.Commands(command, false)
+			fmt.Println(err)
+		} else {
+			debug.Commands(command, true)
+			fmt.Printf("Файл %s успешно удален!!!\n", name)
+		}
+	case "rename":
+		errRename := Rename.Rename(commandArgs)
+		if errRename != nil {
+			debug.Commands(command, false)
+			fmt.Println(errRename)
+		} else {
+			debug.Commands(command, true)
+		}
+	case "clean":
+		Clean.Screen()
+	case "cd":
+		if len(commandArgs) == 0 {
+			dir, _ := os.Getwd()
+			fmt.Println(dir)
+		} else {
+			err := CD.ChangeDirectory(commandArgs[0])
 			if err != nil {
 				fmt.Println(err)
-				debug.Commands(command, false)
-			} else if name != "" {
-				fmt.Printf("Файл %s успешно создан!!!\n", name)
-				fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
-				debug.Commands(command, true)
 			}
-		case "write":
-			Write.File(commandLower, commandArgs)
-		case "read":
-			Read.File(commandLower, commandArgs)
-		case "remove":
-			name, err := Remove.File(commandArgs)
-			if err != nil {
-				debug.Commands(command, false)
-				fmt.Println(err)
-			} else {
-				debug.Commands(command, true)
-				fmt.Printf("Файл %s успешно удален!!!\n", name)
-			}
-		case "rename":
-			errRename := Rename.Rename(commandArgs)
-			if errRename != nil {
-				debug.Commands(command, false)
-				fmt.Println(errRename)
-			} else {
-				debug.Commands(command, true)
-			}
-		case "clean":
-			Clean.Screen()
-		case "cd":
-			if len(commandArgs) == 0 {
-				dir, _ := os.Getwd()
-				fmt.Println(dir)
-			} else {
-				err := CD.ChangeDirectory(commandArgs[0])
-				if err != nil {
-					fmt.Println(err)
-				}
-				continue
-			}
-		case "edit":
-			if len(commandArgs) < 1 {
-				fmt.Println("Использование: edit <файл>")
-				continue
-			}
-			filename := commandArgs[0]
-			err := Edit.File(filename)
-			if err != nil {
-				fmt.Println(err)
-			}
-		case "ls":
-			Ls.PrintLS()
-		default:
-			validCommand := utils.ValidCommand(commandLower, commands)
-			if !validCommand {
-				fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
-			}
+			return
+		}
+	case "edit":
+		if len(commandArgs) < 1 {
+			fmt.Println("Использование: edit <файл>")
+			return
+		}
+		filename := commandArgs[0]
+		err := Edit.File(filename)
+		if err != nil {
+			fmt.Println(err)
+		}
+	case "ls":
+		Ls.PrintLS()
+	default:
+		validCommand := utils.ValidCommand(commandLower, commands)
+		if !validCommand {
+			fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
 		}
 	}
+}
+
+func Start(shablonName string) error {
+	shablonName = strings.TrimSpace(shablonName)
+
+	file, err := os.OpenFile(shablonName, os.O_RDWR, 0644)
+	if err != nil {
+		return fmt.Errorf("error opening file: %v", err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue // Игнорировать пустые строки
+		}
+		CMD(line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("error reading file: %v", err)
+	}
+
+	return nil
 }

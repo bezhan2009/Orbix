@@ -1,4 +1,4 @@
-package newShablon
+package shablon
 
 import (
 	"fmt"

@@ -15,5 +15,5 @@ func main() {
 
 	editCMD.StartEditing()
 
-	ORPXI.CMD()
+	ORPXI.CMD("")
 }
