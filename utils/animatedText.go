@@ -8,6 +8,6 @@ import (
 func AnimatedPrint(text string) {
 	for _, char := range text {
 		fmt.Print(string(char))
-		time.Sleep(10 * time.Millisecond) // Задержка 50 миллисекунд между символами
+		time.Sleep(2 * time.Millisecond) // Задержка 50 миллисекунд между символами
 	}
 }
