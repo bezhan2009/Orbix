@@ -24,6 +24,7 @@ import (
 
 func CMD() {
 	utils.SystemInformation()
+
 	isWorking := true
 	counterORPXI := 1
 	reader := bufio.NewReader(os.Stdin)
@@ -42,6 +43,10 @@ func CMD() {
 		dir, _ := os.Getwd()
 		dirC := cmdPress.CmdDir(dir)
 		user := cmdPress.CmdUser(dir)
+
+		if !CheckUser(user) {
+			break
+		}
 
 		if prompt != "" {
 			fmt.Printf("\n%s", prompt)
@@ -90,6 +95,7 @@ func CMD() {
 			fmt.Println("CREATE             создает новый файл")
 			fmt.Println("CLEAN              очистка экрана")
 			fmt.Println("CD                 смена текущего каталога")
+			fmt.Println("LS                 выводит содержимое каталога")
 			fmt.Println("NEWSHABLON         создает новый шаблон комманд для выполнения")
 			fmt.Println("REMOVE             удаляет файл")
 			fmt.Println("READ               выводит на экран содержимое файла")
@@ -103,7 +109,6 @@ func CMD() {
 			fmt.Println("WRITE              записывает данные в файл")
 			fmt.Println("EDIT               редактирует файл")
 			fmt.Println("EXIT               Выход")
-			fmt.Println("LS                 выводит содержимое каталога")
 
 			errDebug := debug.Commands(command, true)
 			if errDebug != nil {
