@@ -1,11 +1,12 @@
 package utils
 
-func ValidCommand(command string, commands []string) bool {
-	for i := 0; i < len(commands); i++ {
-		if command == commands[i] {
+import "goCmd/structs"
+
+func ValidCommand(command string, commands []structs.Command) bool {
+	for _, cmd := range commands {
+		if command == cmd.Name {
 			return true
 		}
 	}
-
 	return false
 }

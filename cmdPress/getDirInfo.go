@@ -36,3 +36,21 @@ func CmdUser(dir string) string {
 
 	return user
 }
+
+func CMDGetDirWithOutApp(dir string) string {
+	var count uint8
+	var dirC string
+
+	for i := 0; i < len(dir); i++ {
+
+		if dir[i] == '\\' {
+			count += 1
+		}
+
+		if count > 2 {
+			dirC += string(dir[i])
+		}
+	}
+
+	return dirC
+}

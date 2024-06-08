@@ -6,6 +6,7 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/fatih/color"
 	"goCmd/Network"
+	"goCmd/Network/wifiUtils"
 	"goCmd/cmdPress"
 	"goCmd/commands/commandsWithSignaiture/Create"
 	"goCmd/commands/commandsWithSignaiture/Edit"
@@ -19,18 +20,41 @@ import (
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/commands/commandsWithoutSignature/Ls"
 	"goCmd/debug"
+	"goCmd/structs"
 	"goCmd/utils"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 )
 
-var commands = []string{
-	"whois", "pingview", "traceroute", "extractzip", "signout", "newshablon", "shablon",
-	"newuser", "promptSet", "systemgocmd", "rename", "remove", "read", "write", "create",
-	"exit", "orpxi", "clean", "cd", "edit", "ls", "scanport", "dnslookup", "ipinfo", "geoip",
+var commands = []structs.Command{
+	{"whois", "Информация о домене"},
+	{"pingview", "Показывает пинг"},
+	{"traceroute", "Трассировка маршрута"},
+	{"extractzip", "Распаковывает архивы .zip"},
+	{"signout", "Пользователь выходит из ORPXI"},
+	{"newshablon", "Создает новый шаблон комманд для выполнения"},
+	{"shablon", "Выполняет определенный шаблон комманд"},
+	{"newuser", "Новый пользователь для ORPXI"},
+	{"promptSet", "Изменяет ORPXI"},
+	{"systemgocmd", "Вывод информации о ORPXI"},
+	{"rename", "Переименовывает файл"},
+	{"remove", "Удаляет файл"},
+	{"read", "Выводит на экран содержимое файла"},
+	{"write", "Записывает данные в файл"},
+	{"create", "Создает новый файл"},
+	{"exit", "Выход из программы"},
+	{"orpxi", "Запускает ещё одну ORPXI"},
+	{"wifiutils", "Запускает утилиту для работы с WiFi"},
+	{"clean", "Очистка экрана"},
+	{"cd", "Смена текущего каталога"},
+	{"edit", "Редактирует файл"},
+	{"ls", "Выводит содержимое каталога"},
+	{"scanport", "Сканирование портов"},
+	{"dnslookup", "DNS-запросы"},
+	{"ipinfo", "Информация об IP-адресе"},
+	{"geoip", "Геолокация IP-адреса"},
 }
 
 var commandHistory []string
@@ -57,12 +81,12 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 
 func createUniqueCommandSuggestions() []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
-	var suggestions []prompt.Suggest
+	suggestions := []prompt.Suggest{}
 
 	for _, cmd := range commands {
-		if _, exists := uniqueCommands[cmd]; !exists {
-			uniqueCommands[cmd] = struct{}{}
-			suggestions = append(suggestions, prompt.Suggest{Text: cmd})
+		if _, exists := uniqueCommands[cmd.Name]; !exists {
+			uniqueCommands[cmd.Name] = struct{}{}
+			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
 		}
 	}
 	for _, cmd := range commandHistory {
@@ -81,18 +105,11 @@ func createFileSuggestions(dir string) []prompt.Suggest {
 		return []prompt.Suggest{}
 	}
 
-	var suggestions []prompt.Suggest
+	suggestions := []prompt.Suggest{}
 	for _, file := range files {
 		suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
 	}
 	return suggestions
-}
-
-func animatedPrint(text string) {
-	for _, char := range text {
-		fmt.Print(string(char))
-		time.Sleep(2 * time.Millisecond)
-	}
 }
 
 func CMD(commandInput string) {
@@ -106,7 +123,7 @@ func CMD(commandInput string) {
 	// Проверка пароля
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
-		animatedPrint("Ошибка при проверке директории с паролями:" + err.Error() + "\n")
+		fmt.Println("Ошибка при проверке директории с паролями:", err)
 		return
 	}
 
@@ -130,53 +147,33 @@ func CMD(commandInput string) {
 		user := cmdPress.CmdUser(dir)
 
 		if promptText != "" {
-			animatedPrint("\n" + promptText)
+			fmt.Print("\n" + promptText)
 		} else {
-			animatedPrint(fmt.Sprintf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC)))
-			animatedPrint(fmt.Sprintf("└─$ %s", green(commandInput)))
+			fmt.Printf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC))
+			fmt.Printf("└─$ %s", green("> "))
 		}
 
-		var commandLine string
-		var commandParts []string
-		var commandArgs []string
-		var commandLower string
-		var command string
+		commandLine := prompt.Input("", autoComplete)
+		commandLine = strings.TrimSpace(commandLine)
+		commandParts := strings.Fields(commandLine)
 
-		if commandInput != "" {
-			isWorking = false
-			isPermission = false
-			commandLine = strings.TrimSpace(commandInput)
-			commandParts = utils.SplitCommandLine(commandLine)
-			if len(commandParts) == 0 {
-				continue
-			}
-
-			command = commandParts[0]
-			commandArgs = commandParts[1:]
-			commandLower = strings.ToLower(command)
-		} else {
-			commandLine = prompt.Input("> ", autoComplete)
-			commandLine = strings.TrimSpace(commandLine)
-			commandParts = utils.SplitCommandLine(commandLine)
-
-			if len(commandParts) == 0 {
-				continue
-			}
-
-			command = commandParts[0]
-			commandArgs = commandParts[1:]
-			commandLower = strings.ToLower(command)
+		if len(commandParts) == 0 {
+			continue
 		}
 
-		commandHistory = append(commandHistory, commandLine) // Save to history
+		command := commandParts[0]
+		commandArgs := commandParts[1:]
+		commandLower := strings.ToLower(command)
 
-		animatedPrint("\n")
+		commandHistory = append(commandHistory, commandLine)
+
+		fmt.Println()
 
 		if commandLower == "prompt" {
 			if len(commandArgs) < 1 {
-				animatedPrint("prompt <name_prompt>\n")
-				animatedPrint("to delete prompt enter:\n")
-				animatedPrint("prompt delete\n")
+				fmt.Println("prompt <name_prompt>")
+				fmt.Println("to delete prompt enter:")
+				fmt.Println("prompt delete")
 				continue
 			}
 
@@ -185,15 +182,16 @@ func CMD(commandInput string) {
 			if namePrompt != "delete" {
 				namePrompt = strings.TrimSpace(namePrompt)
 				promptText = namePrompt
-				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", promptText))
+				fmt.Println("Prompt set to:", promptText)
 			} else {
 				promptText, _ = os.Getwd()
-				animatedPrint(fmt.Sprintf("Prompt set to: %s\n", promptText))
+				fmt.Println("Prompt set to:", promptText)
 				promptText = ""
 			}
 
 			continue
 		}
+
 		helpText := `
 Для получения сведений об командах наберите HELP
 CREATE             создает новый файл
@@ -214,6 +212,7 @@ SIGNOUT            пользователь выходит из ORPXI
 TREE               Графически отображает структуру каталогов диска или пути.
 WRITE              записывает данные в файл
 EDIT               редактирует файл
+wifiutils          Запускает утилиту для работы с WiFi
 EXTRACTZIP         распаковывает архивы .zip
 SCANPORT           Сканирование портов
 WHOIS              Информация о домене
@@ -224,12 +223,7 @@ EXIT               Выход
 `
 
 		if commandLower == "help" {
-			animatedPrint(helpText)
-
-			errDebug := debug.Commands(command, true)
-			if errDebug != nil {
-				animatedPrint(errDebug.Error() + "\n")
-			}
+			fmt.Println(helpText)
 			continue
 		}
 
@@ -244,9 +238,9 @@ EXIT               Выход
 				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
 					suggestedCommand := suggestCommand(commandLower)
-					animatedPrint(fmt.Sprintf("Ошибка при запуске команды '%s': %v\n", commandLine, err))
+					fmt.Printf("Ошибка при запуске команды '%s': %v\n", commandLine, err)
 					if suggestedCommand != "" {
-						animatedPrint(fmt.Sprintf("Возможно, вы имели в виду: %s?\n", suggestedCommand))
+						fmt.Printf("Возможно, вы имели в виду: %s?\n", suggestedCommand)
 					}
 				}
 			}
@@ -257,31 +251,33 @@ EXIT               Выход
 	}
 }
 
-func executeCommand(commandLower string, command string, commandLine string, dir string, commands []string, commandArgs []string, isWorking *bool, isPermission bool) {
+func executeCommand(commandLower string, command string, commandLine string, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
 	user := cmdPress.CmdUser(dir)
 	switch commandLower {
+	case "wifiutils":
+		wifiUtils.Start()
 	case "pingview":
 		Network.Ping(commandArgs)
 	case "traceroute":
 		Network.Traceroute(commandArgs)
 	case "extractzip":
 		if len(commandArgs) < 2 {
-			animatedPrint("Usage: extractzip <zipfile> <destination>\n")
+			fmt.Println("Usage: extractzip <zipfile> <destination>")
 		} else {
 			err := ExtractZip.ExtractZip(commandArgs[0], commandArgs[1])
 			if err != nil {
-				animatedPrint("Error extracting ZIP file:" + err.Error() + "\n")
+				fmt.Println("Error extracting ZIP file:", err)
 			}
 		}
 	case "scanport":
 		if len(commandArgs) < 2 {
-			animatedPrint("Usage: scanport <host> <ports>\n")
+			fmt.Println("Usage: scanport <host> <ports>")
 		} else {
 			ports := []int{}
 			for _, p := range commandArgs[1:] {
 				port, err := strconv.Atoi(p)
 				if err != nil {
-					animatedPrint(fmt.Sprintf("Invalid port: %s\n", p))
+					fmt.Printf("Invalid port: %s\n", p)
 					return
 				}
 				ports = append(ports, port)
@@ -290,25 +286,25 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		}
 	case "whois":
 		if len(commandArgs) < 1 {
-			animatedPrint("Usage: whois <domain>\n")
+			fmt.Println("Usage: whois <domain>")
 		} else {
 			Network.Whois(commandArgs[0])
 		}
 	case "dnslookup":
 		if len(commandArgs) < 1 {
-			animatedPrint("Usage: dnslookup <domain>\n")
+			fmt.Println("Usage: dnslookup <domain>")
 		} else {
 			Network.DNSLookup(commandArgs[0])
 		}
 	case "ipinfo":
 		if len(commandArgs) < 1 {
-			animatedPrint("Usage: ipinfo <ip>\n")
+			fmt.Println("Usage: ipinfo <ip>")
 		} else {
 			Network.IPInfo(commandArgs[0])
 		}
 	case "geoip":
 		if len(commandArgs) < 1 {
-			animatedPrint("Usage: geoip <ip>\n")
+			fmt.Println("Usage: geoip <ip>")
 		} else {
 			Network.GeoIP(commandArgs[0])
 		}
@@ -330,14 +326,14 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		shablon.Make()
 	case "shablon":
 		if len(commandArgs) < 1 {
-			animatedPrint("Использования: shablon <названия_шаблона>\n")
+			fmt.Println("Использование: shablon <название_шаблона>")
 			return
 		}
 
 		nameShablon := commandArgs[0]
 		err := Start(nameShablon)
 		if err != nil {
-			animatedPrint(err.Error() + "\n")
+			fmt.Println(err)
 		}
 	case "systemgocmd":
 		utils.SystemInformation()
@@ -348,11 +344,11 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 	case "create":
 		name, err := Create.File(commandArgs)
 		if err != nil {
-			animatedPrint(err.Error() + "\n")
+			fmt.Println(err)
 			debug.Commands(command, false)
 		} else if name != "" {
-			animatedPrint(fmt.Sprintf("Файл %s успешно создан!!!\n", name))
-			animatedPrint(fmt.Sprintf("Директория нового файла: %s\n", filepath.Join(dir, name)))
+			fmt.Printf("Файл %s успешно создан!\n", name)
+			fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
 			debug.Commands(command, true)
 		}
 	case "write":
@@ -363,16 +359,16 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 		name, err := Remove.File(commandArgs)
 		if err != nil {
 			debug.Commands(command, false)
-			animatedPrint(err.Error() + "\n")
+			fmt.Println(err)
 		} else {
 			debug.Commands(command, true)
-			animatedPrint(fmt.Sprintf("Файл %s успешно удален!!!\n", name))
+			fmt.Printf("Файл %s успешно удален!\n", name)
 		}
 	case "rename":
 		errRename := Rename.Rename(commandArgs)
 		if errRename != nil {
 			debug.Commands(command, false)
-			animatedPrint(errRename.Error() + "\n")
+			fmt.Println(errRename)
 		} else {
 			debug.Commands(command, true)
 		}
@@ -381,33 +377,33 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 	case "cd":
 		if len(commandArgs) == 0 {
 			dir, _ := os.Getwd()
-			animatedPrint(dir + "\n")
+			fmt.Println(dir)
 		} else {
 			err := CD.ChangeDirectory(commandArgs[0])
 			if err != nil {
-				animatedPrint(err.Error() + "\n")
+				fmt.Println(err)
 			}
 			return
 		}
 	case "edit":
 		if len(commandArgs) < 1 {
-			animatedPrint("Использование: edit <файл>\n")
+			fmt.Println("Использование: edit <файл>")
 			return
 		}
 		filename := commandArgs[0]
 		err := Edit.File(filename)
 		if err != nil {
-			animatedPrint(err.Error() + "\n")
+			fmt.Println(err)
 		}
 	case "ls":
 		Ls.PrintLS()
 	default:
 		validCommand := utils.ValidCommand(commandLower, commands)
 		if !validCommand {
-			animatedPrint(fmt.Sprintf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine))
+			fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
 			suggestedCommand := suggestCommand(commandLower)
 			if suggestedCommand != "" {
-				animatedPrint(fmt.Sprintf("Возможно, вы имели в виду: %s?\n", suggestedCommand))
+				fmt.Printf("Возможно, вы имели в виду: %s?\n", suggestedCommand)
 			}
 		}
 	}
@@ -443,9 +439,9 @@ func suggestCommand(input string) string {
 	closestDistance := len(input)
 
 	for _, cmd := range commands {
-		distance := levenshtein(input, cmd)
+		distance := levenshtein(input, cmd.Name)
 		if distance < closestDistance {
-			closestMatch = cmd
+			closestMatch = cmd.Name
 			closestDistance = distance
 		}
 	}
