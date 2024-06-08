@@ -19,6 +19,10 @@ import (
 	"goCmd/commands/commandsWithoutSignature/CD"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/commands/commandsWithoutSignature/Ls"
+	"goCmd/commands/resourceIntensive/FileIOStressTest"
+	"goCmd/commands/resourceIntensive/MatrixMultiplication"
+	"goCmd/commands/resourceIntensive/PiCalculation"
+	"goCmd/commands/resourceIntensive/PrimeNumbers"
 	"goCmd/debug"
 	"goCmd/structs"
 	"goCmd/utils"
@@ -48,6 +52,10 @@ var commands = []structs.Command{
 	{"orpxi", "Запускает ещё одну ORPXI"},
 	{"wifiutils", "Запускает утилиту для работы с WiFi"},
 	{"clean", "Очистка экрана"},
+	{"matrixmul", "Умножение больших матриц"},
+	{"primes", "Поиск больших простых чисел"},
+	{"picalc", "Вычисление числа π"},
+	{"fileio", "Тест на интенсивную работу с файлами"},
 	{"cd", "Смена текущего каталога"},
 	{"edit", "Редактирует файл"},
 	{"ls", "Выводит содержимое каталога"},
@@ -203,6 +211,8 @@ REMOVE             удаляет файл
 READ               выводит на экран содержимое файла
 PROMPT             Изменяет ORPXI.
 PINGVIEW           показывает пинг.
+PRIMES             Поиск больших простых чисел
+PICALC             Вычисление числа π.
 NEWUSER            новый пользователь для ORPXI.
 ORPXI              запускает ещё одну ORPXI
 SHABLON            выполняет определенный шаблон комманд
@@ -217,8 +227,10 @@ EXTRACTZIP         распаковывает архивы .zip
 SCANPORT           Сканирование портов
 WHOIS              Информация о домене
 DNSLOOKUP          DNS-запросы
+FILEIO             Тест на интенсивную работу с файлами
 IPINFO             Информация об IP-адресе
 GEOIP              Геолокация IP-адреса
+MATRIXMUL          Умножение больших матриц
 EXIT               Выход
 `
 
@@ -359,6 +371,36 @@ func executeCommand(commandLower string, command string, commandLine string, dir
 				*isWorking = false
 			}
 		}
+	case "matrixmul":
+		MatrixMultiplication.MatrixMulCommand()
+	case "primes":
+		limit := 100000
+		if len(commandArgs) > 0 {
+			l, err := strconv.Atoi(commandArgs[0])
+			if err == nil {
+				limit = l
+			}
+		}
+		PrimeNumbers.PrimeCommand(limit)
+	case "picalc":
+		precision := 10000
+		if len(commandArgs) > 0 {
+			p, err := strconv.Atoi(commandArgs[0])
+			if err == nil {
+				precision = p
+			}
+		}
+		PiCalculation.PiCalcCommand(precision)
+	case "fileio":
+		filename := "largefile.dat"
+		size := 100 * 1024 * 1024
+		if len(commandArgs) > 0 {
+			s, err := strconv.Atoi(commandArgs[0])
+			if err == nil {
+				size = s
+			}
+		}
+		FileIOStressTest.FileIOCommand(filename, size)
 	case "newshablon":
 		shablon.Make()
 	case "shablon":
