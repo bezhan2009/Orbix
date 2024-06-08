@@ -57,7 +57,7 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 
 func createUniqueCommandSuggestions() []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
-	suggestions := []prompt.Suggest{}
+	var suggestions []prompt.Suggest
 
 	for _, cmd := range commands {
 		if _, exists := uniqueCommands[cmd]; !exists {
@@ -81,7 +81,7 @@ func createFileSuggestions(dir string) []prompt.Suggest {
 		return []prompt.Suggest{}
 	}
 
-	suggestions := []prompt.Suggest{}
+	var suggestions []prompt.Suggest
 	for _, file := range files {
 		suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
 	}
@@ -145,7 +145,7 @@ func CMD(commandInput string) {
 		if commandInput != "" {
 			isWorking = false
 			isPermission = false
-			commandLine = strings.TrimSpace(commandInput) // Исправлено использование commandInput
+			commandLine = strings.TrimSpace(commandInput)
 			commandParts = utils.SplitCommandLine(commandLine)
 			if len(commandParts) == 0 {
 				continue
