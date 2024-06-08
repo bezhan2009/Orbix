@@ -81,7 +81,7 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 
 func createUniqueCommandSuggestions() []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
-	suggestions := []prompt.Suggest{}
+	var suggestions []prompt.Suggest
 
 	for _, cmd := range commands {
 		if _, exists := uniqueCommands[cmd.Name]; !exists {
@@ -105,7 +105,7 @@ func createFileSuggestions(dir string) []prompt.Suggest {
 		return []prompt.Suggest{}
 	}
 
-	suggestions := []prompt.Suggest{}
+	var suggestions []prompt.Suggest
 	for _, file := range files {
 		suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
 	}
@@ -155,7 +155,7 @@ func CMD(commandInput string) {
 
 		commandLine := prompt.Input("", autoComplete)
 		commandLine = strings.TrimSpace(commandLine)
-		commandParts := strings.Fields(commandLine)
+		commandParts := parseCommandLine(commandLine)
 
 		if len(commandParts) == 0 {
 			continue
@@ -249,6 +249,43 @@ EXIT               Выход
 
 		executeCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
 	}
+}
+
+func parseCommandLine(commandLine string) []string {
+	var parts []string
+	var currentPart strings.Builder
+	var inQuotes bool
+
+	for _, char := range commandLine {
+		switch char {
+		case '"':
+			inQuotes = !inQuotes
+		case ' ':
+			if inQuotes {
+				currentPart.WriteRune(char)
+			} else {
+				parts = append(parts, currentPart.String())
+				currentPart.Reset()
+			}
+		default:
+			currentPart.WriteRune(char)
+		}
+	}
+
+	if currentPart.Len() > 0 {
+		parts = append(parts, currentPart.String())
+	}
+
+	return parts
+}
+
+func suggestCommand(input string) string {
+	for _, cmd := range commands {
+		if strings.HasPrefix(cmd.Name, input) {
+			return cmd.Name
+		}
+	}
+	return ""
 }
 
 func executeCommand(commandLower string, command string, commandLine string, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
@@ -432,49 +469,4 @@ func Start(shablonName string) error {
 	}
 
 	return nil
-}
-
-func suggestCommand(input string) string {
-	closestMatch := ""
-	closestDistance := len(input)
-
-	for _, cmd := range commands {
-		distance := levenshtein(input, cmd.Name)
-		if distance < closestDistance {
-			closestMatch = cmd.Name
-			closestDistance = distance
-		}
-	}
-
-	if closestDistance < len(input)/2 {
-		return closestMatch
-	}
-
-	return ""
-}
-
-func levenshtein(a, b string) int {
-	if len(a) == 0 {
-		return len(b)
-	}
-	if len(b) == 0 {
-		return len(a)
-	}
-
-	if a[0] == b[0] {
-		return levenshtein(a[1:], b[1:])
-	}
-
-	ins := levenshtein(a, b[1:])
-	del := levenshtein(a[1:], b)
-	sub := levenshtein(a[1:], b[1:])
-
-	return 1 + min(ins, min(del, sub))
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
