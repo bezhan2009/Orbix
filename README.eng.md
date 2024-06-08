@@ -56,6 +56,7 @@ go run .
 - **SCANPORT**: Scans ports.
 - **WHOIS**: Retrieves information about a domain.
 - **DNSLOOKUP**: Performs DNS lookups.
+- **WIFIUTILS**: Launches the WiFi utility.
 - **IPINFO**: Retrieves information about an IP address.
 - **GEOIP**: Retrieves geolocation information for an IP address.
 - **EXIT**: Exits ORPXI.
