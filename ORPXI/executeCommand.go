@@ -2,6 +2,10 @@ package ORPXI
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+
 	"goCmd/Network"
 	"goCmd/Network/wifiUtils"
 	"goCmd/cmdPress"
@@ -23,195 +27,275 @@ import (
 	"goCmd/debug"
 	"goCmd/structs"
 	"goCmd/utils"
-	"os"
-	"path/filepath"
-	"strconv"
 )
 
-func ExecuteCommand(commandLower string, command string, commandLine string, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
+func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
 	user := cmdPress.CmdUser(dir)
 	switch commandLower {
 	case "wifiutils":
 		wifiUtils.Start()
+
 	case "pingview":
 		Network.Ping(commandArgs)
+
 	case "traceroute":
 		Network.Traceroute(commandArgs)
+
 	case "extractzip":
-		if len(commandArgs) < 2 {
-			fmt.Println("Usage: extractzip <zipfile> <destination>")
-		} else {
-			err := ExtractZip.ExtractZip(commandArgs[0], commandArgs[1])
-			if err != nil {
-				fmt.Println("Error extracting ZIP file:", err)
-			}
-		}
+		extractZip(commandArgs)
+
 	case "scanport":
-		if len(commandArgs) < 2 {
-			fmt.Println("Usage: scanport <host> <ports>")
-		} else {
-			ports := []int{}
-			for _, p := range commandArgs[1:] {
-				port, err := strconv.Atoi(p)
-				if err != nil {
-					fmt.Printf("Invalid port: %s\n", p)
-					return
-				}
-				ports = append(ports, port)
-			}
-			Network.ScanPort(commandArgs[0], ports)
-		}
+		scanPort(commandArgs)
+
 	case "whois":
-		if len(commandArgs) < 1 {
-			fmt.Println("Usage: whois <domain>")
-		} else {
-			Network.Whois(commandArgs[0])
-		}
+		whois(commandArgs)
+
 	case "dnslookup":
-		if len(commandArgs) < 1 {
-			fmt.Println("Usage: dnslookup <domain>")
-		} else {
-			Network.DNSLookup(commandArgs[0])
-		}
+		dnsLookup(commandArgs)
+
 	case "ipinfo":
-		if len(commandArgs) < 1 {
-			fmt.Println("Usage: ipinfo <ip>")
-		} else {
-			Network.IPInfo(commandArgs[0])
-		}
+		ipInfo(commandArgs)
+
 	case "geoip":
-		if len(commandArgs) < 1 {
-			fmt.Println("Usage: geoip <ip>")
-		} else {
-			Network.GeoIP(commandArgs[0])
-		}
+		geoIP(commandArgs)
+
 	case "orpxi":
 		if isPermission {
 			CMD("")
 		}
+
 	case "newuser":
 		if isPermission {
 			NewUser()
 		}
+
 	case "signout":
 		if isPermission {
-			if !CheckUser(user) {
-				*isWorking = false
-			}
-		}
-	case "matrixmul":
-		MatrixMultiplication.MatrixMulCommand()
-	case "primes":
-		limit := 100000
-		if len(commandArgs) > 0 {
-			l, err := strconv.Atoi(commandArgs[0])
-			if err == nil {
-				limit = l
-			}
-		}
-		PrimeNumbers.PrimeCommand(limit)
-	case "picalc":
-		precision := 10000
-		if len(commandArgs) > 0 {
-			p, err := strconv.Atoi(commandArgs[0])
-			if err == nil {
-				precision = p
-			}
-		}
-		PiCalculation.PiCalcCommand(precision)
-	case "fileio":
-		filename := "largefile.dat"
-		size := 100 * 1024 * 1024
-		if len(commandArgs) > 0 {
-			s, err := strconv.Atoi(commandArgs[0])
-			if err == nil {
-				size = s
-			}
-		}
-		FileIOStressTest.FileIOCommand(filename, size)
-	case "newshablon":
-		shablon.Make()
-	case "shablon":
-		if len(commandArgs) < 1 {
-			fmt.Println("Использование: shablon <название_шаблона>")
-			return
+			signOut(user, isWorking)
 		}
 
-		nameShablon := commandArgs[0]
-		err := Start(nameShablon)
-		if err != nil {
-			fmt.Println(err)
-		}
+	case "matrixmul":
+		MatrixMultiplication.MatrixMulCommand()
+
+	case "primes":
+		calculatePrimes(commandArgs)
+
+	case "picalc":
+		calculatePi(commandArgs)
+
+	case "fileio":
+		fileIOStressTest(commandArgs)
+
+	case "newshablon":
+		shablon.Make()
+
+	case "shablon":
+		executeShablon(commandArgs)
+
 	case "systemgocmd":
 		utils.SystemInformation()
+
 	case "exit":
 		if isPermission {
 			*isWorking = false
 		}
+
 	case "create":
-		name, err := Create.File(commandArgs)
-		if err != nil {
-			fmt.Println(err)
-			debug.Commands(command, false)
-		} else if name != "" {
-			fmt.Printf("Файл %s успешно создан!\n", name)
-			fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
-			debug.Commands(command, true)
-		}
+		createFile(commandArgs, command, dir)
+
 	case "write":
 		Write.File(commandLower, commandArgs)
+
 	case "read":
 		Read.File(commandLower, commandArgs)
+
 	case "remove":
-		name, err := Remove.File(commandArgs)
-		if err != nil {
-			debug.Commands(command, false)
-			fmt.Println(err)
-		} else {
-			debug.Commands(command, true)
-			fmt.Printf("Файл %s успешно удален!\n", name)
-		}
+		removeFile(commandArgs, command)
+
 	case "rename":
-		errRename := Rename.Rename(commandArgs)
-		if errRename != nil {
-			debug.Commands(command, false)
-			fmt.Println(errRename)
-		} else {
-			debug.Commands(command, true)
-		}
+		renameFile(commandArgs, command)
+
 	case "clean":
 		Clean.Screen()
+
 	case "cd":
-		if len(commandArgs) == 0 {
-			dir, _ := os.Getwd()
-			fmt.Println(dir)
-		} else {
-			err := CD.ChangeDirectory(commandArgs[0])
-			if err != nil {
-				fmt.Println(err)
-			}
-			return
-		}
+		changeDirectory(commandArgs)
+
 	case "edit":
-		if len(commandArgs) < 1 {
-			fmt.Println("Использование: edit <файл>")
-			return
-		}
-		filename := commandArgs[0]
-		err := Edit.File(filename)
-		if err != nil {
-			fmt.Println(err)
-		}
+		editFile(commandArgs)
+
 	case "ls":
 		Ls.PrintLS()
+
 	default:
-		validCommand := utils.ValidCommand(commandLower, commands)
-		if !validCommand {
-			fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
-			suggestedCommand := suggestCommand(commandLower)
-			if suggestedCommand != "" {
-				fmt.Printf("Возможно, вы имели в виду: %s?\n", suggestedCommand)
-			}
+		handleUnknownCommand(commandLower, commandLine, commands)
+	}
+}
+
+func extractZip(commandArgs []string) {
+	if len(commandArgs) < 2 {
+		fmt.Println("Usage: extractzip <zipfile> <destination>")
+		return
+	}
+	if err := ExtractZip.ExtractZip(commandArgs[0], commandArgs[1]); err != nil {
+		fmt.Println("Error extracting ZIP file:", err)
+	}
+}
+
+func scanPort(commandArgs []string) {
+	if len(commandArgs) < 2 {
+		fmt.Println("Usage: scanport <host> <ports>")
+		return
+	}
+	var ports []int
+	for _, p := range commandArgs[1:] {
+		port, err := strconv.Atoi(p)
+		if err != nil {
+			fmt.Printf("Invalid port: %s\n", p)
+			return
+		}
+		ports = append(ports, port)
+	}
+	Network.ScanPort(commandArgs[0], ports)
+}
+
+func whois(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println("Usage: whois <domain>")
+		return
+	}
+	Network.Whois(commandArgs[0])
+}
+
+func dnsLookup(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println("Usage: dnslookup <domain>")
+		return
+	}
+	Network.DNSLookup(commandArgs[0])
+}
+
+func ipInfo(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println("Usage: ipinfo <ip>")
+		return
+	}
+	Network.IPInfo(commandArgs[0])
+}
+
+func geoIP(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println("Usage: geoip <ip>")
+		return
+	}
+	Network.GeoIP(commandArgs[0])
+}
+
+func signOut(user string, isWorking *bool) {
+	if !CheckUser(user) {
+		*isWorking = false
+	}
+}
+
+func calculatePrimes(commandArgs []string) {
+	limit := 100000
+	if len(commandArgs) > 0 {
+		if l, err := strconv.Atoi(commandArgs[0]); err == nil {
+			limit = l
+		}
+	}
+	PrimeNumbers.PrimeCommand(limit)
+}
+
+func calculatePi(commandArgs []string) {
+	precision := 10000
+	if len(commandArgs) > 0 {
+		if p, err := strconv.Atoi(commandArgs[0]); err == nil {
+			precision = p
+		}
+	}
+	PiCalculation.PiCalcCommand(precision)
+}
+
+func fileIOStressTest(commandArgs []string) {
+	filename := "largefile.dat"
+	size := 100 * 1024 * 1024
+	if len(commandArgs) > 0 {
+		if s, err := strconv.Atoi(commandArgs[0]); err == nil {
+			size = s
+		}
+	}
+	FileIOStressTest.FileIOCommand(filename, size)
+}
+
+func executeShablon(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println("Использование: shablon <название_шаблона>")
+		return
+	}
+	if err := Start(commandArgs[0]); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func createFile(commandArgs []string, command, dir string) {
+	name, err := Create.File(commandArgs)
+	if err != nil {
+		fmt.Println(err)
+		debug.Commands(command, false)
+	} else if name != "" {
+		fmt.Printf("Файл %s успешно создан!\n", name)
+		fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
+		debug.Commands(command, true)
+	}
+}
+
+func removeFile(commandArgs []string, command string) {
+	name, err := Remove.File(commandArgs)
+	if err != nil {
+		debug.Commands(command, false)
+		fmt.Println(err)
+	} else {
+		debug.Commands(command, true)
+		fmt.Printf("Файл %s успешно удален!\n", name)
+	}
+}
+
+func renameFile(commandArgs []string, command string) {
+	if err := Rename.Rename(commandArgs); err != nil {
+		debug.Commands(command, false)
+		fmt.Println(err)
+	} else {
+		debug.Commands(command, true)
+	}
+}
+
+func changeDirectory(commandArgs []string) {
+	if len(commandArgs) == 0 {
+		dir, _ := os.Getwd()
+		fmt.Println(dir)
+		return
+	}
+	if err := CD.ChangeDirectory(commandArgs[0]); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func editFile(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println("Использование: edit <файл>")
+		return
+	}
+	if err := Edit.File(commandArgs[0]); err != nil {
+		fmt.Println(err)
+	}
+}
+
+func handleUnknownCommand(commandLower, commandLine string, commands []structs.Command) {
+	if !utils.ValidCommand(commandLower, commands) {
+		fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
+		if suggestedCommand := suggestCommand(commandLower); suggestedCommand != "" {
+			fmt.Printf("Возможно, вы имели в виду: %s?\n", suggestedCommand)
 		}
 	}
 }
