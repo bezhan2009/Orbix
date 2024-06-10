@@ -67,7 +67,9 @@ func AttemptConnectWithGeneratedPasswords(ssid string, attemptsStr string) {
 	usedPasswords := make(map[string]bool)
 
 	// Добавляем простые пароли
-	simplePasswords := []string{"12345678", "123456789", "1234567890"}
+	simplePasswords := []string{"12345678", "123456789", "1234567890", "12344321", "12345678", "123456789", "password", "qwerty", "letmein", "admin", "welcome", "monkey", "abc123", "iloveyou",
+		"12345678", "87654321", "password1", "passw0rd", "123123123", "111111111", "1q2w3e4r", "qwertyuiop", "asdfghjkl",
+	}
 	for _, password := range simplePasswords {
 		if !usedPasswords[password] {
 			usedPasswords[password] = true

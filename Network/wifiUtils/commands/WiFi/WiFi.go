@@ -3,9 +3,10 @@ package WiFi
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/exec"
-	"strings"
+	"time"
 )
 
 func Scan() {
@@ -70,19 +71,16 @@ func Connect(ssid, password string) bool {
 		return false
 	}
 
-	// Проверка подключения
-	cmd = exec.Command("netsh", "wlan", "show", "interfaces")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	output, err := cmd.Output()
-	if err != nil {
-		fmt.Printf("Ошибка при проверке состояния подключения: %v\n", err)
-		return false
+	// Проверка доступа к интернету
+	for i := 0; i < 3; i++ { // Повторяем проверку несколько раз
+		time.Sleep(1 * time.Second) // Пауза перед каждой проверкой
+		resp, err := http.Get("http://clients3.google.com/generate_204")
+		if err == nil && resp.StatusCode == http.StatusNoContent {
+			fmt.Println("Подключение успешно")
+			return true
+		}
 	}
-	outputStr := string(output)
-	if strings.Contains(outputStr, ssid) && strings.Contains(outputStr, "Connected") {
-		fmt.Println("Подключение успешно")
-		return true
-	}
+
+	fmt.Println("Нет доступа к интернету")
 	return false
 }
