@@ -20,7 +20,6 @@ func Scan() {
 
 // Connect пытается подключиться к Wi-Fi сети с заданным SSID и паролем.
 func Connect(ssid, password string) bool {
-	// Создаем файл конфигурации Wi-Fi профиля
 	config := fmt.Sprintf(`<?xml version="1.0"?>
 <WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
     <name>%s</name>
@@ -55,29 +54,35 @@ func Connect(ssid, password string) bool {
 	}
 	defer os.Remove(filename)
 
-	// Добавляем профиль Wi-Fi
 	cmd := exec.Command("netsh", "wlan", "add", "profile", "filename="+filename)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Ошибка при добавлении профиля Wi-Fi: %v, вывод: %s\n", err, output)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Ошибка при добавлении профиля Wi-Fi: %v\n", err)
 		return false
 	}
 
-	// Подключаемся к Wi-Fi
 	cmd = exec.Command("netsh", "wlan", "connect", "name="+ssid)
-	output, err = cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Ошибка при подключении к Wi-Fi: %v, вывод: %s\n", err, output)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		fmt.Printf("Ошибка при подключении к Wi-Fi: %v\n", err)
 		return false
 	}
 
-	// Проверяем вывод команды на успешное подключение
+	// Проверка подключения
+	cmd = exec.Command("netsh", "wlan", "show", "interfaces")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Printf("Ошибка при проверке состояния подключения: %v\n", err)
+		return false
+	}
 	outputStr := string(output)
-	if strings.Contains(outputStr, "completed successfully") || strings.Contains(outputStr, "already connected to this network") {
-		fmt.Println(outputStr)
+	if strings.Contains(outputStr, ssid) && strings.Contains(outputStr, "Connected") {
+		fmt.Println("Подключение успешно")
 		return true
 	}
-
-	fmt.Println(outputStr)
 	return false
 }

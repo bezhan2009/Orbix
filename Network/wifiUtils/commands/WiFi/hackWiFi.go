@@ -11,6 +11,7 @@ import (
 func GeneratePasswords(count int, usedPasswords map[string]bool) []string {
 	passwords := make([]string, 0, count)
 	charset := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	rand.Seed(time.Now().UnixNano())
 	for len(passwords) < count {
 		passwordLength := rand.Intn(9) + 8 // Случайное число от 8 до 16
 		password := make([]byte, passwordLength)
@@ -30,8 +31,8 @@ func GeneratePasswords(count int, usedPasswords map[string]bool) []string {
 func GeneratePasswordWithPatterns(count int, usedPasswords map[string]bool) []string {
 	passwords := make([]string, 0, count)
 	patterns := []string{
-		"12345678", "123456789", "password", "qwerty", "letmein", "admin", "welcome", "monkey", "abc123", "iloveyou",
-		"1234567890", "87654321", "password1", "passw0rd", "123123123", "11111111", "1q2w3e4r", "qwertyuiop", "asdfghjkl",
+		"12344321", "12345678", "123456789", "password", "qwerty", "letmein", "admin", "welcome", "monkey", "abc123", "iloveyou",
+		"12345678", "87654321", "password1", "passw0rd", "123123123", "111111111", "1q2w3e4r", "qwertyuiop", "asdfghjkl",
 	}
 	for _, pattern := range patterns {
 		if !usedPasswords[pattern] {
