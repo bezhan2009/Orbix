@@ -48,7 +48,7 @@ func CMD(commandInput string) {
 			fmt.Print("\n" + promptText)
 		} else {
 			fmt.Printf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC))
-			fmt.Printf("└─$ %s", green("> "))
+			fmt.Printf("└─$ %s", green(">", commandInput))
 		}
 
 		commandLine := prompt.Input("", autoComplete)
@@ -147,6 +147,12 @@ EXIT               Выход
 				}
 			}
 			continue
+		}
+
+		if commandInput != "" {
+			isPermission = false
+		} else {
+			isPermission = true
 		}
 
 		ExecuteCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
