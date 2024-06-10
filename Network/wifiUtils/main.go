@@ -12,7 +12,7 @@ import (
 )
 
 var commands = []string{
-	"scanwifi", "connectwifi", "networkscan", "sendSMS", "exit",
+	"scanwifi", "connectwifi", "hackwifi", "networkscan", "sendSMS", "exit",
 }
 
 func Screen() {
@@ -28,7 +28,7 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 	}
 
 	args := strings.Fields(text)
-	if len(args) < 2 && args[0] == "connectwifi" {
+	if len(args) < 2 && args[0] == "connectwifi" || len(args) < 2 && args[0] == "hackwifi" {
 		networks := getAvailableNetworks()
 		suggestions := make([]prompt.Suggest, len(networks))
 		for i, network := range networks {
@@ -40,6 +40,7 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 	suggestions := []prompt.Suggest{
 		{Text: "scanwifi", Description: "Сканирование доступных Wi-Fi сетей"},
 		{Text: "connectwifi", Description: "Подключение к Wi-Fi сети"},
+		{Text: "hackwifi", Description: "Попытка взлома сети Wi-Fi"},
 		{Text: "networkscan", Description: "Сканирование сети и получение информации об устройствах"},
 		{Text: "sendSMS", Description: "Отправка SMS сообщения"},
 		{Text: "sendMSG", Description: "Отправка сообщения на все ПК с подключением к этой сети"},
@@ -70,9 +71,15 @@ func Start() {
 				continue
 			}
 			WiFi.Connect(args[1], args[2])
+		case "hackwifi":
+			if len(args) < 3 {
+				fmt.Println("Использования: hackwifi <SSID> <attempts>")
+				continue
+			}
+			WiFi.AttemptConnectWithGeneratedPasswords(args[1], args[2])
 		case "networkscan":
 			NetworkScan.WiFi()
-		case "sendSMS":
+		case "sendsms":
 			if len(args) < 3 {
 				fmt.Println("Использование: sendSMS <номер> <сообщение>")
 				continue
@@ -119,6 +126,7 @@ func showHelp() {
 Доступные команды:
 - scanwifi: Сканирование доступных Wi-Fi сетей
 - connectwifi: Подключение к Wi-Fi сети
+- hackwifi: Попытка взлома сети Wi-Fi
 - networkscan: Сканирование сети и получение информации об устройствах
 - sendSMS: Отправка SMS сообщения
 - help: Показать справку по использованию программы

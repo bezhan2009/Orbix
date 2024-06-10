@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func Scan() {
@@ -17,7 +18,8 @@ func Scan() {
 	fmt.Println(string(output))
 }
 
-func Connect(ssid, password string) {
+// Connect пытается подключиться к Wi-Fi сети с заданным SSID и паролем.
+func Connect(ssid, password string) bool {
 	// Создаем файл конфигурации Wi-Fi профиля
 	config := fmt.Sprintf(`<?xml version="1.0"?>
 <WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
@@ -49,7 +51,7 @@ func Connect(ssid, password string) {
 	err := ioutil.WriteFile(filename, []byte(config), 0644)
 	if err != nil {
 		fmt.Println("Ошибка при создании файла конфигурации Wi-Fi:", err)
-		return
+		return false
 	}
 	defer os.Remove(filename)
 
@@ -57,16 +59,25 @@ func Connect(ssid, password string) {
 	cmd := exec.Command("netsh", "wlan", "add", "profile", "filename="+filename)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Ошибка при добавлении профиля Wi-Fi:", err)
-		return
+		fmt.Printf("Ошибка при добавлении профиля Wi-Fi: %v, вывод: %s\n", err, output)
+		return false
 	}
 
 	// Подключаемся к Wi-Fi
 	cmd = exec.Command("netsh", "wlan", "connect", "name="+ssid)
 	output, err = cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("Ошибка при подключении к Wi-Fi:", err)
-		return
+		fmt.Printf("Ошибка при подключении к Wi-Fi: %v, вывод: %s\n", err, output)
+		return false
 	}
-	fmt.Println(string(output))
+
+	// Проверяем вывод команды на успешное подключение
+	outputStr := string(output)
+	if strings.Contains(outputStr, "completed successfully") || strings.Contains(outputStr, "already connected to this network") {
+		fmt.Println(outputStr)
+		return true
+	}
+
+	fmt.Println(outputStr)
+	return false
 }

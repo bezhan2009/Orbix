@@ -2,29 +2,27 @@ package Remove
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/Remove/utils"
+	"os"
+	"strings"
 )
 
 func File(commandArgs []string) (string, error) {
 	if len(commandArgs) < 1 {
-		fmt.Println("Использования: remove <файл>")
+		fmt.Println("Usage: remove <file>")
 		return "", nil
 	}
 
-	var name string
+	name := commandArgs[0]
 
-	name = commandArgs[0]
-
-	if name == "debug.txt" {
-		fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
-		return name, nil
+	if err := os.Remove(name); err != nil {
+		if strings.Contains(err.Error(), "being used by another process") {
+			fmt.Printf("Error: Cannot remove '%s' because it is being used by another process.\n", name)
+		} else {
+			fmt.Printf("Error removing file: %v\n", err)
+		}
+		return name, err
 	}
 
-	errExisting := utils.IsExists(name)
-
-	if errExisting != nil {
-		return name, errExisting
-	}
-
-	return utils.RemoveFile(name)
+	fmt.Printf("File '%s' successfully removed.\n", name)
+	return name, nil
 }
