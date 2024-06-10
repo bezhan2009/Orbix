@@ -10,3 +10,31 @@ Command: read ; isSuccess: True;
 Command: read ; isSuccess: True;
 Command: read ; isSuccess: True;
 Command: read ; isSuccess: True;
+Timestamp: 2024-06-10T17:06:47+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\ORPXI
+Command: read
+Arguments: [ORPXI.go]
+Success: True
+
+Timestamp: 2024-06-10T17:27:24+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\ORPXI
+Command: create
+Arguments: [testCopy.go]
+Success: True
+
+Timestamp: 2024-06-10T17:30:15+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\ORPXI
+Command: create
+Arguments: [ORPXI.txt]
+Success: True
+
+Timestamp: 2024-06-10T17:33:12+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\ORPXI
+Command: read
+Arguments: [ORPXI.txt]
+Success: True
+

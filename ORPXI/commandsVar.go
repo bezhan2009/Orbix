@@ -8,6 +8,7 @@ var commands = []structs.Command{
 	{"pingview", "Displays ping"},
 	{"traceroute", "Route tracing"},
 	{"extractzip", "Extracts .zip archives"},
+	{"copysource", "from file copy his source"},
 	{"signout", "User signs out of ORPXI"},
 	{"newshablon", "Creates a new command template for execution"},
 	{"shablon", "Executes a specific command template"},
