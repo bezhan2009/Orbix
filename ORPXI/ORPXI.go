@@ -21,7 +21,7 @@ func CMD(commandInput string) {
 
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
-		fmt.Println("Ошибка при проверке директории с паролями:", err)
+		fmt.Println("Error checking password directory:", err)
 		return
 	}
 
@@ -91,37 +91,37 @@ func CMD(commandInput string) {
 		}
 
 		helpText := `
-Для получения сведений об командах наберите HELP
-CREATE             создает новый файл
-CLEAN              очистка экрана
-CD                 смена текущего каталога
-LS                 выводит содержимое каталога
-NEWSHABLON         создает новый шаблон комманд для выполнения
-REMOVE             удаляет файл
-READ               выводит на экран содержимое файла
-PROMPT             Изменяет ORPXI.
-PINGVIEW           показывает пинг.
-PRIMES             Поиск больших простых чисел
-PICALC             Вычисление числа π.
-NEWUSER            новый пользователь для ORPXI.
-ORPXI              запускает ещё одну ORPXI
-SHABLON            выполняет определенный шаблон комманд
-SYSTEMGOCMD        вывод информации о ORPXI
-SYSTEMINFO         вывод информации о системе
-SIGNOUT            пользователь выходит из ORPXI
-TREE               Графически отображает структуру каталогов диска или пути.
-WRITE              записывает данные в файл
-EDIT               редактирует файл
-WIFIUTILS          Запускает утилиту для работы с WiFi
-EXTRACTZIP         распаковывает архивы .zip
-SCANPORT           Сканирование портов
-WHOIS              Информация о домене
-DNSLOOKUP          DNS-запросы
-FILEIO             Тест на интенсивную работу с файлами
-IPINFO             Информация об IP-адресе
-GEOIP              Геолокация IP-адреса
-MATRIXMUL          Умножение больших матриц
-EXIT               Выход
+For command information, type HELP
+CREATE             creates a new file
+CLEAN              clears the screen
+CD                 changes the current directory
+LS                 lists directory contents
+NEWSHABLON         creates a new command template for execution
+REMOVE             deletes a file
+READ               displays the contents of a file
+PROMPT             changes ORPXI prompt.
+PINGVIEW           shows ping.
+PRIMES             finds large prime numbers
+PICALC             calculates the value of π.
+NEWUSER            creates a new user for ORPXI.
+ORPXI              starts another ORPXI session
+SHABLON            executes a specific command template
+SYSTEMGOCMD        displays information about ORPXI
+SYSTEMINFO         displays system information
+SIGNOUT            user signs out of ORPXI
+TREE               graphically displays directory structure
+WRITE              writes data to a file
+EDIT               edits a file
+WIFIUTILS          launches a utility for working with WiFi
+EXTRACTZIP         extracts .zip archives
+SCANPORT           scans ports
+WHOIS              domain information
+DNSLOOKUP          DNS queries
+FILEIO             intensive file operation test
+IPINFO             IP address information
+GEOIP              IP address geolocation
+MATRIXMUL          multiplies large matrices
+EXIT               exit
 `
 
 		if commandLower == "help" {
@@ -140,9 +140,9 @@ EXIT               Выход
 				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
 					suggestedCommand := suggestCommand(commandLower)
-					fmt.Printf("Ошибка при запуске команды '%s': %v\n", commandLine, err)
+					fmt.Printf("Error executing command '%s': %v\n", commandLine, err)
 					if suggestedCommand != "" {
-						fmt.Printf("Возможно, вы имели в виду: %s?\n", suggestedCommand)
+						fmt.Printf("Did you mean: %s?\n", suggestedCommand)
 					}
 				}
 			}
