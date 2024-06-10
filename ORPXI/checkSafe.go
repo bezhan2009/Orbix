@@ -22,20 +22,20 @@ func isPasswordDirectoryEmpty() (bool, error) {
 }
 
 // CheckUser Функция, которая проверяет пользователя и его пароль.
-func CheckUser(usernameFromDir string) bool {
+func CheckUser(usernameFromDir string) (string, bool) {
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
 		Clean.Screen()
 
 		fmt.Println("Ошибка при проверке директории с паролями:", err)
-		return false
+		return "", false
 	}
 
 	if isEmpty {
 		Clean.Screen()
 
 		fmt.Println("Добро пожаловать,", usernameFromDir)
-		return true
+		return usernameFromDir, true
 	}
 
 	reader := bufio.NewReader(os.Stdin)
@@ -56,13 +56,13 @@ func CheckUser(usernameFromDir string) bool {
 		Clean.Screen()
 
 		fmt.Println("Пользователь не найден или неверный пароль")
-		return false
+		return usernameFromDir, false
 	}
 
 	Clean.Screen()
 
 	fmt.Println("Добро пожаловать,", username)
-	return true
+	return username, true
 }
 
 // Функция для хеширования пароля

@@ -191,10 +191,14 @@ func geoIP(commandArgs []string) {
 	Network.GeoIP(commandArgs[0])
 }
 
-func signOut(user string, isWorking *bool) {
-	if !CheckUser(user) {
+func signOut(user string, isWorking *bool) string {
+	username, isSuccess := CheckUser(user)
+
+	if isSuccess {
 		*isWorking = false
 	}
+
+	return username
 }
 
 func calculatePrimes(commandArgs []string) {

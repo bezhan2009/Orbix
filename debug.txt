@@ -295,3 +295,10 @@ Command: help
 Arguments: []
 Success: True
 
+Timestamp: 2024-06-10T16:30:10+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD
+Command: read
+Arguments: [debug.txt]
+Success: True
+

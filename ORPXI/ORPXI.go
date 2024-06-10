@@ -34,14 +34,15 @@ func CMD(commandInput string) {
 		animatedPrint("Ошибка при проверке директории с паролями:" + err.Error() + "\n")
 		return
 	}
-
+	username := ""
 	if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
 		user := cmdPress.CmdUser(dir)
-
-		if !CheckUser(user) {
+		nameuser, isSuccess := CheckUser(user)
+		if !isSuccess {
 			return
 		}
+		username = nameuser
 	}
 
 	for isWorking {
@@ -51,6 +52,10 @@ func CMD(commandInput string) {
 		dir, _ := os.Getwd()
 		dirC := cmdPress.CmdDir(dir)
 		user := cmdPress.CmdUser(dir)
+
+		if username != "" {
+			user = username
+		}
 
 		if promptText != "" {
 			animatedPrint("\n" + promptText)
