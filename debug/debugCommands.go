@@ -1,37 +1,30 @@
 package debug
 
 import (
-	"goCmd/commands/commandsWithSignaiture/Write/utils"
+	"fmt"
 	"os"
+	"time"
 )
 
-func Commands(command string, isSuccess bool) error {
-	_, errOpenFile := os.Open("debug.txt")
-	var errFile error
+func Commands(command string, isSuccess bool, args []string, user string, dir string) error {
+	file, err := os.OpenFile("debug.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
-	if errOpenFile != nil {
-		_, errFile = os.Create("debug.txt")
-		if errFile != nil {
-			return errFile
-		}
+	timestamp := time.Now().Format(time.RFC3339)
+	status := "False"
+	if isSuccess {
+		status = "True"
 	}
 
-	var dataCommands string
+	data := fmt.Sprintf("Timestamp: %s\nUser: %s\nDirectory: %s\nCommand: %s\nArguments: %v\nSuccess: %s\n\n",
+		timestamp, user, dir, command, args, status)
 
-	dataCommands += "Command: "
-	dataCommands += command
-	dataCommands += " ; isSuccess: "
-	if isSuccess == true {
-		dataCommands += "True;\n"
-	} else {
-		dataCommands += "False;\n"
+	if _, err := file.WriteString(data); err != nil {
+		return err
 	}
 
-	errWriteDebug := utils.WriteFile("debug.txt", dataCommands)
-
-	if errWriteDebug != nil {
-		return errWriteDebug
-	}
-
-	return errWriteDebug
+	return nil
 }

@@ -1,0 +1,7 @@
+
+cmd
+orpxi
+wifiutils
+git add .
+git commit -m "translate to english and refactor debug commander with files"
+git push origin main

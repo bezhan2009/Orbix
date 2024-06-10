@@ -5,11 +5,20 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/fatih/color"
 	"goCmd/cmdPress"
+	"goCmd/debug"
 	"goCmd/utils"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
+
+func animatedPrint(text string) {
+	for _, char := range text {
+		fmt.Print(string(char))
+		time.Sleep(1 * time.Millisecond) // Задержка 50 миллисекунд между символами
+	}
+}
 
 func CMD(commandInput string) {
 	utils.SystemInformation()
@@ -19,20 +28,19 @@ func CMD(commandInput string) {
 
 	var promptText string
 
+	// Check password directory
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
-		fmt.Println("Error checking password directory:", err)
+		animatedPrint("Ошибка при проверке директории с паролями:" + err.Error() + "\n")
 		return
 	}
 
-	if !isEmpty {
-		if commandInput == "" {
-			dir, _ := os.Getwd()
-			user := cmdPress.CmdUser(dir)
+	if !isEmpty && commandInput == "" {
+		dir, _ := os.Getwd()
+		user := cmdPress.CmdUser(dir)
 
-			if !CheckUser(user) {
-				return
-			}
+		if !CheckUser(user) {
+			return
 		}
 	}
 
@@ -45,52 +53,103 @@ func CMD(commandInput string) {
 		user := cmdPress.CmdUser(dir)
 
 		if promptText != "" {
-			fmt.Print("\n" + promptText)
+			animatedPrint("\n" + promptText)
 		} else {
-			fmt.Printf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC))
-			fmt.Printf("└─$ %s", green(">", commandInput))
+			animatedPrint(fmt.Sprintf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC)))
+			animatedPrint(fmt.Sprintf("└─$ %s", green(commandInput)))
 		}
 
-		commandLine := prompt.Input("", autoComplete)
-		commandLine = strings.TrimSpace(commandLine)
-		commandParts := parseCommandLine(commandLine)
+		var commandLine string
+		var commandParts []string
+		var commandArgs []string
+		var commandLower string
+		var command string
 
-		if len(commandParts) == 0 {
-			continue
-		}
-
-		command := commandParts[0]
-		commandArgs := commandParts[1:]
-		commandLower := strings.ToLower(command)
-
-		commandHistory = append(commandHistory, commandLine)
-
-		fmt.Println()
-
-		if commandLower == "prompt" {
-			if len(commandArgs) < 1 {
-				fmt.Println("prompt <name_prompt>")
-				fmt.Println("to delete prompt enter:")
-				fmt.Println("prompt delete")
+		if commandInput != "" {
+			isWorking = false
+			isPermission = false
+			commandLine = strings.TrimSpace(commandInput) // Fixed usage of commandInput
+			commandParts = utils.SplitCommandLine(commandLine)
+			if len(commandParts) == 0 {
 				continue
 			}
 
-			namePrompt := commandArgs[0]
+			command = commandParts[0]
+			commandArgs = commandParts[1:]
+			commandLower = strings.ToLower(command)
+		} else {
+			commandLine = prompt.Input("> ", autoComplete)
+			commandLine = strings.TrimSpace(commandLine)
+			commandParts = utils.SplitCommandLine(commandLine)
 
-			if namePrompt != "delete" {
-				namePrompt = strings.TrimSpace(namePrompt)
-				promptText = namePrompt
-				fmt.Println("Prompt set to:", promptText)
-			} else {
-				promptText, _ = os.Getwd()
-				fmt.Println("Prompt set to:", promptText)
-				promptText = ""
+			if len(commandParts) == 0 {
+				continue
 			}
 
+			command = commandParts[0]
+			commandArgs = commandParts[1:]
+			commandLower = strings.ToLower(command)
+		}
+
+		animatedPrint("\n")
+
+		if commandLower == "prompt" {
+			handlePromptCommand(commandArgs, &promptText)
 			continue
 		}
 
-		helpText := `
+		if commandLower == "help" {
+			displayHelp(commandArgs, user, dir)
+			continue
+		}
+
+		isValid := utils.ValidCommand(commandLower, commands)
+
+		if !isValid {
+			fullCommand := append([]string{command}, commandArgs...)
+			err := utils.ExternalCommand(fullCommand)
+			if err != nil {
+				fullPath := filepath.Join(dir, command)
+				fullCommand[0] = fullPath
+				err = utils.ExternalCommand(fullCommand)
+				if err != nil {
+					suggestedCommand := suggestCommand(commandLower)
+					fmt.Printf("Error executing command '%s': %v\n", commandLine, err)
+					if suggestedCommand != "" {
+						fmt.Printf("Did you mean: %s?\n", suggestedCommand)
+					}
+				}
+			}
+			continue
+		}
+
+		ExecuteCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
+	}
+}
+
+func handlePromptCommand(commandArgs []string, prompt *string) {
+	if len(commandArgs) < 1 {
+		animatedPrint("prompt <name_prompt>\n")
+		animatedPrint("to delete prompt enter:\n")
+		animatedPrint("prompt delete\n")
+		return
+	}
+
+	namePrompt := commandArgs[0]
+
+	if namePrompt != "delete" {
+		namePrompt = strings.TrimSpace(namePrompt)
+		*prompt = namePrompt
+		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt))
+	} else {
+		*prompt, _ = os.Getwd()
+		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt))
+		*prompt = ""
+	}
+}
+
+func displayHelp(commandArgs []string, user, dir string) {
+	helpText := `
 For command information, type HELP
 CREATE             creates a new file
 CLEAN              clears the screen
@@ -123,38 +182,9 @@ GEOIP              IP address geolocation
 MATRIXMUL          multiplies large matrices
 EXIT               exit
 `
-
-		if commandLower == "help" {
-			fmt.Println(helpText)
-			continue
-		}
-
-		isValid := utils.ValidCommand(commandLower, commands)
-
-		if !isValid {
-			fullCommand := append([]string{command}, commandArgs...)
-			err := utils.ExternalCommand(fullCommand)
-			if err != nil {
-				fullPath := filepath.Join(dir, command)
-				fullCommand[0] = fullPath
-				err = utils.ExternalCommand(fullCommand)
-				if err != nil {
-					suggestedCommand := suggestCommand(commandLower)
-					fmt.Printf("Error executing command '%s': %v\n", commandLine, err)
-					if suggestedCommand != "" {
-						fmt.Printf("Did you mean: %s?\n", suggestedCommand)
-					}
-				}
-			}
-			continue
-		}
-
-		if commandInput != "" {
-			isPermission = false
-		} else {
-			isPermission = true
-		}
-
-		ExecuteCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
+	animatedPrint(helpText)
+	errDebug := debug.Commands("help", true, commandArgs, user, dir)
+	if errDebug != nil {
+		animatedPrint(errDebug.Error() + "\n")
 	}
 }

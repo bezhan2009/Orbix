@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"goCmd/commands/commandsWithoutSignature/Clean"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,15 +21,19 @@ func isPasswordDirectoryEmpty() (bool, error) {
 	return len(files) == 0, nil
 }
 
-// Функция, которая проверяет пользователя и его пароль.
+// CheckUser Функция, которая проверяет пользователя и его пароль.
 func CheckUser(usernameFromDir string) bool {
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
+		Clean.Screen()
+
 		fmt.Println("Ошибка при проверке директории с паролями:", err)
 		return false
 	}
 
 	if isEmpty {
+		Clean.Screen()
+
 		fmt.Println("Добро пожаловать,", usernameFromDir)
 		return true
 	}
@@ -48,11 +53,14 @@ func CheckUser(usernameFromDir string) bool {
 	// Ищем файл с именем, совпадающим с хешем пароля
 	filePath := filepath.Join(passwordDir, hashedPassword)
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		Clean.Screen()
+
 		fmt.Println("Пользователь не найден или неверный пароль")
 		return false
 	}
 
-	// Если файл существует, пользователь найден
+	Clean.Screen()
+
 	fmt.Println("Добро пожаловать,", username)
 	return true
 }

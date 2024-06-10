@@ -101,19 +101,19 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		}
 
 	case "create":
-		createFile(commandArgs, command, dir)
+		createFile(commandArgs, command, user, dir)
 
 	case "write":
-		Write.File(commandLower, commandArgs)
+		Write.File(commandLower, commandArgs, user, dir)
 
 	case "read":
-		Read.File(commandLower, commandArgs)
+		Read.File(commandLower, commandArgs, user, dir)
 
 	case "remove":
-		removeFile(commandArgs, command)
+		removeFile(commandArgs, command, user, dir)
 
 	case "rename":
-		renameFile(commandArgs, command)
+		renameFile(commandArgs, command, user, dir)
 
 	case "clean":
 		Clean.Screen()
@@ -230,7 +230,7 @@ func fileIOStressTest(commandArgs []string) {
 
 func executeShablon(commandArgs []string) {
 	if len(commandArgs) < 1 {
-		fmt.Println("Использование: shablon <название_шаблона>")
+		fmt.Println("Usage: shablon <template_name>")
 		return
 	}
 	if err := Start(commandArgs[0]); err != nil {
@@ -238,35 +238,35 @@ func executeShablon(commandArgs []string) {
 	}
 }
 
-func createFile(commandArgs []string, command, dir string) {
+func createFile(commandArgs []string, command, user, dir string) {
 	name, err := Create.File(commandArgs)
 	if err != nil {
 		fmt.Println(err)
-		debug.Commands(command, false)
+		debug.Commands(command, false, commandArgs, user, dir)
 	} else if name != "" {
-		fmt.Printf("Файл %s успешно создан!\n", name)
-		fmt.Printf("Директория нового файла: %s\n", filepath.Join(dir, name))
-		debug.Commands(command, true)
+		fmt.Printf("File %s successfully created!\n", name)
+		fmt.Printf("Directory of the new file: %s\n", filepath.Join(dir, name))
+		debug.Commands(command, true, commandArgs, user, dir)
 	}
 }
 
-func removeFile(commandArgs []string, command string) {
+func removeFile(commandArgs []string, command string, user, dir string) {
 	name, err := Remove.File(commandArgs)
 	if err != nil {
-		debug.Commands(command, false)
+		debug.Commands(command, false, commandArgs, user, dir)
 		fmt.Println(err)
 	} else {
-		debug.Commands(command, true)
-		fmt.Printf("Файл %s успешно удален!\n", name)
+		debug.Commands(command, true, commandArgs, user, dir)
+		fmt.Printf("File %s successfully deleted!\n", name)
 	}
 }
 
-func renameFile(commandArgs []string, command string) {
+func renameFile(commandArgs []string, command string, user, dir string) {
 	if err := Rename.Rename(commandArgs); err != nil {
-		debug.Commands(command, false)
+		debug.Commands(command, false, commandArgs, user, dir)
 		fmt.Println(err)
 	} else {
-		debug.Commands(command, true)
+		debug.Commands(command, true, commandArgs, user, dir)
 	}
 }
 
@@ -283,7 +283,7 @@ func changeDirectory(commandArgs []string) {
 
 func editFile(commandArgs []string) {
 	if len(commandArgs) < 1 {
-		fmt.Println("Использование: edit <файл>")
+		fmt.Println("Usage: edit <file>")
 		return
 	}
 	if err := Edit.File(commandArgs[0]); err != nil {
@@ -293,9 +293,9 @@ func editFile(commandArgs []string) {
 
 func handleUnknownCommand(commandLower, commandLine string, commands []structs.Command) {
 	if !utils.ValidCommand(commandLower, commands) {
-		fmt.Printf("'%s' не является внутренней или внешней командой,\nисполняемой программой или пакетным файлом.\n", commandLine)
+		fmt.Printf("'%s' is not recognized as an internal or external command,\noperable program or batch file.\n", commandLine)
 		if suggestedCommand := suggestCommand(commandLower); suggestedCommand != "" {
-			fmt.Printf("Возможно, вы имели в виду: %s?\n", suggestedCommand)
+			fmt.Printf("Did you mean: %s?\n", suggestedCommand)
 		}
 	}
 }

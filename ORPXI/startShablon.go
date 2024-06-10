@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Start executes a series of commands defined in the given shablon file.
 func Start(shablonName string) error {
 	shablonName = strings.TrimSpace(shablonName)
 
@@ -20,14 +21,24 @@ func Start(shablonName string) error {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" {
-			continue // Игнорировать пустые строки
+			continue // Ignore empty lines
 		}
-		CMD(line)
+		// Execute each command from the template
+		if err := executeCommand(line); err != nil {
+			fmt.Printf("Error executing command '%s': %v\n", line, err)
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
 		return fmt.Errorf("error reading file: %v", err)
 	}
 
+	return nil
+}
+
+// executeCommand executes a single command using the CMD function.
+func executeCommand(command string) error {
+	// Assuming CMD function handles the command execution.
+	CMD(command)
 	return nil
 }

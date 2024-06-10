@@ -7,29 +7,31 @@ import (
 	"strings"
 )
 
-func File(command string, commandArgs []string) {
+func File(command string, commandArgs []string, user string, dir string) error {
 	if len(commandArgs) < 2 {
-		fmt.Println("Использование: write <файл> <данные>")
-		return
+		fmt.Println("Usage: write <file> <data>")
+		debug.Commands(command, false, commandArgs, user, dir)
+		return nil
 	}
 
 	nameFileForWrite := commandArgs[0]
-
 	data := strings.Join(commandArgs[1:], " ")
 
 	if nameFileForWrite == "debug.txt" {
-		debug.Commands(command, false)
+		debug.Commands(command, false, commandArgs, user, dir)
 		fmt.Println("PermissionDenied: You cannot write, delete or create a debug.txt file")
-		return
+		return nil
 	}
 
 	errWriting := utils.WriteFile(nameFileForWrite, data+"\n")
 
 	if errWriting != nil {
-		debug.Commands(command, false)
+		debug.Commands(command, false, commandArgs, user, dir)
 		fmt.Println(errWriting)
+		return errWriting
 	} else {
-		debug.Commands(command, true)
-		fmt.Printf("Мы успешно записали данные в файл %s\n", nameFileForWrite)
+		debug.Commands(command, true, commandArgs, user, dir)
+		fmt.Printf("Successfully wrote data to file %s\n", nameFileForWrite)
+		return nil
 	}
 }
