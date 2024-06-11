@@ -1,8 +1,11 @@
-package utils
+package copySource
 
 import (
 	"io"
 	"os"
+	"strings"
+
+	"github.com/atotto/clipboard"
 )
 
 func File(src, dst string) error {
@@ -12,6 +15,23 @@ func File(src, dst string) error {
 	}
 	defer sourceFile.Close()
 
+	// Если целевая директория - "buffer", используем буфер обмена
+	if strings.ToLower(dst) == "buffer" {
+		// Читаем содержимое файла в память
+		data, err := io.ReadAll(sourceFile)
+		if err != nil {
+			return err
+		}
+
+		// Помещаем содержимое в буфер обмена
+		if err := writeToClipboard(data); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	// Иначе, создаем целевой файл и копируем содержимое
 	destinationFile, err := os.Create(dst)
 	if err != nil {
 		return err
@@ -29,4 +49,9 @@ func File(src, dst string) error {
 	}
 
 	return nil
+}
+
+func writeToClipboard(data []byte) error {
+	// Записываем данные в буфер обмена
+	return clipboard.WriteAll(string(data))
 }

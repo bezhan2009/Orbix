@@ -159,7 +159,7 @@ For command information, type HELP
 CREATE             creates a new file
 CLEAN              clears the screen
 CD                 changes the current directory
-COPUSOURCE         from file copy his source
+COPUSOURCE         copies the source code of the file
 LS                 lists directory contents
 NEWSHABLON         creates a new command template for execution
 REMOVE             deletes a file
