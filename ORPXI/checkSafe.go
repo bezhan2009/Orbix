@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// Функция, которая проверяет, есть ли файлы в директории passwords.
+// isPasswordDirectoryEmpty Функция, которая проверяет, есть ли файлы в директории passwords.
 func isPasswordDirectoryEmpty() (bool, error) {
 	files, err := os.ReadDir("passwords")
 	if err != nil {
@@ -65,7 +65,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 	return username, true
 }
 
-// Функция для хеширования пароля
+// hashPasswordFromUser Функция для хеширования пароля
 func hashPasswordFromUser(password string) string {
 	hash := sha256.New()
 	hash.Write([]byte(password))
