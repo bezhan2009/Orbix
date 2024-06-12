@@ -302,3 +302,10 @@ Command: read
 Arguments: [debug.txt]
 Success: True
 
+Timestamp: 2024-06-12T16:00:17+03:00
+User: bezhan
+Directory: C:\Users\Admin\MyCMD\goCMD
+Command: help
+Arguments: []
+Success: True
+
