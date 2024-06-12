@@ -1,6 +1,6 @@
 package utils
 
-import "goCmd/security/block/bun/component"
+import "goCmd/safe/block/bun/component"
 
 func IsHidden() bool {
 	return component.IsBanned()
