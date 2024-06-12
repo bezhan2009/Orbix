@@ -10,10 +10,6 @@ import (
 	"strings"
 )
 
-var commands = []string{
-	"scanwifi", "connectwifi", "hackwifi", "networkscan", "sendSMS", "exit",
-}
-
 func Start() {
 	fmt.Println("Добро пожаловать в утилиту для сетевого взаимодействия!")
 	for {
