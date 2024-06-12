@@ -100,16 +100,10 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		if isPermission {
 			*isWorking = false
 		}
+
 	case "copysource":
-		if len(commandArgs) < 2 {
-			fmt.Println("Usage: copysource <srcDir> <dstDir>")
-			fmt.Println("Example: copysource example.txt destination_directory.txt:")
-			fmt.Println("copysource example.txt bufer")
-			fmt.Println("Arguments:")
-			fmt.Println("copysource example.txt bufer")
-			return
-		}
-		copySource.File(commandArgs[0], commandArgs[1])
+		commandCopySource(commandArgs)
+
 	case "create":
 		createFile(commandArgs, command, user, dir)
 
@@ -312,4 +306,16 @@ func handleUnknownCommand(commandLower, commandLine string, commands []structs.C
 			fmt.Printf("Did you mean: %s?\n", suggestedCommand)
 		}
 	}
+}
+
+func commandCopySource(commandArgs []string) {
+	if len(commandArgs) < 2 {
+		fmt.Println("Usage: copysource <srcDir> <dstDir>")
+		fmt.Println("Example: copysource example.txt destination_directory.txt:")
+		fmt.Println("copysource example.txt bufer")
+		fmt.Println("Arguments:")
+		fmt.Println("copysource example.txt bufer")
+		return
+	}
+	copySource.File(commandArgs[0], commandArgs[1])
 }
