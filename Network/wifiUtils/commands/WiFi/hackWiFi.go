@@ -47,7 +47,6 @@ func GeneratePasswordWithPatterns(count int, usedPasswords map[string]bool) []st
 }
 
 // AttemptConnectWithGeneratedPasswords пытается подключиться к Wi-Fi сети с угадыванием пароля,
-// используя сгенерированные пароли и пароли по шаблонам
 func AttemptConnectWithGeneratedPasswords(ssid string, attemptsStr string) {
 	var passwordList []string
 	attempts, err := strconv.Atoi(attemptsStr)
