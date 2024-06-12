@@ -1,4 +1,5 @@
-## ORPXI - Расширяемая командная строка на Go
+
+### ORPXI - Expandable Command Line Interface in Go
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI) 
 ![GitHub language count](https://img.shields.io/github/languages/count/bezhan2009/ORPXI)
@@ -12,19 +13,19 @@
     <img src="https://visitor-badge.laobi.icu/badge?page_id=bezhan2009.ORPXI" alt="visitors"/>
 </p>
 
-Читать на [English](README.eng.md)
+Read in [Русский](README.ru.md)
 
-**ORPXI** - это альтернативная командная строка, написанная на языке программирования Go. Она предоставляет те же основные команды, что и стандартная CMD, но также включает в себя дополнительные команды, специфичные для этого инструмента.
+**ORPXI** is an alternative command line interface written in the Go programming language. It provides the same basic commands as the standard CMD, but also includes additional commands specific to this tool.
 
-### Особенности
+### Features
 
-- **Совместимость с CMD**: ORPXI поддерживает большинство команд CMD, обеспечивая плавный переход для пользователей.
-- **Дополнительные команды**: ORPXI включает в себя ряд дополнительных команд, разработанных для упрощения повседневных задач системных администраторов и разработчиков.
-- **Расширяемость**: Поскольку ORPXI написан на Go, его функциональность легко расширяется за счет разработки пользовательских команд.
-- **Производительность**: Go известен своей высокой производительностью, что делает ORPXI быстрым и отзывчивым.
-- **Поддержка и обратная связь**: Есть возможность обратиться к разработчику напрямую через Telegram.
+- **CMD Compatibility**: ORPXI supports most CMD commands, ensuring a smooth transition for users.
+- **Additional Commands**: ORPXI includes a range of additional commands designed to simplify everyday tasks for system administrators and developers.
+- **Extensibility**: Since ORPXI is written in Go, its functionality can be easily extended by developing custom commands.
+- **Performance**: Go is known for its high performance, making ORPXI fast and responsive.
+- **Support and Feedback**: Users can contact the developer directly via Telegram.
 
-### Установка и Запуск
+### Installation and Running
 
 ```bash
 git clone https://github.com/bezhan2009/ORPXI.git
@@ -32,40 +33,40 @@ cd ORPXI
 go run .
 ```
 
-### Список доступных команд
+### List of Available Commands
 
-- **CREATE**: Создает новый файл.
-- **CLEAN**: Очищает экран.
-- **CD**: Смена текущего каталога.
-- **COPUSOURCE**: копирует исходный код файла
-- **LS**: Выводит содержимое каталога.
-- **NEWSHABLON**: Создает новый шаблон команд для выполнения.
-- **REMOVE**: Удаляет файл.
-- **READ**: Выводит на экран содержимое файла.
-- **PROMPT**: Изменяет ORPXI.
-- **PINGVIEW**: Показывает пинг.
-- **NEWUSER**: Новый пользователь для ORPXI.
-- **ORPXI**: Запускает еще одну ORPXI.
-- **SHABLON**: Выполняет определенный шаблон команд.
-- **SYSTEMGOCMD**: Вывод информации о ORPXI.
-- **SYSTEMINFO**: Вывод информации о системе.
-- **SIGNOUT**: Пользователь выходит из ORPXI.
-- **TREE**: Графически отображает структуру каталогов диска или пути.
-- **WRITE**: Записывает данные в файл.
-- **EDIT**: Редактирует файл.
-- **EXTRACTZIP**: Распаковывает архивы .zip.
-- **SCANPORT**: Сканирование портов.
-- **WHOIS**: Информация о домене.
-- **DNSLOOKUP**: DNS-запросы.
-- **WIFIUTILS**: Запускает утилиту для работы с WiFi.
-- **IPINFO**: Информация об IP-адресе.
-- **GEOIP**: Геолокация IP-адреса.
-- **EXIT**: Выход.
+- **CREATE**: Creates a new file.
+- **CLEAN**: Clears the screen.
+- **CD**: Changes the current directory.
+- **LS**: Lists directory contents.
+- **COPYSOURCE**: Copies the source code of the file.
+- **NEWSHABLON**: Creates a new template of commands to execute.
+- **REMOVE**: Deletes a file.
+- **READ**: Displays the contents of a file.
+- **PROMPT**: Changes the ORPXI prompt.
+- **PINGVIEW**: Displays ping.
+- **NEWUSER**: Adds a new user for ORPXI.
+- **ORPXI**: Starts another instance of ORPXI.
+- **SHABLON**: Executes a specific command template.
+- **SYSTEMGOCMD**: Displays information about ORPXI.
+- **SYSTEMINFO**: Displays system information.
+- **SIGNOUT**: Logs out the user from ORPXI.
+- **TREE**: Graphically displays the directory structure of a disk or path.
+- **WRITE**: Writes data to a file.
+- **EDIT**: Edits a file.
+- **EXTRACTZIP**: Extracts .zip archives.
+- **SCANPORT**: Scans ports.
+- **WHOIS**: Retrieves information about a domain.
+- **DNSLOOKUP**: Performs DNS lookups.
+- **WIFIUTILS**: Launches the WiFi utility.
+- **IPINFO**: Retrieves information about an IP address.
+- **GEOIP**: Retrieves geolocation information for an IP address.
+- **EXIT**: Exits ORPXI.
 
-### Руководство по разработке
+### Development Guide
 
-Если вы хотите расширить функциональность ORPXI, вы можете написать разработчику [здесь](https://t.me/Rust_Bezhan).
+If you want to extend the functionality of ORPXI, you can contact the developer [here](https://t.me/Rust_Bezhan).
 
-### Обратная связь и поддержка
+### Feedback and Support
 
-Если у вас возникли вопросы, предложения или проблемы, пожалуйста, создайте новый [issue](https://github.com/bezhan2009/ORPXI/issues/new) в нашем репозитории на GitHub.
+If you have any questions, suggestions, or issues, please create a new [issue](https://github.com/bezhan2009/ORPXI/issues/new) in our GitHub repository.
