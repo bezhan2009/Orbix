@@ -5,7 +5,6 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/fatih/color"
 	"goCmd/cmdPress"
-	"goCmd/debug"
 	"goCmd/utils"
 	"os"
 	"path/filepath"
@@ -129,68 +128,5 @@ func CMD(commandInput string) {
 		}
 
 		ExecuteCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
-	}
-}
-
-func handlePromptCommand(commandArgs []string, prompt *string) {
-	if len(commandArgs) < 1 {
-		animatedPrint("prompt <name_prompt>\n")
-		animatedPrint("to delete prompt enter:\n")
-		animatedPrint("prompt delete\n")
-		return
-	}
-
-	namePrompt := commandArgs[0]
-
-	if namePrompt != "delete" {
-		namePrompt = strings.TrimSpace(namePrompt)
-		*prompt = namePrompt
-		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt))
-	} else {
-		*prompt, _ = os.Getwd()
-		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt))
-		*prompt = ""
-	}
-}
-
-func displayHelp(commandArgs []string, user, dir string) {
-	helpText := `
-For command information, type HELP
-CREATE             creates a new file
-CLEAN              clears the screen
-CD                 changes the current directory
-COPUSOURCE         copies the source code of the file
-LS                 lists directory contents
-NEWSHABLON         creates a new command template for execution
-REMOVE             deletes a file
-READ               displays the contents of a file
-PROMPT             changes ORPXI prompt.
-PINGVIEW           shows ping.
-PRIMES             finds large prime numbers
-PICALC             calculates the value of π.
-NEWUSER            creates a new user for ORPXI.
-ORPXI              starts another ORPXI session
-SHABLON            executes a specific command template
-SYSTEMGOCMD        displays information about ORPXI
-SYSTEMINFO         displays system information
-SIGNOUT            user signs out of ORPXI
-TREE               graphically displays directory structure
-WRITE              writes data to a file
-EDIT               edits a file
-WIFIUTILS          launches a utility for working with WiFi
-EXTRACTZIP         extracts .zip archives
-SCANPORT           scans ports
-WHOIS              domain information
-DNSLOOKUP          DNS queries
-FILEIO             intensive file operation test
-IPINFO             IP address information
-GEOIP              IP address geolocation
-MATRIXMUL          multiplies large matrices
-EXIT               exit
-`
-	animatedPrint(helpText)
-	errDebug := debug.Commands("help", true, commandArgs, user, dir)
-	if errDebug != nil {
-		animatedPrint(errDebug.Error() + "\n")
 	}
 }
