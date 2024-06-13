@@ -1,10 +1,42 @@
 package mycmd
 
+import "unicode"
+
+type TokenType string
+
+const (
+	ILLEGAL = "ILLEGAL"
+	EOF     = "EOF"
+
+	IDENT = "IDENT"
+	INT   = "INT"
+
+	ASSIGN = "="
+	PLUS   = "+"
+
+	COMMA     = ","
+	SEMICOLON = ";"
+
+	LPAREN = "("
+	RPAREN = ")"
+	LBRACE = "{"
+	RBRACE = "}"
+
+	FUNCTION = "FUNCTION"
+	LET      = "LET"
+	PRINT    = "PRINT"
+)
+
+type Token struct {
+	Type    TokenType
+	Literal string
+}
+
 type Lexer struct {
 	input        string
-	position     int  // current position in input (points to current char)
-	readPosition int  // current reading position in input (after current char)
-	ch           byte // current char under examination
+	position     int
+	readPosition int
+	ch           byte
 }
 
 func NewLexer(input string) *Lexer {
@@ -31,22 +63,31 @@ func (l *Lexer) NextToken() Token {
 	switch l.ch {
 	case '=':
 		tok = newToken(ASSIGN, l.ch)
+	case '+':
+		tok = newToken(PLUS, l.ch)
+	case ',':
+		tok = newToken(COMMA, l.ch)
 	case ';':
 		tok = newToken(SEMICOLON, l.ch)
+	case '(':
+		tok = newToken(LPAREN, l.ch)
+	case ')':
+		tok = newToken(RPAREN, l.ch)
+	case '{':
+		tok = newToken(LBRACE, l.ch)
+	case '}':
+		tok = newToken(RBRACE, l.ch)
 	case 0:
 		tok.Literal = ""
 		tok.Type = EOF
-	case '"':
-		tok.Type = STRING
-		tok.Literal = l.readString()
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
-			tok.Type = LookupIdent(tok.Literal)
+			tok.Type = lookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Type = INT
 			tok.Literal = l.readNumber()
+			tok.Type = INT
 			return tok
 		} else {
 			tok = newToken(ILLEGAL, l.ch)
@@ -73,17 +114,6 @@ func (l *Lexer) readNumber() string {
 	return l.input[position:l.position]
 }
 
-func (l *Lexer) readString() string {
-	position := l.position + 1
-	for {
-		l.readChar()
-		if l.ch == '"' || l.ch == 0 {
-			break
-		}
-	}
-	return l.input[position:l.position]
-}
-
 func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
@@ -91,7 +121,7 @@ func (l *Lexer) skipWhitespace() {
 }
 
 func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+	return unicode.IsLetter(rune(ch)) || ch == '_'
 }
 
 func isDigit(ch byte) bool {
@@ -100,4 +130,17 @@ func isDigit(ch byte) bool {
 
 func newToken(tokenType TokenType, ch byte) Token {
 	return Token{Type: tokenType, Literal: string(ch)}
+}
+
+func lookupIdent(ident string) TokenType {
+	switch ident {
+	case "let":
+		return LET
+	case "fn":
+		return FUNCTION
+	case "print":
+		return PRINT
+	default:
+		return IDENT
+	}
 }

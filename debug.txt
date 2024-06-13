@@ -309,3 +309,24 @@ Command: help
 Arguments: []
 Success: True
 
+Timestamp: 2024-06-13T17:19:00+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD
+Command: create
+Arguments: [testCommandCMD]
+Success: True
+
+Timestamp: 2024-06-13T17:19:31+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD
+Command: create
+Arguments: [testCommandCMD.mycmd]
+Success: True
+
+Timestamp: 2024-06-13T17:19:52+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD
+Command: read
+Arguments: [testCommandCMD.mycmd]
+Success: True
+
