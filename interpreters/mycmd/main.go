@@ -12,6 +12,7 @@ func Interpreter(commandArgs []string) {
 	}
 
 	fileName := commandArgs[0]
+	fmt.Println("Running script:", fileName)
 
 	script, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -26,5 +27,8 @@ func Interpreter(commandArgs []string) {
 	program := p.ParseProgram()
 
 	env := NewEnvironment()
-	Eval(program, env)
+	result := Eval(program, env)
+
+	// Вывод результата интерпретации
+	fmt.Println("Result:", result)
 }
