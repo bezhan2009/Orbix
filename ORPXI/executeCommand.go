@@ -26,6 +26,7 @@ import (
 	"goCmd/commands/resourceIntensive/PiCalculation"
 	"goCmd/commands/resourceIntensive/PrimeNumbers"
 	"goCmd/debug"
+	"goCmd/interpreters/mycmd"
 	"goCmd/structs"
 	"goCmd/utils"
 )
@@ -95,7 +96,8 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 
 	case "systemgocmd":
 		utils.SystemInformation()
-
+	case "mycmd":
+		mycmd.Interpreter(commandArgs)
 	case "exit":
 		if isPermission {
 			*isWorking = false
