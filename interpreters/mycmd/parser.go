@@ -1,19 +1,150 @@
 package mycmd
 
-import "fmt"
+const (
+	_ int = iota
+	LOWEST
+	EQUALS
+	LESSGREATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
 
-type Parser struct {
-	l         *Lexer
-	curToken  Token
-	peekToken Token
-	errors    []string
+var precedences = map[string]int{
+	"==": EQUALS,
+	"!=": EQUALS,
+	"<":  LESSGREATER,
+	">":  LESSGREATER,
+	"+":  SUM,
+	"-":  SUM,
+	"*":  PRODUCT,
+	"/":  PRODUCT,
+	"(":  CALL,
 }
+
+type (
+	prefixParseFn func() Expression
+	infixParseFn  func(Expression) Expression
+)
+
+func (p *Parser) registerPrefix(tokenType TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
+}
+
+func (p *Parser) parseFunctionLiteral() Expression {
+	lit := &FunctionLiteral{Token: p.curToken}
+
+	if !p.expectPeek(LPAREN) {
+		return nil
+	}
+
+	lit.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(LBRACE) {
+		return nil
+	}
+
+	lit.Body = p.parseBlockStatement()
+
+	return lit
+}
+
+func (p *Parser) parseFunctionParameters() []*Identifier {
+	identifiers := []*Identifier{}
+
+	if p.peekTokenIs(RPAREN) {
+		p.nextToken()
+		return identifiers
+	}
+
+	p.nextToken()
+
+	ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	identifiers = append(identifiers, ident)
+
+	for p.peekTokenIs(COMMA) {
+		p.nextToken()
+		p.nextToken()
+		ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		identifiers = append(identifiers, ident)
+	}
+
+	if !p.expectPeek(RPAREN) {
+		return nil
+	}
+
+	return identifiers
+}
+
+func (p *Parser) parseCallExpression(function Expression) Expression {
+	exp := &CallExpression{Token: p.curToken, Function: function}
+	exp.Arguments = p.parseExpressionList(RPAREN)
+	return exp
+}
+
+func (p *Parser) parseExpressionList(end TokenType) []Expression {
+	list := []Expression{}
+
+	if p.peekTokenIs(end) {
+		p.nextToken()
+		return list
+	}
+
+	p.nextToken()
+	list = append(list, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(COMMA) {
+		p.nextToken()
+		p.nextToken()
+		list = append(list, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(end) {
+		return nil
+	}
+
+	return list
+}
+
+
+package mycmd
+
+import (
+	"fmt"
+)
 
 func NewParser(l *Lexer) *Parser {
 	p := &Parser{
-		l:      l,
-		errors: []string{},
+		l:            l,
+		errors:       []string{},
+		prefixParseFns: make(map[TokenType]prefixParseFn),
+		infixParseFns:  make(map[TokenType]infixParseFn),
 	}
+
+	p.registerPrefix(IDENT, p.parseIdentifier)
+	p.registerPrefix(INT, p.parseIntegerLiteral)
+	p.registerPrefix(BANG, p.parsePrefixExpression)
+	p.registerPrefix(MINUS, p.parsePrefixExpression)
+	p.registerPrefix(TRUE, p.parseBoolean)
+	p.registerPrefix(FALSE, p.parseBoolean)
+	p.registerPrefix(LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(IF, p.parseIfExpression)
+	p.registerPrefix(FUNCTION, p.parseFunctionLiteral)
+
+	p.registerInfix(PLUS, p.parseInfixExpression)
+	p.registerInfix(MINUS, p.parseInfixExpression)
+	p.registerInfix(SLASH, p.parseInfixExpression)
+	p.registerInfix(ASTERISK, p.parseInfixExpression)
+	p.registerInfix(EQ, p.parseInfixExpression)
+	p.registerInfix(NOT_EQ, p.parseInfixExpression)
+	p.registerInfix(LT, p.parseInfixExpression)
+	p.registerInfix(GT, p.parseInfixExpression)
+	p.registerInfix(LPAREN, p.parseCallExpression)
 
 	p.nextToken()
 	p.nextToken()
@@ -21,109 +152,165 @@ func NewParser(l *Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) nextToken() {
-	p.curToken = p.peekToken
-	p.peekToken = p.l.NextToken()
+func (p *Parser) parseFunctionLiteral() Expression {
+	lit := &FunctionLiteral{Token: p.curToken}
+
+	if !p.expectPeek(LPAREN) {
+		return nil
+	}
+
+	lit.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(LBRACE) {
+		return nil
+	}
+
+	lit.Body = p.parseBlockStatement()
+
+	return lit
 }
 
-func (p *Parser) ParseProgram() *Program {
-	program := &Program{}
-	program.Statements = []Statement{}
+func (p *Parser) parseFunctionParameters() []*Identifier {
+	identifiers := []*Identifier{}
 
-	for p.curToken.Type != EOF {
-		stmt := p.parseStatement()
-		if stmt != nil {
-			program.Statements = append(program.Statements, stmt)
-		}
+	if p.peekTokenIs(RPAREN) {
 		p.nextToken()
-	}
-
-	return program
-}
-
-func (p *Parser) parseStatement() Statement {
-	switch p.curToken.Type {
-	case LET:
-		return p.parseLetStatement()
-	case PRINT:
-		return p.parsePrintStatement()
-	default:
-		return p.parseExpressionStatement()
-	}
-}
-
-func (p *Parser) parseLetStatement() *LetStatement {
-	stmt := &LetStatement{Token: p.curToken}
-
-	if !p.expectPeek(IDENT) {
-		return nil
-	}
-
-	stmt.Name = &Identifier{Token: p.curToken, Value: p.curToken.Literal}
-
-	if !p.expectPeek(ASSIGN) {
-		return nil
+		return identifiers
 	}
 
 	p.nextToken()
 
-	stmt.Value = p.parseExpression()
+	ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	identifiers = append(identifiers, ident)
 
-	if p.peekTokenIs(SEMICOLON) {
+	for p.peekTokenIs(COMMA) {
 		p.nextToken()
+		p.nextToken()
+		ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		identifiers = append(identifiers, ident)
 	}
 
-	return stmt
+	if !p.expectPeek(RPAREN) {
+		return nil
+	}
+
+	return identifiers
 }
 
-func (p *Parser) parsePrintStatement() *PrintStatement {
-	stmt := &PrintStatement{Token: p.curToken}
+
+package mycmd
+
+import (
+	"fmt"
+)
+
+const (
+	_ int = iota
+	LOWEST
+	EQUALS
+	LESSGREATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
+
+var precedences = map[string]int{
+	"==": EQUALS,
+	"!=": EQUALS,
+	"<":  LESSGREATER,
+	">":  LESSGREATER,
+	"+":  SUM,
+	"-":  SUM,
+	"*":  PRODUCT,
+	"/":  PRODUCT,
+	"(":  CALL,
+}
+
+type (
+	prefixParseFn func() Expression
+	infixParseFn  func(Expression) Expression
+)
+
+func (p *Parser) registerPrefix(tokenType TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
+}
+
+func (p *Parser) parseFunctionLiteral() Expression {
+	lit := &FunctionLiteral{Token: p.curToken}
+
+	if !p.expectPeek(LPAREN) {
+		return nil
+	}
+
+	lit.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(LBRACE) {
+		return nil
+	}
+
+	lit.Body = p.parseBlockStatement()
+
+	return lit
+}
+
+func (p *Parser) parseFunctionParameters() []*Identifier {
+	identifiers := []*Identifier{}
+
+	if p.peekTokenIs(RPAREN) {
+		p.nextToken()
+		return identifiers
+	}
 
 	p.nextToken()
 
-	stmt.Value = p.parseExpression()
+	ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	identifiers = append(identifiers, ident)
 
-	if p.peekTokenIs(SEMICOLON) {
+	for p.peekTokenIs(COMMA) {
 		p.nextToken()
+		p.nextToken()
+		ident := &Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		identifiers = append(identifiers, ident)
 	}
 
-	return stmt
-}
-
-func (p *Parser) parseExpressionStatement() *ExpressionStatement {
-	stmt := &ExpressionStatement{Token: p.curToken}
-	stmt.Expression = p.parseExpression()
-
-	if p.peekTokenIs(SEMICOLON) {
-		p.nextToken()
+	if !p.expectPeek(RPAREN) {
+		return nil
 	}
 
-	return stmt
+	return identifiers
 }
 
-func (p *Parser) parseExpression() Expression {
-	return p.parseIdentifier()
+func (p *Parser) parseCallExpression(function Expression) Expression {
+	exp := &CallExpression{Token: p.curToken, Function: function}
+	exp.Arguments = p.parseExpressionList(RPAREN)
+	return exp
 }
 
-func (p *Parser) parseIdentifier() Expression {
-	return &Identifier{Token: p.curToken, Value: p.curToken.Literal}
-}
+func (p *Parser) parseExpressionList(end TokenType) []Expression {
+	list := []Expression{}
 
-func (p *Parser) peekTokenIs(t TokenType) bool {
-	return p.peekToken.Type == t
-}
-
-func (p *Parser) expectPeek(t TokenType) bool {
-	if p.peekTokenIs(t) {
+	if p.peekTokenIs(end) {
 		p.nextToken()
-		return true
-	} else {
-		p.peekError(t)
-		return false
+		return list
 	}
-}
 
-func (p *Parser) peekError(t TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
-	p.errors = append(p.errors, msg)
+	p.nextToken()
+	list = append(list, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(COMMA) {
+		p.nextToken()
+		p.nextToken()
+		list = append(list, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(end) {
+		return nil
+	}
+
+	return list
 }

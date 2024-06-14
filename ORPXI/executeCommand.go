@@ -82,7 +82,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 	case "systemgocmd":
 		utils.SystemInformation()
 	case "mycmd":
-		mycmd.Start(commandArgs)
+		mycmd.Start()
 	case "exit":
 		if isPermission {
 			*isWorking = false

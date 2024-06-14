@@ -5,18 +5,28 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/common-nighthawk/go-figure"
+	"github.com/fatih/color"
 	"goCmd/validators"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
+// PrintNewUser выводит сообщение New User!!! в стиле ASCII-арт зелёным цветом
+func PrintNewUser() {
+	myFigure := figure.NewFigure("New User!!!", "", true)
+	greenText := color.New(color.FgGreen).SprintFunc()
+	fmt.Println(greenText(myFigure.String()))
+}
+
 func NewUser() {
 	reader := bufio.NewReader(os.Stdin)
+	PrintNewUser()
 	fmt.Print("Enter username: ")
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
-	fmt.Print("Enter NewUser: ")
+	fmt.Print("Enter password: ")
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
 

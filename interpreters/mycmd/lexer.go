@@ -1,42 +1,14 @@
 package mycmd
 
-import "unicode"
-
-type TokenType string
-
-const (
-	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
-
-	IDENT = "IDENT"
-	INT   = "INT"
-
-	ASSIGN = "="
-	PLUS   = "+"
-
-	COMMA     = ","
-	SEMICOLON = ";"
-
-	LPAREN = "("
-	RPAREN = ")"
-	LBRACE = "{"
-	RBRACE = "}"
-
-	FUNCTION = "FUNCTION"
-	LET      = "LET"
-	PRINT    = "PRINT"
+import (
+	"unicode"
 )
-
-type Token struct {
-	Type    TokenType
-	Literal string
-}
 
 type Lexer struct {
 	input        string
-	position     int
-	readPosition int
-	ch           byte
+	position     int  // current position in input (points to current char)
+	readPosition int  // current reading position in input (after current char)
+	ch           byte // current char under examination
 }
 
 func NewLexer(input string) *Lexer {
@@ -52,7 +24,7 @@ func (l *Lexer) readChar() {
 		l.ch = l.input[l.readPosition]
 	}
 	l.position = l.readPosition
-	l.readPosition++
+	l.readPosition += 1
 }
 
 func (l *Lexer) NextToken() Token {
@@ -65,6 +37,14 @@ func (l *Lexer) NextToken() Token {
 		tok = newToken(ASSIGN, l.ch)
 	case '+':
 		tok = newToken(PLUS, l.ch)
+	case '-':
+		tok = newToken(MINUS, l.ch)
+	case '!':
+		tok = newToken(BANG, l.ch)
+	case '*':
+		tok = newToken(ASTERISK, l.ch)
+	case '/':
+		tok = newToken(SLASH, l.ch)
 	case ',':
 		tok = newToken(COMMA, l.ch)
 	case ';':
@@ -83,11 +63,11 @@ func (l *Lexer) NextToken() Token {
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
-			tok.Type = lookupIdent(tok.Literal)
+			tok.Type = LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Literal = l.readNumber()
 			tok.Type = INT
+			tok.Literal = l.readNumber()
 			return tok
 		} else {
 			tok = newToken(ILLEGAL, l.ch)
@@ -115,9 +95,13 @@ func (l *Lexer) readNumber() string {
 }
 
 func (l *Lexer) skipWhitespace() {
-	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+	for unicode.IsSpace(rune(l.ch)) {
 		l.readChar()
 	}
+}
+
+func newToken(tokenType TokenType, ch byte) Token {
+	return Token{Type: tokenType, Literal: string(ch)}
 }
 
 func isLetter(ch byte) bool {
@@ -125,22 +109,5 @@ func isLetter(ch byte) bool {
 }
 
 func isDigit(ch byte) bool {
-	return '0' <= ch && ch <= '9'
-}
-
-func newToken(tokenType TokenType, ch byte) Token {
-	return Token{Type: tokenType, Literal: string(ch)}
-}
-
-func lookupIdent(ident string) TokenType {
-	switch ident {
-	case "let":
-		return LET
-	case "fn":
-		return FUNCTION
-	case "print":
-		return PRINT
-	default:
-		return IDENT
-	}
+	return unicode.IsDigit(rune(ch))
 }

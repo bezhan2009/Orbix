@@ -28,12 +28,10 @@ func PrintLS() {
 		modTime := file.ModTime().Format("02.01.2006 15:04")
 		name := file.Name()
 
-		// Добавляем разделитель / для директорий
 		if file.IsDir() {
 			name += "/"
 		}
 
-		// Форматируем вывод, чтобы соответствовать заданному формату
 		fmt.Printf("%-20s %-20s %10d %s\n", mode, modTime, file.Size(), name)
 	}
 }
