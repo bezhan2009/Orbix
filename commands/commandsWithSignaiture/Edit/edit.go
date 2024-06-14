@@ -8,7 +8,7 @@ import (
 )
 
 // File function for editing a file
-func File(filename string, addData bool) error {
+func File(filename string) error {
 	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
 	if err != nil {
 		return fmt.Errorf("error opening file: %v", err)
@@ -45,11 +45,8 @@ func File(filename string, addData bool) error {
 		return fmt.Errorf("error reading input: %v", err)
 	}
 
-	if !addData {
-		file.Truncate(0)
-		file.Seek(0, 0)
-	}
-
+	file.Truncate(0)
+	file.Seek(0, 0)
 	writer := bufio.NewWriter(file)
 	for _, line := range newContent {
 		_, err = writer.WriteString(line + "\n")
