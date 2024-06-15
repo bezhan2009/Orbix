@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"goCmd/algoritms/PasswordAlgoritm"
+	"goCmd/algorithms/PasswordAlgoritm"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"os"
 	"path/filepath"
