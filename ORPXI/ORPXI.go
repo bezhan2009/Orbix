@@ -86,7 +86,7 @@ func CMD(commandInput string) {
 			commandArgs = commandParts[1:]
 			commandLower = strings.ToLower(command)
 		} else {
-			commandLine = prompt.Input("> ", autoComplete)
+			commandLine = prompt.Input("", autoComplete)
 			commandLine = strings.TrimSpace(commandLine)
 			commandParts = utils.SplitCommandLine(commandLine)
 
