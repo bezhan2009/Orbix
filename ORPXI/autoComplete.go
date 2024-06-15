@@ -34,6 +34,7 @@ func createUniqueCommandSuggestions() []prompt.Suggest {
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
 		}
 	}
+
 	for _, cmd := range commandHistory {
 		if _, exists := uniqueCommands[cmd]; !exists {
 			uniqueCommands[cmd] = struct{}{}

@@ -18,6 +18,7 @@ PINGVIEW           shows ping.
 PRIMES             finds large prime numbers
 PICALC             calculates the value of π.
 NEWUSER            creates a new user for ORPXI.
+NEWCOMMAND         created a new command
 ORPXI              starts another ORPXI session
 SHABLON            executes a specific command template
 SYSTEMGOCMD        displays information about ORPXI

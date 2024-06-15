@@ -59,11 +59,11 @@ func CMD(commandInput string) {
 		if promptText != "" {
 			animatedPrint("\n" + promptText)
 		} else {
-			animatedPrint(fmt.Sprintf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
+			fmt.Print(fmt.Sprintf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
 				yellow("┌"), yellow("─"), yellow("("), cyan("ORPXI "+user), yellow(")"), yellow("─"), yellow("["),
 				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
 				cyan("~"), cyan(dirC), yellow("]")))
-			animatedPrint(fmt.Sprintf("%s%s%s %s",
+			fmt.Print(fmt.Sprintf("%s%s%s %s",
 				yellow("└"), yellow("─"), green("$"), green(commandInput)))
 		}
 
@@ -97,6 +97,8 @@ func CMD(commandInput string) {
 			command = commandParts[0]
 			commandArgs = commandParts[1:]
 			commandLower = strings.ToLower(command)
+
+			commandHistory = append(commandHistory, commandLine)
 		}
 
 		animatedPrint("\n")

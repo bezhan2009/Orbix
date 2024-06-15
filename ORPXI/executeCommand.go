@@ -5,6 +5,7 @@ import (
 	"goCmd/Network/wifiUtils"
 	ExCommUtils "goCmd/ORPXI/utils"
 	"goCmd/cmdPress"
+	"goCmd/commands/commandsWithSignaiture/AddOwnCommand"
 	"goCmd/commands/commandsWithSignaiture/Read"
 	"goCmd/commands/commandsWithSignaiture/Write"
 	"goCmd/commands/commandsWithSignaiture/shablon"
@@ -18,6 +19,8 @@ import (
 func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
 	user := cmdPress.CmdUser(dir)
 	switch commandLower {
+	case "newcommand":
+		AddOwnCommand.Start()
 	case "wifiutils":
 		wifiUtils.Start()
 
