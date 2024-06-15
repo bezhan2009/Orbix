@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/fatih/color"
+	"goCmd/algoritms/PasswordAlgoritm"
 	"goCmd/validators"
 	"os"
 	"path/filepath"
@@ -37,7 +38,6 @@ func NewUser() {
 		return
 	}
 
-	// Create the 'passwords' directory if it doesn't exist
 	passwordDir := filepath.Join("passwords", username)
 	if _, err := os.Stat(passwordDir); os.IsNotExist(err) {
 		err = os.MkdirAll(passwordDir, os.ModePerm)
@@ -47,8 +47,9 @@ func NewUser() {
 		}
 	}
 
-	// Hash the password
-	hashedPassword := hashPassword(password)
+	// Encrypt and hash the password
+	encryptedPassword := PasswordAlgoritm.Usage(password, true)
+	hashedPassword := hashPassword(encryptedPassword)
 
 	// Use the hash of the password as the filename
 	passwordFilePath := filepath.Join(passwordDir, hashedPassword)

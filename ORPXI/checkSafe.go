@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"goCmd/algoritms/PasswordAlgoritm"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"os"
 	"path/filepath"
@@ -46,11 +47,10 @@ func CheckUser(usernameFromDir string) (string, bool) {
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
 
-	// Хешируем пароль
+	password = PasswordAlgoritm.Usage(password, true)
 	hashedPassword := hashPasswordFromUser(password)
 	passwordDir := filepath.Join("passwords", username)
 
-	// Ищем файл с именем, совпадающим с хешем пароля
 	filePath := filepath.Join(passwordDir, hashedPassword)
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		Clean.Screen()
