@@ -21,6 +21,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 	switch commandLower {
 	case "newcommand":
 		AddOwnCommand.Start()
+
 	case "wifiutils":
 		wifiUtils.Start()
 
