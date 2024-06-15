@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func CMD(commandInput string) {
@@ -19,7 +20,6 @@ func CMD(commandInput string) {
 
 	var promptText string
 
-	// Check password directory
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
 		animatedPrint("Ошибка при проверке директории с паролями:" + err.Error() + "\n")
@@ -39,6 +39,8 @@ func CMD(commandInput string) {
 	for isWorking {
 		cyan := color.New(color.FgCyan).SprintFunc()
 		green := color.New(color.FgGreen).SprintFunc()
+		magenta := color.New(color.FgMagenta).SprintFunc()
+		yellow := color.New(color.FgYellow).SprintFunc()
 
 		dir, _ := os.Getwd()
 		dirC := cmdPress.CmdDir(dir)
@@ -48,11 +50,21 @@ func CMD(commandInput string) {
 			user = username
 		}
 
+		currentTime := time.Now().Format("15:04")
+		location := os.Getenv("CITY")
+		if location == "" {
+			location = "Unknown City"
+		}
+
 		if promptText != "" {
 			animatedPrint("\n" + promptText)
 		} else {
-			animatedPrint(fmt.Sprintf("\n┌─(%s)-[%s%s]\n", cyan("ORPXI "+user), cyan("~"), cyan(dirC)))
-			animatedPrint(fmt.Sprintf("└─$ %s", green(commandInput)))
+			animatedPrint(fmt.Sprintf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
+				yellow("┌"), yellow("─"), yellow("("), cyan("ORPXI "+user), yellow(")"), yellow("─"), yellow("["),
+				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
+				cyan("~"), cyan(dirC), yellow("]")))
+			animatedPrint(fmt.Sprintf("%s%s%s %s",
+				yellow("└"), yellow("─"), green("$"), green(commandInput)))
 		}
 
 		var commandLine string
