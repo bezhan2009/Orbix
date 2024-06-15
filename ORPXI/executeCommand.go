@@ -11,7 +11,6 @@ import (
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/commands/commandsWithoutSignature/Ls"
 	"goCmd/commands/resourceIntensive/MatrixMultiplication"
-	"goCmd/interpreters/mycmd"
 	"goCmd/structs"
 	"goCmd/utils"
 )
@@ -81,8 +80,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 
 	case "systemgocmd":
 		utils.SystemInformation()
-	case "mycmd":
-		mycmd.Start()
+
 	case "exit":
 		if isPermission {
 			*isWorking = false
