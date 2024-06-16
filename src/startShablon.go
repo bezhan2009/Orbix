@@ -1,4 +1,4 @@
-package Orbix
+package src
 
 import (
 	"bufio"

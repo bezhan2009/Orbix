@@ -1,9 +1,8 @@
-package Orbix
+package src
 
 import (
 	"goCmd/Network"
 	"goCmd/Network/wifiUtils"
-	ExCommUtils "goCmd/Orbix/utils"
 	"goCmd/cmdPress"
 	"goCmd/commands/commandsWithSignaiture/AddOwnCommand"
 	"goCmd/commands/commandsWithSignaiture/Read"
@@ -12,6 +11,7 @@ import (
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/commands/commandsWithoutSignature/Ls"
 	"goCmd/commands/resourceIntensive/MatrixMultiplication"
+	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/utils"
 )

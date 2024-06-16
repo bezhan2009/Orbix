@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"goCmd/Orbix"
+	"goCmd/src"
 	"goCmd/utils"
 )
 
@@ -12,5 +12,5 @@ func main() {
 		return
 	}
 
-	Orbix.CMD("")
+	src.CMD("")
 }

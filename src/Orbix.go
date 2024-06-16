@@ -1,4 +1,4 @@
-package Orbix
+package src
 
 import (
 	"fmt"
@@ -60,7 +60,7 @@ func CMD(commandInput string) {
 			animatedPrint("\n" + promptText)
 		} else {
 			fmt.Print(fmt.Sprintf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
-				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
+				yellow("┌"), yellow("─"), yellow("("), cyan("src@"+user), yellow(")"), yellow("─"), yellow("["),
 				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
 				cyan("~"), cyan(dirC), yellow("]")))
 			fmt.Print(fmt.Sprintf("%s%s%s %s",

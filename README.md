@@ -29,7 +29,7 @@ Read in [Русский](README.ru.md)
 
 ```bash
 git clone https://github.com/bezhan2009/ORPXI.git
-cd Orbix
+cd src
 go run .
 ```
 
