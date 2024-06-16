@@ -1,10 +1,11 @@
-package ORPXI
+package Orbix
 
 import (
 	"bufio"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/fatih/color"
 	"goCmd/algorithms/PasswordAlgoritm"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"os"
@@ -27,23 +28,24 @@ func CheckUser(usernameFromDir string) (string, bool) {
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
 		Clean.Screen()
-
-		fmt.Println("Ошибка при проверке директории с паролями:", err)
+		red := color.New(color.FgRed).SprintFunc()
+		fmt.Printf("%s\n", red("Ошибка при проверке директории с паролями:", err))
 		return "", false
 	}
 
 	if isEmpty {
 		Clean.Screen()
-
-		fmt.Println("Добро пожаловать,", usernameFromDir)
+		green := color.New(color.FgGreen).SprintFunc()
+		fmt.Printf("%s\n", green("Добро пожаловать,", usernameFromDir))
 		return usernameFromDir, true
 	}
 
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Введите имя пользователя: ")
+	magenta := color.New(color.FgMagenta).SprintFunc()
+	fmt.Printf("%s", magenta("Введите имя пользователя: "))
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
-	fmt.Print("Введите пароль: ")
+	fmt.Printf("%s", magenta("Введите пароль: "))
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
 
@@ -55,13 +57,13 @@ func CheckUser(usernameFromDir string) (string, bool) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		Clean.Screen()
 
-		fmt.Println("Пользователь не найден или неверный пароль")
+		fmt.Printf("%s\n", magenta("Пользователь не найден или неверный пароль"))
 		return usernameFromDir, false
 	}
 
 	Clean.Screen()
 
-	fmt.Println("Добро пожаловать,", username)
+	fmt.Printf("%s\n", magenta("Добро пожаловать, ", username))
 	return username, true
 }
 

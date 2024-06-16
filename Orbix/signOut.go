@@ -1,4 +1,4 @@
-package ORPXI
+package Orbix
 
 func SignOutUtil(user string, isWorking *bool) string {
 	username, isSuccess := CheckUser(user)

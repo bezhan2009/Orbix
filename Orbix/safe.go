@@ -1,4 +1,4 @@
-package ORPXI
+package Orbix
 
 import (
 	"bufio"
@@ -24,10 +24,11 @@ func PrintNewUser() {
 func NewUser() {
 	reader := bufio.NewReader(os.Stdin)
 	PrintNewUser()
-	fmt.Print("Enter username: ")
+	magenta := color.New(color.FgMagenta).SprintFunc()
+	fmt.Printf("%s", magenta("Enter username: "))
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
-	fmt.Print("Enter password: ")
+	fmt.Printf("%s", magenta("Enter password: "))
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
 

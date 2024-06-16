@@ -1,4 +1,4 @@
-package ORPXI
+package Orbix
 
 import "goCmd/structs"
 
@@ -9,12 +9,12 @@ var commands = []structs.Command{
 	{"traceroute", "Route tracing"},
 	{"extractzip", "Extracts .zip archives"},
 	{"copysource", "from file copy his source"},
-	{"signout", "User signs out of ORPXI"},
+	{"signout", "User signs out of Orbix"},
 	{"newshablon", "Creates a new command template for execution"},
 	{"shablon", "Executes a specific command template"},
-	{"newuser", "New user for ORPXI"},
-	{"promptSet", "Changes ORPXI"},
-	{"systemgocmd", "Displays information about ORPXI"},
+	{"newuser", "New user for Orbix"},
+	{"promptSet", "Changes Orbix"},
+	{"systemgocmd", "Displays information about Orbix"},
 	{"rename", "Renames a file"},
 	{"remove", "Deletes a file"},
 	{"read", "Displays file contents"},
@@ -22,7 +22,7 @@ var commands = []structs.Command{
 	{"mycmd", "native command interpreter"},
 	{"create", "Creates a new file"},
 	{"exit", "Exits the program"},
-	{"orpxi", "Starts another ORPXI"},
+	{"orpxi", "Starts another Orbix"},
 	{"wifiutils", "Launches utility for WiFi operations"},
 	{"clean", "Clears the screen"},
 	{"matrixmul", "Multiplication of large matrices"},

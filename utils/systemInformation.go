@@ -1,8 +1,14 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/fatih/color"
+	"goCmd/editCMD"
+)
 
 func SystemInformation() {
-	fmt.Println("ORPXI [Version 0.74]")
-	fmt.Println("(c) Optimized Resource Planning and eXecution Interface (ORPXI), 2024. Все права защищены")
+	editCMD.StartEditing()
+	magenta := color.New(color.FgMagenta, color.Bold).SprintFunc()
+	fmt.Printf("%s\n", magenta("Orbix [Версия 0.74]"))
+	fmt.Printf("%s\n", magenta("(c) Orbix Software, 2024. Все права защищены."))
 }

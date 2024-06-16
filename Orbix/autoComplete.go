@@ -1,4 +1,4 @@
-package ORPXI
+package Orbix
 
 import (
 	"github.com/c-bata/go-prompt"

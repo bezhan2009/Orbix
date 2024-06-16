@@ -1,4 +1,4 @@
-package ORPXI
+package Orbix
 
 import "goCmd/debug"
 
@@ -13,17 +13,17 @@ LS                 lists directory contents
 NEWSHABLON         creates a new command template for execution
 REMOVE             deletes a file
 READ               displays the contents of a file
-PROMPT             changes ORPXI prompt.
+PROMPT             changes Orbix prompt.
 PINGVIEW           shows ping.
 PRIMES             finds large prime numbers
 PICALC             calculates the value of π.
-NEWUSER            creates a new user for ORPXI.
+NEWUSER            creates a new user for Orbix.
 NEWCOMMAND         created a new command
-ORPXI              starts another ORPXI session
+Orbix              starts another Orbix session
 SHABLON            executes a specific command template
-SYSTEMGOCMD        displays information about ORPXI
+SYSTEMGOCMD        displays information about Orbix
 SYSTEMINFO         displays system information
-SIGNOUT            user signs out of ORPXI
+SIGNOUT            user signs out of Orbix
 TREE               graphically displays directory structure
 WRITE              writes data to a file
 EDIT               edits a file

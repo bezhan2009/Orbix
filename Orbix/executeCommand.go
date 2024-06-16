@@ -1,9 +1,9 @@
-package ORPXI
+package Orbix
 
 import (
 	"goCmd/Network"
 	"goCmd/Network/wifiUtils"
-	ExCommUtils "goCmd/ORPXI/utils"
+	ExCommUtils "goCmd/Orbix/utils"
 	"goCmd/cmdPress"
 	"goCmd/commands/commandsWithSignaiture/AddOwnCommand"
 	"goCmd/commands/commandsWithSignaiture/Read"
@@ -49,7 +49,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 	case "geoip":
 		ExCommUtils.GeoIPUtil(commandArgs)
 
-	case "orpxi":
+	case "orbix":
 		if isPermission {
 			CMD("")
 		}

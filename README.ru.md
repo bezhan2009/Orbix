@@ -28,7 +28,7 @@
 
 ```bash
 git clone https://github.com/bezhan2009/ORPXI.git
-cd ORPXI
+cd Orbix
 go run .
 ```
 
