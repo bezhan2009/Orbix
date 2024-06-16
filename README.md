@@ -1,5 +1,5 @@
 
-### ORPXI - Expandable Command Line Interface in Go
+### Orbix - Expandable Command Line Interface in Go
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI) 
 ![GitHub language count](https://img.shields.io/github/languages/count/bezhan2009/ORPXI)
@@ -15,7 +15,7 @@
 
 Read in [Русский](README.ru.md)
 
-**ORPXI** is an alternative command line interface written in the Go programming language. It provides the same basic commands as the standard CMD, but also includes additional commands specific to this tool.
+**Orbix** is an alternative command line interface written in the Go programming language. It provides the same basic commands as the standard CMD, but also includes additional commands specific to this tool.
 
 ### Features
 
@@ -28,7 +28,7 @@ Read in [Русский](README.ru.md)
 ### Installation and Running
 
 ```bash
-git clone https://github.com/bezhan2009/ORPXI.git
+git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
 go run .
 ```
@@ -65,8 +65,8 @@ go run .
 
 ### Development Guide
 
-If you want to extend the functionality of ORPXI, you can contact the developer [here](https://t.me/Rust_Bezhan).
+If you want to extend the functionality of Orbix, you can contact the developer [here](https://t.me/Rust_Bezhan).
 
 ### Feedback and Support
 
-If you have any questions, suggestions, or issues, please create a new [issue](https://github.com/bezhan2009/ORPXI/issues/new) in our GitHub repository.
+If you have any questions, suggestions, or issues, please create a new [issue](https://github.com/bezhan2009/Orbix/issues/new) in our GitHub repository.
