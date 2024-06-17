@@ -1,16 +1,7 @@
 package main
 
-import (
-	"fmt"
-	"goCmd/src"
-	"goCmd/utils"
-)
+import "goCmd/run"
 
 func main() {
-	if utils.IsHidden() {
-		fmt.Println("You are BLOCKED!!!")
-		return
-	}
-
-	src.CMD("")
+	run.CMD()
 }
