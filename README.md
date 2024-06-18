@@ -5,7 +5,6 @@
 ![GitHub language count](https://img.shields.io/github/languages/count/bezhan2009/ORPXI)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/bezhan2009/ORPXI)
 ![GitHub repo size](https://img.shields.io/github/repo-size/bezhan2009/ORPXI) 
-![GitHub](https://img.shields.io/github/license/bezhan2009/ORPXI) 
 ![GitHub last commit](https://img.shields.io/github/last-commit/bezhan2009/ORPXI)
 ![GitHub User's stars](https://img.shields.io/github/stars/bezhan2009?style=social)
 
