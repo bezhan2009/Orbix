@@ -19,7 +19,6 @@ var commands = []structs.Command{
 	{"remove", "Deletes a file"},
 	{"read", "Displays file contents"},
 	{"write", "Writes data to a file"},
-	{"mycmd", "native command interpreter"},
 	{"create", "Creates a new file"},
 	{"exit", "Exits the program"},
 	{"orbix", "Starts another orbix"},
