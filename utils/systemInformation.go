@@ -7,7 +7,7 @@ import (
 )
 
 func SystemInformation() {
-	editCMD.StartEditing()
+	editCMD.SayOrbix()
 	magenta := color.New(color.FgMagenta, color.Bold).SprintFunc()
 	fmt.Printf("%s\n", magenta("Orbix [Версия 0.94]"))
 	fmt.Printf("%s\n", magenta("Orbix Software, 2024."))

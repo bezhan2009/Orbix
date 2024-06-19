@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 )
 
-func StartEditing() {
+func SayOrbix() {
 	myFigure := figure.NewFigure("Orbix", "", true)
 	magenta := color.New(color.FgMagenta).SprintFunc()
 	fmt.Println(magenta(myFigure.String()))
