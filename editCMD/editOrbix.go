@@ -7,7 +7,7 @@ import (
 )
 
 func SayOrbix() {
-	myFigure := figure.NewFigure("ORBIX!", "", true)
+	myFigure := figure.NewFigure("Orbix", "", true)
 	magenta := color.New(color.FgMagenta).SprintFunc()
 	fmt.Println(magenta(myFigure.String()))
 }
