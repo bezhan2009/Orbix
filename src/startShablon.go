@@ -36,9 +36,9 @@ func Start(shablonName string) error {
 	return nil
 }
 
-// executeCommand executes a single command using the CMD function.
+// executeCommand executes a single command using the Orbix function.
 func executeCommand(command string) error {
-	// Assuming CMD function handles the command execution.
-	CMD(command)
+	// Assuming Orbix function handles the command execution.
+	Orbix(command)
 	return nil
 }

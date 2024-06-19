@@ -12,5 +12,5 @@ func CMD() {
 		return
 	}
 
-	src.CMD("")
+	src.Orbix("")
 }

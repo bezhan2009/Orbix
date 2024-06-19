@@ -50,7 +50,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 	}
 
 	permissionRequiredCommands := map[string]func(){
-		"orbix":   func() { CMD("") },
+		"orbix":   func() { Orbix("") },
 		"newuser": NewUser,
 		"signout": func() { SignOutUtil(user, isWorking) },
 		"exit":    func() { *isWorking = false },

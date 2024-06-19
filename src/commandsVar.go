@@ -22,7 +22,7 @@ var commands = []structs.Command{
 	{"mycmd", "native command interpreter"},
 	{"create", "Creates a new file"},
 	{"exit", "Exits the program"},
-	{"orpxi", "Starts another src"},
+	{"orbix", "Starts another orbix"},
 	{"wifiutils", "Launches utility for WiFi operations"},
 	{"clean", "Clears the screen"},
 	{"matrixmul", "Multiplication of large matrices"},

@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func CMD(commandInput string) {
+func Orbix(commandInput string) {
 	utils.SystemInformation()
 
 	isWorking := true

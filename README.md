@@ -18,10 +18,10 @@ Read in [Русский](README.ru.md)
 
 ### Features
 
-- **CMD Compatibility**: ORPXI supports most CMD commands, ensuring a smooth transition for users.
-- **Additional Commands**: ORPXI includes a range of additional commands designed to simplify everyday tasks for system administrators and developers.
-- **Extensibility**: Since ORPXI is written in Go, its functionality can be easily extended by developing custom commands.
-- **Performance**: Go is known for its high performance, making ORPXI fast and responsive.
+- **Orbix Compatibility**: Orbix supports most Orbix commands, ensuring a smooth transition for users.
+- **Additional Commands**: Orbix includes a range of additional commands designed to simplify everyday tasks for system administrators and developers.
+- **Extensibility**: Since Orbix is written in Go, its functionality can be easily extended by developing custom commands.
+- **Performance**: Go is known for its high performance, making Orbix fast and responsive.
 - **Support and Feedback**: Users can contact the developer directly via Telegram.
 
 ### Installation and Running
@@ -42,14 +42,14 @@ go run .
 - **NEWSHABLON**: Creates a new template of commands to execute.
 - **REMOVE**: Deletes a file.
 - **READ**: Displays the contents of a file.
-- **PROMPT**: Changes the ORPXI prompt.
+- **PROMPT**: Changes the Orbix prompt.
 - **PINGVIEW**: Displays ping.
-- **NEWUSER**: Adds a new user for ORPXI.
-- **ORPXI**: Starts another instance of ORPXI.
+- **NEWUSER**: Adds a new user for Orbix.
+- **ORPXI**: Starts another instance of Orbix.
 - **SHABLON**: Executes a specific command template.
-- **SYSTEMGOCMD**: Displays information about ORPXI.
+- **SYSTEMGOCMD**: Displays information about Orbix.
 - **SYSTEMINFO**: Displays system information.
-- **SIGNOUT**: Logs out the user from ORPXI.
+- **SIGNOUT**: Logs out the user from Orbix.
 - **TREE**: Graphically displays the directory structure of a disk or path.
 - **WRITE**: Writes data to a file.
 - **EDIT**: Edits a file.
@@ -60,7 +60,7 @@ go run .
 - **WIFIUTILS**: Launches the WiFi utility.
 - **IPINFO**: Retrieves information about an IP address.
 - **GEOIP**: Retrieves geolocation information for an IP address.
-- **EXIT**: Exits ORPXI.
+- **EXIT**: Exits Orbix.
 
 ### Development Guide
 
