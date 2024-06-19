@@ -18,109 +18,51 @@ import (
 
 func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
 	user := cmdPress.CmdUser(dir)
-	switch commandLower {
-	case "newcommand":
-		AddOwnCommand.Start()
 
-	case "wifiutils":
-		wifiUtils.Start()
+	commandMap := map[string]func(){
+		"newcommand":  AddOwnCommand.Start,
+		"wifiutils":   wifiUtils.Start,
+		"pingview":    func() { Network.Ping(commandArgs) },
+		"traceroute":  func() { Network.Traceroute(commandArgs) },
+		"extractzip":  func() { ExCommUtils.ExtractZipUtil(commandArgs) },
+		"scanport":    func() { ExCommUtils.ScanPortUtil(commandArgs) },
+		"whois":       func() { ExCommUtils.WhoisUtil(commandArgs) },
+		"dnslookup":   func() { ExCommUtils.DnsLookupUtil(commandArgs) },
+		"ipinfo":      func() { ExCommUtils.IPInfoUtil(commandArgs) },
+		"geoip":       func() { ExCommUtils.GeoIPUtil(commandArgs) },
+		"matrixmul":   MatrixMultiplication.MatrixMulCommand,
+		"primes":      func() { ExCommUtils.CalculatePrimesUtil(commandArgs) },
+		"picalc":      func() { ExCommUtils.CalculatePiUtil(commandArgs) },
+		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(commandArgs) },
+		"newshablon":  shablon.Make,
+		"shablon":     func() { ExecuteShablonUtil(commandArgs) },
+		"systemgocmd": utils.SystemInformation,
+		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(commandArgs) },
+		"create":      func() { ExCommUtils.CreateFileUtil(commandArgs, command, user, dir) },
+		"write":       func() { Write.File(commandLower, commandArgs, user, dir) },
+		"read":        func() { Read.File(commandLower, commandArgs, user, dir) },
+		"remove":      func() { ExCommUtils.RemoveFileUtil(commandArgs, command, user, dir) },
+		"rename":      func() { ExCommUtils.RenameFileUtil(commandArgs, command, user, dir) },
+		"clean":       Clean.Screen,
+		"cd":          func() { ExCommUtils.ChangeDirectoryUtil(commandArgs) },
+		"edit":        func() { ExCommUtils.EditFileUtil(commandArgs) },
+		"ls":          Ls.PrintLS,
+	}
 
-	case "pingview":
-		Network.Ping(commandArgs)
+	permissionRequiredCommands := map[string]func(){
+		"orbix":   func() { CMD("") },
+		"newuser": NewUser,
+		"signout": func() { SignOutUtil(user, isWorking) },
+		"exit":    func() { *isWorking = false },
+	}
 
-	case "traceroute":
-		Network.Traceroute(commandArgs)
-
-	case "extractzip":
-		ExCommUtils.ExtractZipUtil(commandArgs)
-
-	case "scanport":
-		ExCommUtils.ScanPortUtil(commandArgs)
-
-	case "whois":
-		ExCommUtils.WhoisUtil(commandArgs)
-
-	case "dnslookup":
-		ExCommUtils.DnsLookupUtil(commandArgs)
-
-	case "ipinfo":
-		ExCommUtils.IPInfoUtil(commandArgs)
-
-	case "geoip":
-		ExCommUtils.GeoIPUtil(commandArgs)
-
-	case "orbix":
+	if handler, exists := commandMap[commandLower]; exists {
+		handler()
+	} else if handler, exists := permissionRequiredCommands[commandLower]; exists {
 		if isPermission {
-			CMD("")
+			handler()
 		}
-
-	case "newuser":
-		if isPermission {
-			NewUser()
-		}
-
-	case "signout":
-		if isPermission {
-			SignOutUtil(user, isWorking)
-		}
-
-	case "matrixmul":
-		MatrixMultiplication.MatrixMulCommand()
-
-	case "primes":
-		ExCommUtils.CalculatePrimesUtil(commandArgs)
-
-	case "picalc":
-		ExCommUtils.CalculatePiUtil(commandArgs)
-
-	case "fileio":
-		ExCommUtils.FileIOStressTestUtil(commandArgs)
-
-	case "newshablon":
-		shablon.Make()
-
-	case "shablon":
-		ExecuteShablonUtil(commandArgs)
-
-	case "systemgocmd":
-		utils.SystemInformation()
-
-	case "exit":
-		if isPermission {
-			*isWorking = false
-		}
-
-	case "copysource":
-		ExCommUtils.CommandCopySourceUtil(commandArgs)
-
-	case "create":
-		ExCommUtils.CreateFileUtil(commandArgs, command, user, dir)
-
-	case "write":
-		Write.File(commandLower, commandArgs, user, dir)
-
-	case "read":
-		Read.File(commandLower, commandArgs, user, dir)
-
-	case "remove":
-		ExCommUtils.RenameFileUtil(commandArgs, command, user, dir)
-
-	case "rename":
-		ExCommUtils.RenameFileUtil(commandArgs, command, user, dir)
-
-	case "clean":
-		Clean.Screen()
-
-	case "cd":
-		ExCommUtils.ChangeDirectoryUtil(commandArgs)
-
-	case "edit":
-		ExCommUtils.EditFileUtil(commandArgs)
-
-	case "ls":
-		Ls.PrintLS()
-
-	default:
+	} else {
 		HandleUnknownCommandUtil(commandLower, commandLine, commands)
 	}
 }
