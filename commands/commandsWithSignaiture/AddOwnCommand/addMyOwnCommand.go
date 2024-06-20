@@ -13,10 +13,8 @@ import (
 var customCommands map[string]string
 
 func init() {
-	// Initialize customCommands map
 	customCommands = make(map[string]string)
 
-	// Load custom commands from file on application startup
 	err := loadCustomCommandsFromFile("custom_commands.json")
 	if err != nil {
 		fmt.Printf("Error loading custom commands: %v\n", err)
@@ -30,13 +28,11 @@ func Start() {
 	fmt.Println("Command Name:")
 	fmt.Scan(&name)
 
-	// Check if command already exists
 	if _, exists := customCommands[name]; exists {
 		fmt.Printf("Command '%s' already exists.\n", name)
 		return
 	}
 
-	// Validate the command name
 	if !utils2.ValidCommand(name, utils.Commands) {
 		fmt.Println("Invalid Command")
 		return
@@ -46,18 +42,15 @@ func Start() {
 	var exeFile string
 	fmt.Scan(&exeFile)
 
-	// Validate executable file path
 	exeFileFullPath, err := validateExeFilePath(exeFile)
 	if err != nil {
 		fmt.Printf("Error validating executable file path: %v\n", err)
 		return
 	}
 
-	// Store the command and executable file path in customCommands
 	customCommands[name] = exeFileFullPath
 	fmt.Printf("Command '%s' added successfully with executable path '%s'.\n", name, exeFileFullPath)
 
-	// Save custom commands to file after adding new command
 	err = saveCustomCommandsToFile("custom_commands.json")
 	if err != nil {
 		fmt.Printf("Error saving custom commands: %v\n", err)
@@ -65,9 +58,7 @@ func Start() {
 }
 
 func validateExeFilePath(exeFile string) (string, error) {
-	// Check if the file exists
 	if _, err := os.Stat(exeFile); os.IsNotExist(err) {
-		// Try to find the file in the current directory or along the PATH
 		fullPath, err := exec.LookPath(exeFile)
 		if err != nil {
 			return "", fmt.Errorf("executable file '%s' not found: %v", exeFile, err)
@@ -75,7 +66,6 @@ func validateExeFilePath(exeFile string) (string, error) {
 		return fullPath, nil
 	}
 
-	// If the file exists, return its absolute path
 	return filepath.Abs(exeFile)
 }
 
