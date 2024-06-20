@@ -4,9 +4,14 @@ import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"goCmd/Network/wifiUtils/commands/NetworkScan"
-	"goCmd/Network/wifiUtils/commands/Send"
+	darwin2 "goCmd/Network/wifiUtils/commands/Send/darwin"
+	linux2 "goCmd/Network/wifiUtils/commands/Send/linux"
+	windows2 "goCmd/Network/wifiUtils/commands/Send/windows"
 	"goCmd/Network/wifiUtils/commands/WiFi"
+	"goCmd/Network/wifiUtils/commands/WiFi/darwin"
+	"goCmd/Network/wifiUtils/commands/WiFi/linux"
 	"goCmd/Network/wifiUtils/commands/WiFi/windows"
+	"goCmd/OS"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"strings"
 )
@@ -25,13 +30,33 @@ func Start() {
 		case "clean":
 			Clean.Screen()
 		case "scanwifi":
-			windows.Scan()
+			nameOS := OS.CheckOS()
+
+			if nameOS == "windows" {
+				windows.Scan()
+			} else if nameOS == "linux" {
+				linux.Scan()
+			} else if nameOS == "darwin" {
+				darwin.Scan()
+			} else {
+				fmt.Println("Unresolved OS")
+			}
 		case "connectwifi":
 			if len(args) < 3 {
 				fmt.Println("Использование: connectwifi <SSID> <password>")
 				continue
 			}
-			windows.Connect(args[1], args[2])
+
+			nameOS := OS.CheckOS()
+			if nameOS == "windows" {
+				windows.Connect(args[1], args[2])
+			} else if nameOS == "linux" {
+				linux.Connect(args[1], args[2])
+			} else if nameOS == "darwin" {
+				darwin.Connect(args[1], args[2])
+			} else {
+				fmt.Println("Unresolved OS")
+			}
 		case "hackwifi":
 			if len(args) < 3 {
 				fmt.Println("Использования: hackwifi <SSID> <attempts>")
@@ -40,18 +65,22 @@ func Start() {
 			WiFi.AttemptConnectWithGeneratedPasswords(args[1], args[2])
 		case "networkscan":
 			NetworkScan.WiFi()
-		case "sendsms":
-			if len(args) < 3 {
-				fmt.Println("Использование: sendSMS <номер> <сообщение>")
-				continue
-			}
-			Send.SMS(args[1], strings.Join(args[2:], " "))
 		case "sendMSG":
 			if len(args) < 3 {
 				fmt.Println("Использование: sendMSG <пользователь> <сообщение>")
 				continue
 			}
-			Send.Message(args[1], strings.Join(args[2:], " "))
+
+			nameOS := OS.CheckOS()
+			if nameOS == "windows" {
+				windows2.Message(args[1], strings.Join(args[2:], " "))
+			} else if nameOS == "linux" {
+				linux2.Message(args[1], strings.Join(args[2:], " "))
+			} else if nameOS == "darwin" {
+				darwin2.Message(args[1], strings.Join(args[2:], " "))
+			} else {
+				fmt.Println("Unresolved OS")
+			}
 		case "exit":
 			fmt.Println("Выход из программы.")
 			return

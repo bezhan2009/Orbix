@@ -22,7 +22,6 @@ func Ping(args []string) {
 	pinger.Count = 4
 	pinger.Timeout = time.Second * 10
 
-	// Run the pinger
 	err = pinger.Run()
 	if err != nil {
 		fmt.Println("Error running ping:", err)

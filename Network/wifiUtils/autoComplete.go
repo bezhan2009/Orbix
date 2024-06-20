@@ -26,7 +26,6 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 		{Text: "connectwifi", Description: "Подключение к Wi-Fi сети"},
 		{Text: "hackwifi", Description: "Попытка взлома сети Wi-Fi"},
 		{Text: "networkscan", Description: "Сканирование сети и получение информации об устройствах"},
-		{Text: "sendSMS", Description: "Отправка SMS сообщения"},
 		{Text: "sendMSG", Description: "Отправка сообщения на все ПК с подключением к этой сети"},
 		{Text: "clean", Description: "очищает экран"},
 		{Text: "exit", Description: "Выход из программы"},
