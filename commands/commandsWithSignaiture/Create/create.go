@@ -7,7 +7,7 @@ import (
 
 func File(commandArgs []string) (string, error) {
 	if len(commandArgs) < 1 {
-		fmt.Println("Использования: create <файл>")
+		fmt.Println("Usage: create <файл>")
 		return "", nil
 	}
 
