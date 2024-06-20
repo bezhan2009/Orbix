@@ -1,4 +1,4 @@
-package WiFi
+package windows
 
 import (
 	"fmt"

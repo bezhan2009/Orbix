@@ -6,6 +6,7 @@ import (
 	"goCmd/Network/wifiUtils/commands/NetworkScan"
 	"goCmd/Network/wifiUtils/commands/Send"
 	"goCmd/Network/wifiUtils/commands/WiFi"
+	"goCmd/Network/wifiUtils/commands/WiFi/windows"
 	"goCmd/commands/commandsWithoutSignature/Clean"
 	"strings"
 )
@@ -24,13 +25,13 @@ func Start() {
 		case "clean":
 			Clean.Screen()
 		case "scanwifi":
-			WiFi.Scan()
+			windows.Scan()
 		case "connectwifi":
 			if len(args) < 3 {
 				fmt.Println("Использование: connectwifi <SSID> <password>")
 				continue
 			}
-			WiFi.Connect(args[1], args[2])
+			windows.Connect(args[1], args[2])
 		case "hackwifi":
 			if len(args) < 3 {
 				fmt.Println("Использования: hackwifi <SSID> <attempts>")
