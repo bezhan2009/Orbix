@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func CMD() {
+func Init() {
 	if utils.IsHidden() {
 		fmt.Println("You are BLOCKED!!!")
 		return
