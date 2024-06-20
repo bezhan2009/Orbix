@@ -87,5 +87,6 @@ func suggestCommand(input string) string {
 			return cmd.Name
 		}
 	}
+
 	return ""
 }
