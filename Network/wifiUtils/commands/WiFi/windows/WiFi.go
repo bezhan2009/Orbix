@@ -32,7 +32,7 @@ func Connect(ssid, password string) bool {
     <connectionType>ESS</connectionType>
     <connectionMode>manual</connectionMode>
     <MSM>
-        <safe>
+        <security>
             <authEncryption>
                 <authentication>WPA2PSK</authentication>
                 <encryption>AES</encryption>
@@ -43,7 +43,7 @@ func Connect(ssid, password string) bool {
                 <protected>false</protected>
                 <keyMaterial>%s</keyMaterial>
             </sharedKey>
-        </safe>
+        </security>
     </MSM>
 </WLANProfile>`, ssid, ssid, password)
 

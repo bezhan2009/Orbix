@@ -46,7 +46,6 @@ func Start() {
 				fmt.Println("Использование: connectwifi <SSID> <password>")
 				continue
 			}
-
 			nameOS := OS.CheckOS()
 			if nameOS == "windows" {
 				windows.Connect(args[1], args[2])
