@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// Init initializes CMD
 func Init() {
 	if utils.IsHidden() {
 		fmt.Println("You are BLOCKED!!!")

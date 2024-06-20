@@ -35,6 +35,11 @@ var commands = []structs.Command{
 	{"dnslookup", "DNS queries"},
 	{"ipinfo", "IP address information"},
 	{"geoip", "IP address geolocation"},
+	{"()", "Close parenthesis"},
+	{"[]", "Close square bracket"},
+	{"{}", "Close curly brace"},
+	{"\"\"", "Close double quote"},
+	{"''", "Close single quote"},
 }
 
 var commandHistory []string

@@ -13,6 +13,29 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 	}
 
 	parts := strings.Split(text, " ")
+
+	lastChar := ""
+	if d.Text != "" {
+		lastChar = string(d.Text[len(d.Text)-1])
+	}
+
+	switch lastChar {
+	case "(":
+		return []prompt.Suggest{{Text: "()", Description: "Close parenthesis"}}
+	case "[":
+		return []prompt.Suggest{{Text: "[]", Description: "Close square bracket"}}
+	case "{":
+		return []prompt.Suggest{{Text: "{}", Description: "Close curly brace"}}
+	case "\"":
+		if strings.Count(d.Text, "\"")%2 == 1 {
+			return []prompt.Suggest{{Text: "\"\"", Description: "Close double quote"}}
+		}
+	case "'":
+		if strings.Count(d.Text, "''")%2 == 1 {
+			return []prompt.Suggest{{Text: "'", Description: "Close single quote"}}
+		}
+	}
+
 	if len(parts) == 1 {
 		return prompt.FilterHasPrefix(createUniqueCommandSuggestions(), text, true)
 	} else {
