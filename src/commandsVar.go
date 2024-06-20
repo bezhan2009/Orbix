@@ -14,7 +14,7 @@ var commands = []structs.Command{
 	{"shablon", "Executes a specific command template"},
 	{"newuser", "New user for src"},
 	{"promptSet", "Changes src"},
-	{"systemgocmd", "Displays information about src"},
+	{"systemorbix", "Displays information about src"},
 	{"rename", "Renames a file"},
 	{"remove", "Deletes a file"},
 	{"read", "Displays file contents"},

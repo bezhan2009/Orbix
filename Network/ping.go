@@ -2,7 +2,8 @@ package Network
 
 import (
 	"fmt"
-	"os/exec"
+	"github.com/go-ping/ping"
+	"time"
 )
 
 func Ping(args []string) {
@@ -11,11 +12,28 @@ func Ping(args []string) {
 		return
 	}
 	hostname := args[0]
-	cmd := exec.Command("ping", hostname)
-	output, err := cmd.Output()
+
+	pinger, err := ping.NewPinger(hostname)
 	if err != nil {
-		fmt.Println("Error executing ping:", err)
+		fmt.Println("Error creating pinger:", err)
 		return
 	}
-	fmt.Println(string(output))
+
+	pinger.Count = 4
+	pinger.Timeout = time.Second * 10
+
+	// Run the pinger
+	err = pinger.Run()
+	if err != nil {
+		fmt.Println("Error running ping:", err)
+		return
+	}
+
+	stats := pinger.Statistics()
+	fmt.Printf("Ping statistics for %s:\n", hostname)
+	fmt.Printf("Packets: Sent = %d, Received = %d, Lost = %d (%.2f%% loss)\n",
+		stats.PacketsSent, stats.PacketsRecv, stats.PacketsSent-stats.PacketsRecv, stats.PacketLoss)
+	fmt.Printf("Approximate round trip times in milli-seconds:\n")
+	fmt.Printf("Minimum = %vms, Maximum = %vms, Average = %vms\n",
+		stats.MinRtt.Milliseconds(), stats.MaxRtt.Milliseconds(), stats.AvgRtt.Milliseconds())
 }
