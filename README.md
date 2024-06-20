@@ -8,10 +8,6 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/bezhan2009/ORPXI)
 ![GitHub User's stars](https://img.shields.io/github/stars/bezhan2009?style=social)
 
-<p align="left">
-    <img src="https://visitor-badge.laobi.icu/badge?page_id=bezhan2009.ORPXI" alt="visitors"/>
-</p>
-
 Read in [Русский](README.ru.md)
 
 **Orbix** is an alternative command line interface written in the Go programming language. It provides the same basic commands as the standard CMD, but also includes additional commands specific to this tool.
