@@ -3,16 +3,15 @@ module goCmd
 go 1.22
 
 require (
+	github.com/atotto/clipboard v0.1.4
 	github.com/c-bata/go-prompt v0.2.6
+	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
 	github.com/fatih/color v1.17.0
-	github.com/go-resty/resty/v2 v2.13.1
+	github.com/go-ping/ping v1.1.0
 	github.com/google/gopacket v1.1.19
 )
 
 require (
-	github.com/atotto/clipboard v0.1.4 // indirect
-	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be // indirect
-	github.com/go-ping/ping v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
