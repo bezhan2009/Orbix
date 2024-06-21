@@ -14,6 +14,8 @@ import (
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/utils"
+	"os"
+	"os/exec"
 )
 
 func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
@@ -53,7 +55,20 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"orbix":   func() { Orbix("") },
 		"newuser": NewUser,
 		"signout": func() { SignOutUtil(user, isWorking) },
-		"exit":    func() { *isWorking = false },
+		"exit": func() {
+			// Check if '-t' argument is present
+			for _, arg := range commandArgs {
+				if arg == "-t" {
+					cmd := exec.Command("py", "exit.py")
+					cmd.Start()
+					cmd2 := exec.Command("exit")
+					cmd2.Start()
+					os.Exit(cmd2.ProcessState.ExitCode())
+					return
+				}
+			}
+			*isWorking = false
+		},
 	}
 
 	if handler, exists := commandMap[commandLower]; exists {
