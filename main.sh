@@ -1,9 +1,22 @@
 #!/bin/bash
 
+# Определяем путь к файлу main.go
 MAIN_GO_FILE="main.go"
 
-# shellcheck disable=SC2164
-cd "$(dirname "$MAIN_GO_FILE")"
+# Переходим в директорию init
+cd "init" || exit
 
+# Строим проект Go
+cargo build
 
-go run "$(basename "$MAIN_GO_FILE")"
+# Переходим в директорию src
+cd "src" || exit
+
+# Компилируем Rust файл
+rustc main.rs
+
+# Переходим обратно в исходную директорию
+cd ..
+
+# Запускаем Go программу
+go run "$MAIN_GO_FILE"
