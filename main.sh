@@ -3,20 +3,21 @@
 # Определяем путь к файлу main.go
 MAIN_GO_FILE="main.go"
 
-# Переходим в директорию init
-cd "init" || exit
+# Переходим в корневую директорию проекта
+cd "$(dirname "$0")" || exit
 
-# Строим проект Go
+# Строим проект Rust в директории init
+cd "init" || exit
 cargo build
 
 # Переходим в директорию src
 cd "src" || exit
 
 # Компилируем Rust файл
-rustc main.rs
+rustc main.rs -o main
 
-# Переходим обратно в исходную директорию
-cd ..
+# Возвращаемся в корневую директорию
+cd ../..
 
 # Запускаем Go программу
 go run "$MAIN_GO_FILE"

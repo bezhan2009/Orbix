@@ -16,7 +16,6 @@ rem Run the compiled Rust executable
 rem Pause to see output (optional)
 pause
 
-
 rem Build Go project
 go run "%MAIN_GO_FILE%"
 
