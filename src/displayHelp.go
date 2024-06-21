@@ -5,8 +5,8 @@ import "goCmd/debug"
 func displayHelp(commandArgs []string, user, dir string) {
 	helpText := `
 For command information, type HELP
-CREATE             creates a new file
-CLEAN              clears the screen
+CREATE             creates a new file	
+CLEAN              clears the screen	
 CD                 changes the current directory
 COPUSOURCE         copies the source code of the file
 LS                 lists directory contents
