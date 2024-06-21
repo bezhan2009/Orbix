@@ -12,3 +12,10 @@ Command: rename
 Arguments: []
 Success: True
 
+Timestamp: 2024-06-21T16:36:04+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD
+Command: help
+Arguments: []
+Success: True
+

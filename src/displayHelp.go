@@ -19,7 +19,7 @@ PRIMES             finds large prime numbers
 PICALC             calculates the value of π.
 NEWUSER            creates a new user for src.
 NEWCOMMAND         created a new command
-src              starts another src session
+ORBIX              starts another ORBIX session
 SHABLON            executes a specific command template
 SYSTEMGOCMD        displays information about src
 SYSTEMINFO         displays system information
