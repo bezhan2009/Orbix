@@ -14,5 +14,4 @@ def run_exit_script():
     else:
         print("Unsupported operating system")
 
-if __name__ == "__main__":
-    run_exit_script()
+run_exit_script()

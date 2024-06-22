@@ -9,9 +9,13 @@ rem Change directory to the root of the project
 cd /d "%~dp0"
 
 rem Check if activeUser.txt exists and exit if it does
+rem Проверяем существование файла activeUser.txt
 if exist "%ACTIVE_USER_FILE%" (
-    echo Файл "%ACTIVE_USER_FILE%" существует. Программа завершена.
-    exit /b 1
+    echo Удаляем файл "%ACTIVE_USER_FILE%"...
+    del "%ACTIVE_USER_FILE%"
+    echo Файл удален.
+) else (
+    echo Файл "%ACTIVE_USER_FILE%" не существует.
 )
 
 rem Build Rust project
