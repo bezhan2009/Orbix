@@ -37,6 +37,12 @@ func Orbix(commandInput string) {
 	}
 
 	for isWorking {
+		file, err := os.Open("isRun.txt")
+		if err != nil {
+			break
+		}
+		defer file.Close()
+
 		currentBranchGit, errGitBranch := GetCurrentGitBranch()
 
 		if errGitBranch != nil {
