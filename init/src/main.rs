@@ -1,5 +1,6 @@
 use std::fs;
-use std::io::Write;
+use std::fs::File;
+use std::io::{Read, Write};
 use std::path::Path;
 
 fn main() {
@@ -7,6 +8,8 @@ fn main() {
 
     let folder_path = format!("{}/passwords", root_dir);
     let file_path = format!("{}/debug.txt", root_dir);
+    let file_run_path = format!("{}/running.txt", root_dir);
+    let file_user_path = format!("{}/activeUser.txt", root_dir);
 
     // Проверяем существование папки, если нет - создаем
     if !Path::new(&folder_path).exists() {
@@ -20,7 +23,7 @@ fn main() {
 
     // Проверяем существование файла, если нет - создаем
     if !Path::new(&file_path).exists() {
-        match fs::File::create(&file_path) {
+        match File::create(&file_path) {
             Ok(mut file) => {
                 println!("Файл '{}' создан.", file_path);
                 if let Err(e) = file.write_all(b"Debug information") {
@@ -31,5 +34,32 @@ fn main() {
         }
     } else {
         println!("Файл '{}' уже существует.", file_path);
+    }
+
+    // Проверяем существование файла activeUser.txt
+    if !Path::new(&file_user_path).exists() {
+        panic!("Файл '{}' не существует.", file_user_path);
+    }
+
+    // Считываем данные из файла activeUser.txt
+    let mut user_file = File::open(&file_user_path)
+        .expect(&format!("Не удалось открыть файл '{}'", file_user_path));
+    let mut user_data = String::new();
+    user_file.read_to_string(&mut user_data)
+        .expect(&format!("Не удалось прочитать данные из файла '{}'", file_user_path));
+
+    // Проверяем, существует ли файл running.txt
+    if !Path::new(&file_run_path).exists() {
+        match File::create(&file_run_path) {
+            Ok(mut file) => {
+                println!("Файл '{}' создан.", file_run_path);
+                if let Err(e) = file.write_all(user_data.as_bytes()) {
+                    eprintln!("Ошибка при записи в файл '{}': {}", file_run_path, e);
+                }
+            }
+            Err(e) => eprintln!("Ошибка при создании файла '{}': {}", file_run_path, e),
+        }
+    } else {
+        println!("Файл '{}' уже существует.", file_run_path);
     }
 }

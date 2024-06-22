@@ -37,6 +37,9 @@ func Orbix(commandInput string) {
 	}
 
 	for isWorking {
+		os.Create("activeUser.txt")
+		os.WriteFile("activeUser.txt", []byte(username), 0644)
+
 		cyan := color.New(color.FgCyan).SprintFunc()
 		green := color.New(color.FgGreen).SprintFunc()
 		magenta := color.New(color.FgMagenta).SprintFunc()

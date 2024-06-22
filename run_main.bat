@@ -11,7 +11,7 @@ rem Build Rust project
 rustc "%MAIN_RUST_FILE%"
 
 rem Run the compiled Rust executable
-.\init\src\main.exe
+.\main.exe
 
 rem Pause to see output (optional)
 pause
