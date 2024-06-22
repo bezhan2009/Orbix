@@ -16,4 +16,5 @@ rustc main.rs -o main.exe
 ./main.exe
 
 # Pause (опционально) для просмотра вывода
+# shellcheck disable=SC2162
 read -p "Press Enter to continue"
