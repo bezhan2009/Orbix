@@ -29,7 +29,4 @@ fn main() {
     if !status.success() {
         println!("Failed to execute exit command");
     }
-
-    // Завершаем выполнение программы Rust с кодом 1 (необязательно)
-    exit(1);
 }
