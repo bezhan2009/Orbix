@@ -36,9 +36,14 @@ fn main() {
         println!("Файл '{}' уже существует.", file_path);
     }
 
-    // Проверяем существование файла activeUser.txt
-    if !Path::new(&file_user_path).exists() {
-        panic!("Файл '{}' не существует.", file_user_path);
+    // Проверяем существование файла activeUser.txt и выходим с паникой, если он существует
+    if Path::new(&file_user_path).exists() {
+        panic!("Файл '{}' уже существует. Программа завершена.", file_user_path);
+    }
+
+    // Проверяем существование файла running.txt и выходим с паникой, если он существует
+    if Path::new(&file_run_path).exists() {
+        panic!("Файл '{}' уже существует. Программа завершена.", file_run_path);
     }
 
     // Считываем данные из файла activeUser.txt
@@ -48,18 +53,14 @@ fn main() {
     user_file.read_to_string(&mut user_data)
         .expect(&format!("Не удалось прочитать данные из файла '{}'", file_user_path));
 
-    // Проверяем, существует ли файл running.txt
-    if !Path::new(&file_run_path).exists() {
-        match File::create(&file_run_path) {
-            Ok(mut file) => {
-                println!("Файл '{}' создан.", file_run_path);
-                if let Err(e) = file.write_all(user_data.as_bytes()) {
-                    eprintln!("Ошибка при записи в файл '{}': {}", file_run_path, e);
-                }
+    // Создаем файл running.txt и записываем данные из файла activeUser.txt
+    match File::create(&file_run_path) {
+        Ok(mut file) => {
+            println!("Файл '{}' создан.", file_run_path);
+            if let Err(e) = file.write_all(user_data.as_bytes()) {
+                eprintln!("Ошибка при записи в файл '{}': {}", file_run_path, e);
             }
-            Err(e) => eprintln!("Ошибка при создании файла '{}': {}", file_run_path, e),
         }
-    } else {
-        println!("Файл '{}' уже существует.", file_run_path);
+        Err(e) => eprintln!("Ошибка при создании файла '{}': {}", file_run_path, e),
     }
 }
