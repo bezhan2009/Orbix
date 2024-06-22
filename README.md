@@ -1,5 +1,5 @@
 
-### Orbix - Expandable Command Line Interface in Go
+# Orbix - Expandable Command Line Interface in Go
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI) 
 ![GitHub language count](https://img.shields.io/github/languages/count/bezhan2009/ORPXI)
@@ -25,7 +25,10 @@ Read in [Русский](README.ru.md)
 ```bash
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
-go run .
+# For Windows
+.\run_main.bat
+# For Unix-based systems
+./main.sh
 ```
 
 ### List of Available Commands
@@ -41,7 +44,7 @@ go run .
 - **PROMPT**: Changes the Orbix prompt.
 - **PINGVIEW**: Displays ping.
 - **NEWUSER**: Adds a new user for Orbix.
-- **ORPXI**: Starts another instance of Orbix.
+- **ORBIX**: Starts another instance of Orbix.
 - **SHABLON**: Executes a specific command template.
 - **SYSTEMGOCMD**: Displays information about Orbix.
 - **SYSTEMINFO**: Displays system information.
