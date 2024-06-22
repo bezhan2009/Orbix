@@ -53,4 +53,4 @@ if exist "%IS_RUN_FILE%" (
     echo Файл "%IS_RUN_FILE%" удален.
 )
 
-local
+endlocal

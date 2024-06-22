@@ -37,6 +37,12 @@ func Orbix(commandInput string) {
 	}
 
 	for isWorking {
+		currentBranchGit, errGitBranch := GetCurrentGitBranch()
+
+		if errGitBranch != nil {
+			fmt.Println("error while getting current git branch")
+		}
+
 		os.Create("activeUser.txt")
 		os.WriteFile("activeUser.txt", []byte(username), 0644)
 
@@ -62,10 +68,10 @@ func Orbix(commandInput string) {
 		if promptText != "" {
 			animatedPrint("\n" + promptText)
 		} else {
-			fmt.Print(fmt.Sprintf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
+			fmt.Print(fmt.Sprintf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s\n",
 				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
 				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
-				cyan("~"), cyan(dirC), yellow("]")))
+				cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["+currentBranchGit+"]")))
 			fmt.Print(fmt.Sprintf("%s%s%s %s",
 				yellow("└"), yellow("─"), green("$"), green(commandInput)))
 		}
