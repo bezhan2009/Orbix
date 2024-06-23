@@ -12,6 +12,9 @@ import (
 	"time"
 )
 
+var Absdir, _ = filepath.Abs("")
+var DirUser, _ = filepath.Abs("")
+
 func Orbix(commandInput string) {
 	utils.SystemInformation()
 
@@ -37,27 +40,38 @@ func Orbix(commandInput string) {
 	}
 
 	for isWorking {
-		file, err := os.Open("isRun.txt")
+		dir, _ := os.Getwd()
+
+		runFilePath := Absdir
+		runFilePath += "\\isRun.txt"
+
+		file, err := os.Open(runFilePath)
 		if err != nil {
+			red := color.New(color.FgRed).SprintFunc()
+			fmt.Println(red("Запустите программу через run_main.bat либо если у вас Unix(Linux, MacOS) то запустите через main.sh"))
 			break
 		}
 		defer file.Close()
 
 		currentBranchGit, errGitBranch := GetCurrentGitBranch()
-
 		if errGitBranch != nil {
-			fmt.Println("error while getting current git branch")
+			fmt.Println("Ошибка при получении текущей ветки Git")
 		}
 
-		os.Create("activeUser.txt")
-		os.WriteFile("activeUser.txt", []byte(username), 0644)
+		// Ensure absolute path for activeUser.txt
+		activeUserFilePath := DirUser
+		activeUserFilePath += "\\activeUser.txt"
+
+		fmt.Println("Путь к activeUser.txt:", activeUserFilePath)
+
+		os.Create(activeUserFilePath)
+		os.WriteFile(activeUserFilePath, []byte(username), 0644)
 
 		cyan := color.New(color.FgCyan).SprintFunc()
 		green := color.New(color.FgGreen).SprintFunc()
 		magenta := color.New(color.FgMagenta).SprintFunc()
 		yellow := color.New(color.FgYellow).SprintFunc()
 
-		dir, _ := os.Getwd()
 		dirC := cmdPress.CmdDir(dir)
 		user := cmdPress.CmdUser(dir)
 

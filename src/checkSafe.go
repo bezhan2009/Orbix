@@ -13,9 +13,19 @@ import (
 	"strings"
 )
 
-// isPasswordDirectoryEmpty Функция, которая проверяет, есть ли файлы в директории passwords.
+// getPasswordsDir returns the absolute path of the passwords directory.
+func getPasswordsDir() (string, error) {
+	return filepath.Abs("passwords")
+}
+
+// isPasswordDirectoryEmpty checks if there are any files in the passwords directory.
 func isPasswordDirectoryEmpty() (bool, error) {
-	files, err := os.ReadDir("passwords")
+	passwordsDir, err := getPasswordsDir()
+	if err != nil {
+		return false, err
+	}
+
+	files, err := os.ReadDir(passwordsDir)
 	if err != nil {
 		return false, err
 	}
@@ -23,7 +33,7 @@ func isPasswordDirectoryEmpty() (bool, error) {
 	return len(files) == 0, nil
 }
 
-// CheckUser Функция, которая проверяет пользователя и его пароль.
+// CheckUser checks the username and password.
 func CheckUser(usernameFromDir string) (string, bool) {
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
@@ -51,23 +61,28 @@ func CheckUser(usernameFromDir string) (string, bool) {
 
 	password = PasswordAlgoritm.Usage(password, true)
 	hashedPassword := hashPasswordFromUser(password)
-	passwordDir := filepath.Join("passwords", username)
 
+	passwordsDir, err := getPasswordsDir()
+	if err != nil {
+		Clean.Screen()
+		fmt.Printf("%s\n", magenta("Ошибка при получении пути директории паролей"))
+		return "", false
+	}
+
+	passwordDir := filepath.Join(passwordsDir, username)
 	filePath := filepath.Join(passwordDir, hashedPassword)
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		Clean.Screen()
-
 		fmt.Printf("%s\n", magenta("Пользователь не найден или неверный пароль"))
 		return usernameFromDir, false
 	}
 
 	Clean.Screen()
-
 	fmt.Printf("%s\n", magenta("Добро пожаловать, ", username))
 	return username, true
 }
 
-// hashPasswordFromUser Функция для хеширования пароля
+// hashPasswordFromUser hashes the user's password.
 func hashPasswordFromUser(password string) string {
 	hash := sha256.New()
 	hash.Write([]byte(password))
