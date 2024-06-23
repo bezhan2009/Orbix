@@ -55,14 +55,12 @@ func Orbix(commandInput string) {
 
 		currentBranchGit, errGitBranch := GetCurrentGitBranch()
 		if errGitBranch != nil {
-			fmt.Println("Ошибка при получении текущей ветки Git")
+			currentBranchGit = "" // Ensure currentBranchGit is empty on error
 		}
 
 		// Ensure absolute path for activeUser.txt
 		activeUserFilePath := DirUser
 		activeUserFilePath += "\\activeUser.txt"
-
-		fmt.Println("Путь к activeUser.txt:", activeUserFilePath)
 
 		os.Create(activeUserFilePath)
 		os.WriteFile(activeUserFilePath, []byte(username), 0644)
@@ -88,12 +86,17 @@ func Orbix(commandInput string) {
 		if promptText != "" {
 			animatedPrint("\n" + promptText)
 		} else {
-			fmt.Print(fmt.Sprintf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s\n",
+			var gitInfo string
+			if currentBranchGit != "" {
+				gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
+			}
+
+			fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
 				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
 				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
-				cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["+currentBranchGit+"]")))
-			fmt.Print(fmt.Sprintf("%s%s%s %s",
-				yellow("└"), yellow("─"), green("$"), green(commandInput)))
+				cyan("~"), cyan(dirC), yellow("]"), gitInfo)
+			fmt.Printf("%s%s%s %s",
+				yellow("└"), yellow("─"), green("$"), green(commandInput))
 		}
 
 		var commandLine string
