@@ -52,6 +52,7 @@ cd Orbix
 - **TREE**: Graphically displays the directory structure of a disk or path.
 - **WRITE**: Writes data to a file.
 - **EDIT**: Edits a file.
+- **OPEN_LINK**: Opens the link in the browser.
 - **EXTRACTZIP**: Extracts .zip archives.
 - **SCANPORT**: Scans ports.
 - **WHOIS**: Retrieves information about a domain.
