@@ -37,6 +37,8 @@ func Orbix(commandInput string) {
 			return
 		}
 		username = nameuser
+		os.Create("running.txt")
+		os.WriteFile("running.txt", []byte(username), 0644)
 	}
 
 	for isWorking {
