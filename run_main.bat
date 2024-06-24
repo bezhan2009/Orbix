@@ -30,7 +30,6 @@ if exist "%IS_RUN_FILE%" (
 )
 
 rem Check if activeUser.txt exists and delete if it does
-rem Проверяем существование файла activeUser.txt
 if exist "%ACTIVE_USER_FILE%" (
     echo Удаляем файл "%ACTIVE_USER_FILE%"...
     del "%ACTIVE_USER_FILE%"
