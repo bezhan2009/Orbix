@@ -30,6 +30,7 @@ EDIT               edits a file
 WIFIUTILS          launches a utility for working with WiFi
 EXTRACTZIP         extracts .zip archives
 SCANPORT           scans ports
+OPEN_LINK          opens the link in the browser
 WHOIS              domain information
 DNSLOOKUP          DNS queries
 FILEIO             intensive file operation test

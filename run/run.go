@@ -2,6 +2,7 @@ package run
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"goCmd/src"
 	"goCmd/utils"
 	"os"
@@ -14,13 +15,13 @@ var Absdir, _ = filepath.Abs("")
 func Init() {
 	runFilePath := filepath.Join(Absdir, "isRun.txt")
 
-	isRunSource, err := os.ReadFile(runFilePath)
+	file, err := os.Open(runFilePath)
 	if err != nil {
-		fmt.Printf("Error reading %s: %v\n", runFilePath, err)
+		red := color.New(color.FgRed).SprintFunc()
+		fmt.Println(red("Запустите программу через run_main.bat либо если у вас Unix(Linux, MacOS) то запустите через main.sh"))
 		os.Exit(1)
 	}
-
-	fmt.Println(string(isRunSource))
+	defer file.Close()
 
 	os.Remove(runFilePath)
 

@@ -45,19 +45,6 @@ func Orbix(commandInput string) {
 		runFilePath := Absdir
 		runFilePath += "\\isRun.txt"
 
-		file, err := os.Open(runFilePath)
-		if err != nil {
-			red := color.New(color.FgRed).SprintFunc()
-			fmt.Println(red("Запустите программу через run_main.bat либо если у вас Unix(Linux, MacOS) то запустите через main.sh"))
-			break
-		}
-		isRunSource, _ := os.ReadFile(runFilePath)
-
-		if string(isRunSource) == "false" {
-			os.Exit(1)
-		}
-		defer file.Close()
-
 		currentBranchGit, errGitBranch := GetCurrentGitBranch()
 		if errGitBranch != nil {
 			currentBranchGit = "" // Ensure currentBranchGit is empty on error

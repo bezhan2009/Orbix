@@ -4,7 +4,7 @@ use std::io::{Read, Write};
 use std::path::Path;
 
 fn main() {
-    println!("initializer started!")
+    println!("initializer started!");
 
     let root_dir = "C:/Users/Admin/MyCMD/goCMD"; // Укажите здесь полный путь к вашей корневой директории
 
@@ -66,5 +66,5 @@ fn main() {
         Err(e) => eprintln!("Ошибка при создании файла '{}': {}", file_run_path, e),
     }
 
-    println!("initializer completed!")
+    println!("initializer completed!");
 }

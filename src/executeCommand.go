@@ -49,6 +49,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"cd":          func() { ExCommUtils.ChangeDirectoryUtil(commandArgs) },
 		"edit":        func() { ExCommUtils.EditFileUtil(commandArgs) },
 		"ls":          Ls.PrintLS,
+		"open_link":   func() { ExCommUtils.OpenLinkUtil(commandArgs) },
 	}
 
 	permissionRequiredCommands := map[string]func(){

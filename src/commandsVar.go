@@ -34,6 +34,7 @@ var commands = []structs.Command{
 	{"scanport", "Port scanning"},
 	{"dnslookup", "DNS queries"},
 	{"ipinfo", "IP address information"},
+	{"open_link", "opens the link in the browser"},
 	{"geoip", "IP address geolocation"},
 	{"()", "Close parenthesis"},
 	{"[]", "Close square bracket"},
