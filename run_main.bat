@@ -20,9 +20,14 @@ rem Создаем файл блокировки
 echo Creating lock file: %LOCK_FILE%
 copy NUL "%LOCK_FILE%" > nul
 
-rem Create and write to isRun.txt
-echo true > "%IS_RUN_FILE%"
-echo Файл "%IS_RUN_FILE%" создан и записано значение true.
+rem Check if isRun.txt exists and write the appropriate value
+if exist "%IS_RUN_FILE%" (
+    echo true > "%IS_RUN_FILE%"
+    echo Файл "%IS_RUN_FILE%" уже существует. Записано значение true.
+) else (
+    echo false > "%IS_RUN_FILE%"
+    echo Файл "%IS_RUN_FILE%" создан и записано значение false.
+)
 
 rem Check if activeUser.txt exists and delete if it does
 rem Проверяем существование файла activeUser.txt
