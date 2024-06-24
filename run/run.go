@@ -22,16 +22,7 @@ func Init() {
 
 	fmt.Println(string(isRunSource))
 
-	if string(isRunSource) == "false" {
-		err := os.WriteFile(runFilePath, []byte("true"), 0777)
-		if err != nil {
-			fmt.Printf("Error writing to %s: %v\n", runFilePath, err)
-			os.Exit(1)
-		}
-	} else if string(isRunSource) == "true" {
-		fmt.Println("Program is already running.")
-		os.Exit(1)
-	}
+	os.Remove(runFilePath)
 
 	if utils.IsHidden() {
 		fmt.Println("You are BLOCKED!!!")
