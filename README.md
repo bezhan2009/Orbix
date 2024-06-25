@@ -27,7 +27,7 @@ git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
 # For Windows
 .\run_main.bat
-# For Unix-based systems
+# For Unix-based systems (Linux, MacOS)
 ./main.sh
 ```
 
