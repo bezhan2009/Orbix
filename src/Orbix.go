@@ -36,9 +36,42 @@ func Orbix(commandInput string) {
 		if !isSuccess {
 			return
 		}
+
 		username = nameuser
-		os.Create("running.txt")
-		os.WriteFile("running.txt", []byte(username), 0644)
+		// Создаем файл running.txt, если его нет
+		if _, err := os.Stat("running.txt"); os.IsNotExist(err) {
+			os.Create("running.txt")
+		}
+
+		// Проверка наличия username в файле running.txt
+		runningPath := Absdir
+		runningPath += "\\running.txt"
+		sourceRunning, errReading := os.ReadFile(runningPath)
+		if errReading == nil {
+			dataRunning := string(sourceRunning)
+			lines := strings.Split(dataRunning, "\n")
+			found := false
+			for _, line := range lines {
+				if strings.TrimSpace(line) == username {
+					found = true
+					break
+				}
+			}
+			if !found {
+				// Добавляем username в конец файла running.txt
+				file, err := os.OpenFile("running.txt", os.O_APPEND|os.O_WRONLY, 0644)
+				if err != nil {
+					fmt.Println("Ошибка открытия файла running.txt:", err)
+					return
+				}
+				defer file.Close()
+
+				if _, err := file.WriteString(username + "\n"); err != nil {
+					fmt.Println("Ошибка записи в файл running.txt:", err)
+					return
+				}
+			}
+		}
 	}
 
 	for isWorking {
@@ -75,6 +108,28 @@ func Orbix(commandInput string) {
 		location := os.Getenv("CITY")
 		if location == "" {
 			location = "Unknown City"
+		}
+
+		// Проверка наличия username в файле running.txt
+		runningPath := Absdir
+		runningPath += "\\running.txt"
+		sourceRunning, errReading := os.ReadFile(runningPath)
+		if errReading == nil {
+			dataRunning := string(sourceRunning)
+			lines := strings.Split(dataRunning, "\n")
+			found := false
+			for _, line := range lines {
+				if strings.TrimSpace(line) == username {
+					found = true
+					break
+				}
+			}
+			if !found {
+				fmt.Println("Пользователь не авторизован.")
+				isWorking = false
+				isPermission = false
+				continue
+			}
 		}
 
 		if promptText != "" {
@@ -159,6 +214,10 @@ func Orbix(commandInput string) {
 			continue
 		}
 
-		ExecuteCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission)
+		ExecuteCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission, username)
+
+		if commandLower == "signout" {
+			break
+		}
 	}
 }

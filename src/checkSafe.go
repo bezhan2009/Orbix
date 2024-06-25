@@ -64,10 +64,13 @@ func CheckUser(usernameFromDir string) (string, bool) {
 
 	if errReading == nil {
 		dataRunning = string(sourceRunning)
-		if dataRunning == username {
-			red := color.New(color.FgRed).SprintFunc()
-			fmt.Println(red("This user is already taken!"))
-			os.Exit(1)
+		lines := strings.Split(dataRunning, "\n")
+		for _, line := range lines {
+			if strings.TrimSpace(line) == username {
+				red := color.New(color.FgRed).SprintFunc()
+				fmt.Println(red("Этот пользователь уже существует!"))
+				os.Exit(1)
+			}
 		}
 	}
 

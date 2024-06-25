@@ -1,6 +1,7 @@
 package src
 
 import (
+	"fmt"
 	"goCmd/Network"
 	"goCmd/Network/wifiUtils"
 	"goCmd/cmdPress"
@@ -16,9 +17,11 @@ import (
 	"goCmd/utils"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 )
 
-func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool) {
+func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool, username string) {
 	user := cmdPress.CmdUser(dir)
 
 	commandMap := map[string]func(){
@@ -55,11 +58,12 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 	permissionRequiredCommands := map[string]func(){
 		"orbix":   func() { Orbix("") },
 		"newuser": NewUser,
-		"signout": func() { SignOutUtil(user, isWorking) },
+		"signout": func() { SignOutUtil(username) },
 		"exit": func() {
-			// Check if '-t' argument is present
+			removeFromRunningFile := true
 			for _, arg := range commandArgs {
 				if arg == "-t" {
+					removeFromRunningFile = false
 					cmd := exec.Command("py", "exit.py")
 					cmd.Start()
 					cmd2 := exec.Command("exit")
@@ -67,6 +71,9 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 					os.Exit(cmd2.ProcessState.ExitCode())
 					return
 				}
+			}
+			if removeFromRunningFile {
+				removeUserFromRunningFile(username)
 			}
 			*isWorking = false
 		},
@@ -80,5 +87,30 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		}
 	} else {
 		HandleUnknownCommandUtil(commandLower, commandLine, commands)
+	}
+}
+
+func removeUserFromRunningFile(username string) {
+	runningPath := filepath.Join(Absdir, "running.txt")
+
+	sourceRunning, err := os.ReadFile(runningPath)
+	if err != nil {
+		fmt.Printf("Ошибка чтения файла running.txt: %v\n", err)
+		return
+	}
+
+	lines := strings.Split(string(sourceRunning), "\n")
+	var updatedLines []string
+	for _, line := range lines {
+		if strings.TrimSpace(line) != username {
+			updatedLines = append(updatedLines, line)
+		}
+	}
+
+	newContent := strings.Join(updatedLines, "\n")
+	err = os.WriteFile(runningPath, []byte(newContent), 0644)
+	if err != nil {
+		fmt.Printf("Ошибка записи в файл running.txt: %v\n", err)
+		return
 	}
 }
