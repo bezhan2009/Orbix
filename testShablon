@@ -1,0 +1,9 @@
+
+git add .
+git commit -m "add test shablon"
+git push origin main
+create test.txt
+rename test.txt testTxt.txt
+write testTxt.txt Hello World
+test command
+test command
