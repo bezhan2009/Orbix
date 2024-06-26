@@ -1,30 +1,30 @@
 #!/bin/bash
 
-# Пути к файлам Go и Rust
+# Set paths to Go and Rust files
 MAIN_GO_FILE="main.go"
 MAIN_RUST_FILE="init/src/main.rs"
 ACTIVE_USER_FILE="activeUser.txt"
-RUNNING_FILE="running.txt"
+IS_RUN_FILE="isRun.txt"
 
-# Удаляем файлы activeUser.txt и running.txt, если они существуют
+# Check if activeUser.txt exists and delete it if it does
 if [ -f "$ACTIVE_USER_FILE" ]; then
-    echo "Удаляем файл \"$ACTIVE_USER_FILE\"..."
+    echo "Удаляем файл $ACTIVE_USER_FILE..."
     rm "$ACTIVE_USER_FILE"
-    echo "Файл \"$ACTIVE_USER_FILE\" удален."
+    echo "Файл удален."
 else
-    echo "Файл \"$ACTIVE_USER_FILE\" не существует."
+    echo "Файл $ACTIVE_USER_FILE не существует."
 fi
 
-if [ -f "$RUNNING_FILE" ]; then
-    echo "Удаляем файл \"$RUNNING_FILE\" после выполнения программы на Go."
-fi
+# Create isRun.txt and write true to it
+echo "true" > "$IS_RUN_FILE"
 
-# Компилируем и запускаем программу на Rust
-rustc "$MAIN_RUST_FILE"
-./main.exe
+# Run the Rust program
+rustc "$MAIN_RUST_FILE" && ./main
 
-# Запускаем программу на Go и удаляем файл running.txt после ее завершения
+# Run the Go program
 go run "$MAIN_GO_FILE"
-rm -f "$RUNNING_FILE"
 
-echo "Завершено удаление файла \"$RUNNING_FILE\"."
+# Delete running.txt
+rm running.txt
+# Delete isRun.txt
+rm isRun.txt
