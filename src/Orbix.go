@@ -15,7 +15,12 @@ import (
 var Absdir, _ = filepath.Abs("")
 var DirUser, _ = filepath.Abs("")
 
-func Orbix(commandInput string) {
+func Orbix(commandInput string, echo bool) {
+	if !echo && commandInput == "" {
+		red := color.New(color.FgRed).SprintFunc()
+		fmt.Println(red("You cannot enable echo with an empty Input command!"))
+	}
+
 	utils.SystemInformation()
 
 	isWorking := true
@@ -132,20 +137,22 @@ func Orbix(commandInput string) {
 			}
 		}
 
-		if promptText != "" {
-			animatedPrint("\n" + promptText)
-		} else {
-			var gitInfo string
-			if currentBranchGit != "" {
-				gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
-			}
+		if !echo {
+			if promptText != "" {
+				animatedPrint("\n" + promptText)
+			} else {
+				var gitInfo string
+				if currentBranchGit != "" {
+					gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
+				}
 
-			fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
-				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
-				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
-				cyan("~"), cyan(dirC), yellow("]"), gitInfo)
-			fmt.Printf("%s%s%s %s",
-				yellow("└"), yellow("─"), green("$"), green(commandInput))
+				fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
+					yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
+					yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
+					cyan("~"), cyan(dirC), yellow("]"), gitInfo)
+				fmt.Printf("%s%s%s %s",
+					yellow("└"), yellow("─"), green("$"), green(commandInput))
+			}
 		}
 
 		var commandLine string

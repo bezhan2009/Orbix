@@ -8,7 +8,15 @@ import (
 )
 
 // Start executes a series of commands defined in the given shablon file.
-func Start(shablonName string) error {
+func Start(shablonName string, echo string) error {
+	echoExecute := false
+
+	if echo == "true" {
+		echoExecute = true
+	} else {
+		echoExecute = false
+	}
+
 	shablonName = strings.TrimSpace(shablonName)
 
 	file, err := os.OpenFile(shablonName, os.O_RDWR, 0644)
@@ -24,7 +32,7 @@ func Start(shablonName string) error {
 			continue // Ignore empty lines
 		}
 		// Execute each command from the template
-		if err := executeCommand(line); err != nil {
+		if err := executeCommand(line, echoExecute); err != nil {
 			fmt.Printf("Error executing command '%s': %v\n", line, err)
 		}
 	}
@@ -37,8 +45,8 @@ func Start(shablonName string) error {
 }
 
 // executeCommand executes a single command using the Orbix function.
-func executeCommand(command string) error {
+func executeCommand(command string, echo bool) error {
 	// Assuming Orbix function handles the command execution.
-	Orbix(command)
+	Orbix(command, echo)
 	return nil
 }

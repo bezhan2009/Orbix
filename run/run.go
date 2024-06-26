@@ -25,5 +25,5 @@ func Init() {
 		fmt.Printf("Папка %s успешно создана.\n", passwordsDir)
 	}
 
-	src.Orbix("")
+	src.Orbix("", true)
 }
