@@ -20,8 +20,9 @@ func Orbix(commandInput string, echo bool) {
 		red := color.New(color.FgRed).SprintFunc()
 		fmt.Println(red("You cannot enable echo with an empty Input command!"))
 	}
-
-	utils.SystemInformation()
+	if !echo {
+		utils.SystemInformation()
+	}
 
 	isWorking := true
 	isPermission := true
