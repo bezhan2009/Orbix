@@ -79,7 +79,23 @@ func Orbix(commandInput string, echo bool) {
 		}
 	}
 
+	// Сохранить оригинальные выводы
+	originalStdout := os.Stdout
+	originalStderr := os.Stderr
+
+	// Перенаправить вывод в нулевой девайс
+	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
+	defer devNull.Close()
+
 	for isWorking {
+		if !echo {
+			os.Stdout = devNull
+			os.Stderr = devNull
+		} else {
+			os.Stdout = originalStdout
+			os.Stderr = originalStderr
+		}
+
 		dir, _ := os.Getwd()
 
 		runFilePath := Absdir
@@ -137,22 +153,20 @@ func Orbix(commandInput string, echo bool) {
 			}
 		}
 
-		if !echo {
-			if promptText != "" {
-				animatedPrint("\n" + promptText)
-			} else {
-				var gitInfo string
-				if currentBranchGit != "" {
-					gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
-				}
-
-				fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
-					yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
-					yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
-					cyan("~"), cyan(dirC), yellow("]"), gitInfo)
-				fmt.Printf("%s%s%s %s",
-					yellow("└"), yellow("─"), green("$"), green(commandInput))
+		if promptText != "" && echo {
+			animatedPrint("\n" + promptText)
+		} else if echo {
+			var gitInfo string
+			if currentBranchGit != "" {
+				gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
 			}
+
+			fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
+				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
+				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
+				cyan("~"), cyan(dirC), yellow("]"), gitInfo)
+			fmt.Printf("%s%s%s %s",
+				yellow("└"), yellow("─"), green("$"), green(commandInput))
 		}
 
 		var commandLine string
@@ -227,4 +241,8 @@ func Orbix(commandInput string, echo bool) {
 			break
 		}
 	}
+
+	// Восстановить оригинальные выводы
+	os.Stdout = originalStdout
+	os.Stderr = originalStderr
 }
