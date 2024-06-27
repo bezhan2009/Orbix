@@ -38,14 +38,14 @@ cd Orbix
 - **CD**: Changes the current directory.
 - **LS**: Lists directory contents.
 - **COPYSOURCE**: Copies the source code of the file.
-- **NEWSHABLON**: Creates a new template of commands to execute.
+- **NEWTEMPLATE**: Creates a new template of commands to execute.
 - **REMOVE**: Deletes a file.
 - **READ**: Displays the contents of a file.
 - **PROMPT**: Changes the Orbix prompt.
 - **PINGVIEW**: Displays ping.
 - **NEWUSER**: Adds a new user for Orbix.
 - **ORBIX**: Starts another instance of Orbix.
-- **SHABLON**: Executes a specific command template.
+- **TEMPLATE**: Executes a specific command template.
 - **SYSTEMGOCMD**: Displays information about Orbix.
 - **SYSTEMINFO**: Displays system information.
 - **SIGNOUT**: Logs out the user from Orbix.
