@@ -5,6 +5,7 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/fatih/color"
 	"goCmd/cmdPress"
+	"goCmd/commands/commandsWithoutSignature/CD"
 	"goCmd/utils"
 	"os"
 	"path/filepath"
@@ -213,6 +214,20 @@ func Orbix(commandInput string, echo bool) {
 
 		if commandLower == "help" {
 			displayHelp(commandArgs, user, dir)
+			continue
+		}
+
+		// Handle the "cd" command and drive changes
+		if commandLower == "cd" || len(command) == 2 && command[1] == ':' {
+			targetDir := command
+			if commandLower == "cd" && len(commandArgs) > 0 {
+				targetDir = commandArgs[0]
+			}
+
+			err := CD.ChangeDirectory(targetDir)
+			if err != nil {
+				fmt.Println(err)
+			}
 			continue
 		}
 
