@@ -133,6 +133,7 @@ func Orbix(commandInput string, echo bool) {
 			location = "Unknown City"
 		}
 
+		// Проверка наличия username в файле running.txt
 		runningPath := Absdir
 		runningPath += "\\running.txt"
 		sourceRunning, errReading := os.ReadFile(runningPath)
