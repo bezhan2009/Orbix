@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libpq-fe.h>
+#include <curl/curl.h>
 
 void show_help() {
     printf("Orbix Package Manager (OPM)\n");
@@ -19,6 +20,34 @@ void do_exit(PGconn *conn) {
     exit(1);
 }
 
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+    size_t written = fwrite(ptr, size, nmemb, stream);
+    return written;
+}
+
+void download_package(const char *url, const char *package_name) {
+    CURL *curl;
+    FILE *fp;
+    CURLcode res;
+    char outfilename[FILENAME_MAX] = "./";
+    strcat(outfilename, package_name);
+    strcat(outfilename, ".pkg");
+
+    curl = curl_easy_init();
+    if (curl) {
+        fp = fopen(outfilename, "wb");
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "Download failed: %s\n", curl_easy_strerror(res));
+        }
+        fclose(fp);
+        curl_easy_cleanup(curl);
+    }
+}
+
 void install_package(const char *package_name) {
     const char *conninfo = "dbname=yourdbname user=youruser password=yourpassword hostaddr=yourhostaddr port=yourport";
     PGconn *conn = PQconnectdb(conninfo);
@@ -29,7 +58,7 @@ void install_package(const char *package_name) {
     }
 
     char query[256];
-    snprintf(query, sizeof(query), "SELECT * FROM packages WHERE name='%s'", package_name);
+    snprintf(query, sizeof(query), "SELECT url FROM Packages WHERE name='%s'", package_name);
 
     PGresult *res = PQexec(conn, query);
 
@@ -39,13 +68,12 @@ void install_package(const char *package_name) {
         do_exit(conn);
     }
 
-    // Обработка данных пакета
-    // Например:
-    int nFields = PQnfields(res);
-    for (int i = 0; i < PQntuples(res); i++) {
-        for (int j = 0; j < nFields; j++) {
-            printf("%s: %s\n", PQfname(res, j), PQgetvalue(res, i, j));
-        }
+    if (PQntuples(res) > 0) {
+        const char *url = PQgetvalue(res, 0, 0);
+        printf("Downloading package from: %s\n", url);
+        download_package(url, package_name);
+    } else {
+        printf("Package '%s' not found.\n", package_name);
     }
 
     PQclear(res);
