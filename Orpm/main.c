@@ -72,12 +72,38 @@ void install_package(const char *package_name) {
         const char *url = PQgetvalue(res, 0, 0);
         printf("Downloading package from: %s\n", url);
         download_package(url, package_name);
+        printf("Package '%s' installed successfully.\n", package_name);
     } else {
         printf("Package '%s' not found.\n", package_name);
     }
 
     PQclear(res);
     PQfinish(conn);
+}
+
+void remove_package(const char *package_name) {
+    char filename[FILENAME_MAX] = "./";
+    strcat(filename, package_name);
+    strcat(filename, ".pkg");
+
+    if (remove(filename) == 0) {
+        printf("Package '%s' removed successfully.\n", package_name);
+    } else {
+        printf("Error: Could not remove package '%s'.\n", package_name);
+    }
+}
+
+void update_package_manager() {
+    printf("Updating package manager...\n");
+    // Здесь может быть код для обновления пакетного менеджера,
+    // например, загрузка и установка обновлений.
+}
+
+void list_installed_packages() {
+    printf("Listing installed packages:\n");
+
+    // Для простоты предположим, что установленные пакеты находятся в текущем каталоге с расширением .pkg
+    system("ls *.pkg");
 }
 
 int main(int argc, char *argv[]) {
@@ -95,11 +121,16 @@ int main(int argc, char *argv[]) {
         const char *package_name = argv[2];
         install_package(package_name);
     } else if (strcmp(argv[1], "remove") == 0) {
-        printf("Removing package...\n");
+        if (argc < 3) {
+            printf("Error: No package name provided.\n");
+            return 1;
+        }
+        const char *package_name = argv[2];
+        remove_package(package_name);
     } else if (strcmp(argv[1], "update") == 0) {
-        printf("Updating package manager...\n");
+        update_package_manager();
     } else if (strcmp(argv[1], "list") == 0) {
-        printf("Listing installed packages...\n");
+        list_installed_packages();
     } else if (strcmp(argv[1], "help") == 0) {
         show_help();
     } else {
