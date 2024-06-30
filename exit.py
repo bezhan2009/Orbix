@@ -2,6 +2,7 @@ import platform
 import subprocess
 import os
 
+# run_exit_script runs exit scripts
 def run_exit_script():
     current_dir = os.path.dirname(os.path.realpath(__file__))
 
