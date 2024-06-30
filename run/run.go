@@ -19,7 +19,8 @@ func Init() {
 	defer file.Close()
 
 	if utils.IsHidden() {
-		fmt.Println("You are BLOCKED!!!")
+		red := color.New(color.FgRed).SprintFunc()
+		fmt.Println(red("You are BLOCKED!!!"))
 		return
 	}
 
@@ -31,7 +32,6 @@ func Init() {
 			fmt.Printf("Ошибка при создании папки %s: %v\n", passwordsDir, err)
 			return
 		}
-		fmt.Printf("Папка %s успешно создана.\n", passwordsDir)
 	}
 
 	src.Orbix("", true)
