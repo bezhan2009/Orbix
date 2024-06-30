@@ -1,8 +1,17 @@
+# IDE File
 .idea
+
+# Security File
 passwords
+
+# Local debug.txt
 debug.txt
+
+# INIT Files
 isRun.txt
 running.txt
+
+# Tests
 testShablon
 testTxt.txt
 test.txt
