@@ -3,6 +3,7 @@
 #include <string.h>
 #include <libpq-fe.h>
 #include <curl/curl.h>
+#include <unistd.h>
 
 void show_help() {
     printf("Orbix Package Manager (OPM)\n");
@@ -25,17 +26,14 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return written;
 }
 
-void download_package(const char *url, const char *package_name) {
+void download_file(const char *url, const char *filename) {
     CURL *curl;
     FILE *fp;
     CURLcode res;
-    char outfilename[FILENAME_MAX] = "./";
-    strcat(outfilename, package_name);
-    strcat(outfilename, ".pkg");
 
     curl = curl_easy_init();
     if (curl) {
-        fp = fopen(outfilename, "wb");
+        fp = fopen(filename, "wb");
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
@@ -71,7 +69,7 @@ void install_package(const char *package_name) {
     if (PQntuples(res) > 0) {
         const char *url = PQgetvalue(res, 0, 0);
         printf("Downloading package from: %s\n", url);
-        download_package(url, package_name);
+        download_file(url, package_name);
         printf("Package '%s' installed successfully.\n", package_name);
     } else {
         printf("Package '%s' not found.\n", package_name);
@@ -95,8 +93,17 @@ void remove_package(const char *package_name) {
 
 void update_package_manager() {
     printf("Updating package manager...\n");
-    // Здесь может быть код для обновления пакетного менеджера,
-    // например, загрузка и установка обновлений.
+    const char *update_url = "your_update_url"; // URL для обновления пакетного менеджера
+    const char *update_filename = "opm_new";
+
+    download_file(update_url, update_filename);
+
+    // Замена текущего исполняемого файла новым
+    if (rename(update_filename, "opm") != 0) {
+        fprintf(stderr, "Failed to update package manager.\n");
+    } else {
+        printf("Package manager updated successfully.\n");
+    }
 }
 
 void list_installed_packages() {
