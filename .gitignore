@@ -10,6 +10,7 @@ debug.txt
 # INIT Files
 isRun.txt
 running.txt
+activeUser.txt
 
 # Tests
 testShablon
