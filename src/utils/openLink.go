@@ -49,7 +49,6 @@ func OpenLinkUtil(commandArgs []string) {
 		return
 	}
 
-	// Добавить ".com" если нет доменного имени или если доменное имя не имеет точек
 	if parsedUrl.Host == "" {
 		parsedUrl.Host = parsedUrl.Path
 		parsedUrl.Path = ""
@@ -58,7 +57,5 @@ func OpenLinkUtil(commandArgs []string) {
 		parsedUrl.Host += ".com"
 	}
 
-	green := color.New(color.FgGreen).SprintFunc()
-	fmt.Println(green("Protocol is valid."))
 	Network.OpenBrowser(parsedUrl.String())
 }
