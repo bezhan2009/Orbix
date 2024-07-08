@@ -12,6 +12,7 @@ debug.txt
 isRun.txt
 running.txt
 activeUser.txt
+build
 
 # Tests
 testShablon
