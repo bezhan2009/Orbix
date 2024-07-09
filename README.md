@@ -25,10 +25,7 @@ Read in [Русский](README.ru.md)
 ```bash
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
-# For Windows
-.\run_main.bat
-# For Unix-based systems (Linux, MacOS)
-./main.sh
+orbix
 ```
 
 ### List of Available Commands
