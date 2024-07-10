@@ -37,7 +37,6 @@ FILEIO             intensive file operation test
 IPINFO             IP address information
 GEOIP              IP address geolocation
 MATRIXMUL          multiplies large matrices
-MYCMD              native command interpreter
 EXIT               exit
 `
 	animatedPrint(helpText)
