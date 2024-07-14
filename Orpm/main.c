@@ -147,3 +147,13 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+void show_help();
+void do_exit(PGconn *conn);
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
+void download_file(const char *url, const char *filename);
+void install_package(const char *package_name);
+void remove_package(const char *package_name);
+void update_package_manager();
+void list_installed_packages();
+int main(int argc, char *argv[]);

@@ -65,9 +65,15 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 				if arg == "-t" {
 					removeFromRunningFile = false
 					cmd := exec.Command("py", "exit.py")
-					cmd.Start()
+					if err := cmd.Start(); err != nil {
+						fmt.Printf("Ошибка запуска exit.py: %v\n", err)
+						return
+					}
 					cmd2 := exec.Command("exit")
-					cmd2.Start()
+					if err := cmd2.Start(); err != nil {
+						fmt.Printf("Ошибка запуска команды exit: %v\n", err)
+						return
+					}
 					os.Exit(cmd2.ProcessState.ExitCode())
 					return
 				}
