@@ -35,6 +35,7 @@ func Orbix(commandInput string, echo bool) {
 		animatedPrint("Ошибка при проверке директории с паролями:" + err.Error() + "\n")
 		return
 	}
+
 	username := ""
 	if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
