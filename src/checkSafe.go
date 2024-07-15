@@ -69,7 +69,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 			if strings.TrimSpace(line) == username {
 				red := color.New(color.FgRed).SprintFunc()
 				fmt.Println(red("Этот пользователь уже существует!"))
-				os.Exit(1)
+				return "", false
 			}
 		}
 	}
