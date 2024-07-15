@@ -3,7 +3,7 @@ package main
 /*
 #cgo CFLAGS: -I.
 #cgo LDFLAGS: -L. -lopm
-#include "main.c"
+#include "opm.h"
 */
 import "C"
 import (
@@ -36,7 +36,7 @@ func listInstalledPackages() {
 	C.list_installed_packages()
 }
 
-func Start() {
+func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Error: No command provided.")
 		showHelp()
