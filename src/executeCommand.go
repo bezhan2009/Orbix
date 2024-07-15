@@ -35,7 +35,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"dnslookup":   func() { ExCommUtils.DnsLookupUtil(commandArgs) },
 		"ipinfo":      func() { ExCommUtils.IPInfoUtil(commandArgs) },
 		"geoip":       func() { ExCommUtils.GeoIPUtil(commandArgs) },
-		"matrixmul":   MatrixMultiplication.MatrixMulCommand,
+		"matrixmul":   func() { MatrixMultiplication.MatrixMulCommand(commandArgs) },
 		"primes":      func() { ExCommUtils.CalculatePrimesUtil(commandArgs) },
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(commandArgs) },
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(commandArgs) },
