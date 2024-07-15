@@ -3,7 +3,7 @@ package main
 /*
 #cgo CFLAGS: -I.
 #cgo LDFLAGS: -L. -lopm
-#include "opm.c"
+#include "main.c"
 */
 import "C"
 import (
