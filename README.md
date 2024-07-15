@@ -25,7 +25,8 @@ Read in [Русский](README.ru.md)
 ```bash
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
-orbix
+cd scripts
+py main.py
 ```
 
 And the program itself will start downloading dependencies and so on
