@@ -2,7 +2,7 @@
 setlocal
 
 rem Set paths to Go and Rust files
-set MAIN_GO_FILE=main.go
+set MAIN_PYTHON_FILE=catcher.py
 set MAIN_RUST_FILE=init\src\main.rs
 set ACTIVE_USER_FILE=activeUser.txt
 set IS_RUN_FILE=isRun.txt
@@ -23,8 +23,8 @@ rem Запуск программы на Rust
 rustc "%MAIN_RUST_FILE%"
 .\main.exe
 
-rem Запуск программы на Go
-go run "%MAIN_GO_FILE%"
+rem Запуск программы на Go через catcher.py
+python "%MAIN_PYTHON_FILE%"
 
 del running.txt
 del isRun.txt

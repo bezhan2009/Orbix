@@ -32,5 +32,3 @@ def run():
         print("Unsupported operating system")
 
 run()
-
-input("Нажмите Enter...")

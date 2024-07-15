@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Set paths to Go and Rust files
-MAIN_GO_FILE="main.go"
+# Set paths to Python and Rust files
+MAIN_PYTHON_FILE="catcher.py"
 MAIN_RUST_FILE="init/src/main.rs"
 ACTIVE_USER_FILE="activeUser.txt"
 IS_RUN_FILE="isRun.txt"
@@ -22,7 +22,7 @@ echo "true" > "$IS_RUN_FILE"
 rustc "$MAIN_RUST_FILE" && ./main
 
 # Run the Go program
-go run "$MAIN_GO_FILE"
+python "$MAIN_PYTHON_FILE"
 
 # Delete running.txt
 rm running.txt

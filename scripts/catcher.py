@@ -1,56 +1,88 @@
+import platform
 import subprocess
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import os
+import sys
 import traceback
+import psycopg2
+from dotenv import load_dotenv
 
-# Адрес электронной почты для отправки сообщений
-email_address = "karimovbezan0@gmail.com"
-# Логин и пароль для SMTP-сервера (для примера используется SMTP-сервер Gmail)
-smtp_server = "smtp.gmail.com"
-smtp_port = 587
-smtp_user = "karimovbezan0@gmail.com"
-smtp_password = "bezhan2009"
+# Загрузка переменных окружения из файла .env
+load_dotenv()
 
-def send_email(subject, body):
+# Переменные для подключения к PostgreSQL
+db_host = os.getenv("DB_HOST")
+db_port = os.getenv("DB_PORT")
+db_name = os.getenv("DB_NAME")
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+
+def insert_error_to_db(command, error_message):
     try:
-        # Создаем сообщение
-        msg = MIMEMultipart()
-        msg['From'] = smtp_user
-        msg['To'] = email_address
-        msg['Subject'] = subject
+        # Подключение к базе данных
+        conn = psycopg2.connect(
+            dbname=db_name,
+            user=db_user,
+            password=db_password,
+            host=db_host,
+            port=db_port
+        )
+        cursor = conn.cursor()
 
-        # Добавляем тело письма
-        msg.attach(MIMEText(body, 'plain'))
+        # Создание таблицы, если она еще не существует
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS error_log (
+                id SERIAL PRIMARY KEY,
+                command TEXT,
+                error_message TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
-        # Подключаемся к серверу и отправляем письмо
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        text = msg.as_string()
-        server.sendmail(smtp_user, email_address, text)
-        server.quit()
+        # Вставка данных об ошибке
+        cursor.execute("""
+            INSERT INTO error_log (command, error_message)
+            VALUES (%s, %s)
+        """, (command, error_message))
+
+        # Подтверждение изменений и закрытие соединения
+        conn.commit()
+        cursor.close()
+        conn.close()
     except Exception as e:
-        print(f"Failed to send email: {str(e)}")
+        print(f"Failed to insert error into database: {e}")
 
-def run_command(command):
+def run():
     try:
-        # Запускаем команду и ждем завершения
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-        # Ловим ошибки и отправляем их по электронной почте
-        error_message = f"Error executing command {command}:\n\n{e.stderr}"
-        print(error_message)
-        send_email("Error in Go Program", error_message)
+        if getattr(sys, 'frozen', False):  # Проверка, если скрипт запущен как .exe
+            current_dir = os.path.dirname(sys.executable)
+        else:
+            current_dir = os.path.dirname(os.path.realpath(__file__))
+
+        print(f"Current directory: {current_dir}")
+        os.chdir(current_dir)  # Изменение текущей директории на директорию скрипта
+
+        if platform.system() == 'Windows':
+            script_path = os.path.join(current_dir, 'run_main.bat')
+            print(f"Script path: {script_path}")
+
+            if not os.path.isfile(script_path):
+                raise FileNotFoundError(f"File not found: {script_path}")
+            else:
+                subprocess.call(script_path, shell=True)
+        elif platform.system() == 'Linux' or platform.system() == 'Darwin':  # Unix or MacOS
+            script_path = os.path.join(current_dir, 'main.sh')
+            print(f"Script path: {script_path}")
+
+            if not os.path.isfile(script_path):
+                raise FileNotFoundError(f"File not found: {script_path}")
+            else:
+                subprocess.call(['bash', script_path])
+        else:
+            raise OSError("Unsupported operating system")
     except Exception as e:
-        # Ловим любые другие исключения
-        error_message = f"An unexpected error occurred while executing command {command}:\n\n{''.join(traceback.format_exception(None, e, e.__traceback__))}"
+        error_message = f"An error occurred:\n\n{''.join(traceback.format_exception(None, e, e.__traceback__))}"
         print(error_message)
-        send_email("Unexpected Error in Go Program", error_message)
+        insert_error_to_db(" ".join(sys.argv), error_message)  # Передаем команду, которую запускали, и сообщение об ошибке
 
 if __name__ == "__main__":
-    # Команда для выполнения Go-программы
-    command = ["go", "run", "main.go"]  # Замените на вашу команду
-
-    run_command(command)
+    run()
