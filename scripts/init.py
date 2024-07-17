@@ -5,18 +5,20 @@ def main():
 
     # Получаем текущую директорию скрипта
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    print(f"Script directory: {script_dir}")
 
     # Определяем корневую директорию на одну папку выше
     root_dir = os.path.join(script_dir, '..')
+
+    # Нормализуем путь, чтобы получить абсолютный путь
     root_dir = os.path.abspath(root_dir)
-    print(f"Root directory: {root_dir}")
 
     folder_path = os.path.join(root_dir, "passwords")
     file_path = os.path.join(root_dir, "debug.txt")
     file_run_path = os.path.join(root_dir, "running.txt")
     file_user_path = os.path.join(root_dir, "activeUser.txt")
 
+    print("Script directory:", script_dir)
+    print("Root directory:", root_dir)
     print("Folder path:", folder_path)
     print("Debug file path:", file_path)
     print("Running file path:", file_run_path)
@@ -45,11 +47,15 @@ def main():
 
     # Проверяем существование файла activeUser.txt и выходим с паникой, если он существует
     if os.path.exists(file_user_path):
-        raise Exception(f"Файл '{file_user_path}' уже существует. Программа завершена.")
+        print(f"Файл '{file_user_path}' уже существует. Программа завершена.")
+        return
+        # raise Exception(f"Файл '{file_user_path}' уже существует. Программа завершена.")
 
     # Проверяем существование файла running.txt и выходим с паникой, если он существует
     if os.path.exists(file_run_path):
-        raise Exception(f"Файл '{file_run_path}' уже существует. Программа завершена.")
+        print(f"Файл '{file_run_path}' уже существует. Программа завершена.")
+        return
+        # raise Exception(f"Файл '{file_run_path}' уже существует. Программа завершена.")
 
     # Считываем данные из файла activeUser.txt
     try:

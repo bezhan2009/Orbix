@@ -51,7 +51,7 @@ def insert_error_to_db(command, error_message):
     except Exception as e:
         print(f"Failed to insert error into database: {e}")
 
-def run():
+def run_go_script():
     try:
         if getattr(sys, 'frozen', False):  # Проверка, если скрипт запущен как .exe
             current_dir = os.path.dirname(sys.executable)
@@ -61,22 +61,25 @@ def run():
         print(f"Current directory: {current_dir}")
         os.chdir(current_dir)  # Изменение текущей директории на директорию скрипта
 
+        # Запуск Go файла main.go
+        go_command = "go run main.go"
+        print(f"Running command: {go_command}")
+        result = subprocess.run(go_command, shell=True, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            raise subprocess.CalledProcessError(result.returncode, go_command, output=result.stdout, stderr=result.stderr)
+        else:
+            print("Go script executed successfully.")
+
+    except Exception as e:
+        error_message = f"An error occurred:\n\n{''.join(traceback.format_exception(None, e, e.__traceback__))}"
+        print(error_message)
+        insert_error_to_db(go_command, error_message)  # Передаем команду, которую запускали, и сообщение об ошибке
+
+def run():
+    try:
         if platform.system() == 'Windows':
-            script_path = os.path.join(current_dir, 'run_main.bat')
-            print(f"Script path: {script_path}")
-
-            if not os.path.isfile(script_path):
-                raise FileNotFoundError(f"File not found: {script_path}")
-            else:
-                subprocess.call(script_path, shell=True)
-        elif platform.system() == 'Linux' or platform.system() == 'Darwin':  # Unix or MacOS
-            script_path = os.path.join(current_dir, 'main.sh')
-            print(f"Script path: {script_path}")
-
-            if not os.path.isfile(script_path):
-                raise FileNotFoundError(f"File not found: {script_path}")
-            else:
-                subprocess.call(['bash', script_path])
+            run_go_script()
         else:
             raise OSError("Unsupported operating system")
     except Exception as e:
