@@ -1,9 +1,8 @@
 @echo off
 setlocal
 
-rem Set paths to Go and Rust files
-set MAIN_PYTHON_FILE=catcher.py
-set MAIN_RUST_FILE=init\src\main.rs
+rem Set paths to Python files
+set MAIN_PYTHON_FILE=init.py
 set ACTIVE_USER_FILE=activeUser.txt
 set IS_RUN_FILE=isRun.txt
 
@@ -19,11 +18,7 @@ if exist "%ACTIVE_USER_FILE%" (
 rem Создаем файл isRun.txt и записываем туда true
 echo true > "%IS_RUN_FILE%"
 
-rem Запуск программы на Rust
-rustc "%MAIN_RUST_FILE%"
-.\main.exe
-
-rem Запуск программы на Go через catcher.py
+rem Запуск программы на Python
 python "%MAIN_PYTHON_FILE%"
 
 del running.txt

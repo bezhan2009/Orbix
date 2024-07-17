@@ -1,30 +1,25 @@
 #!/bin/bash
 
-# Set paths to Python and Rust files
-MAIN_PYTHON_FILE="catcher.py"
-MAIN_RUST_FILE="init/src/main.rs"
+# Set paths to Python files
+MAIN_PYTHON_FILE="init.py"
 ACTIVE_USER_FILE="activeUser.txt"
 IS_RUN_FILE="isRun.txt"
 
-# Check if activeUser.txt exists and delete it if it does
+# Проверяем наличие файла activeUser.txt и удаляем его, если он существует
 if [ -f "$ACTIVE_USER_FILE" ]; then
-    echo "Удаляем файл $ACTIVE_USER_FILE..."
+    echo "Удаляем файл '$ACTIVE_USER_FILE'..."
     rm "$ACTIVE_USER_FILE"
     echo "Файл удален."
 else
-    echo "Файл $ACTIVE_USER_FILE не существует."
+    echo "Файл '$ACTIVE_USER_FILE' не существует."
 fi
 
-# Create isRun.txt and write true to it
+# Создаем файл isRun.txt и записываем туда true
 echo "true" > "$IS_RUN_FILE"
 
-# Run the Rust program
-rustc "$MAIN_RUST_FILE" && ./main
-
-# Run the Go program
+# Запуск программы на Python
 python "$MAIN_PYTHON_FILE"
 
-# Delete running.txt
+# Удаляем временные файлы
 rm running.txt
-# Delete isRun.txt
 rm isRun.txt
