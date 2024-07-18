@@ -1,91 +1,88 @@
-import platform
-import subprocess
-import os
 import sys
-import traceback
-import psycopg2
-from dotenv import load_dotenv
+import subprocess
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout
+from PyQt5.QtGui import QFont
 
-# Загрузка переменных окружения из файла .env
-load_dotenv()
+class CustomShellApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Custom Shell")
+        self.setGeometry(100, 100, 800, 600)
 
-# Переменные для подключения к PostgreSQL
-db_host = os.getenv("DB_HOST")
-db_port = os.getenv("DB_PORT")
-db_name = os.getenv("DB_NAME")
-db_user = os.getenv("DB_USER")
-db_password = os.getenv("DB_PASSWORD")
+        # Настройки шрифта
+        self.custom_font = QFont("Consolas", 11)
 
-def insert_error_to_db(command, error_message):
-    try:
-        # Подключение к базе данных
-        conn = psycopg2.connect(
-            dbname=db_name,
-            user=db_user,
-            password=db_password,
-            host=db_host,
-            port=db_port
-        )
-        cursor = conn.cursor()
+        # Создаем основной виджет для вкладок
+        self.tab_widget = QTabWidget()
+        self.setCentralWidget(self.tab_widget)
 
-        # Создание таблицы, если она еще не существует
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS error_log (
-                id SERIAL PRIMARY KEY,
-                command TEXT,
-                error_message TEXT,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
+        # Кнопка для добавления новой вкладки
+        add_tab_button = QPushButton("+")
+        add_tab_button.clicked.connect(self.add_new_tab)
 
-        # Вставка данных об ошибке
-        cursor.execute("""
-            INSERT INTO error_log (command, error_message)
-            VALUES (%s, %s)
-        """, (command, error_message))
+        # Создаем главный layout и добавляем кнопку
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(add_tab_button)
 
-        # Подтверждение изменений и закрытие соединения
-        conn.commit()
-        cursor.close()
-        conn.close()
-    except Exception as e:
-        print(f"Failed to insert error into database: {e}")
+        # Создаем виджет для кнопки и layout для главного окна
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
 
-def run_go_script():
-    try:
-        if getattr(sys, 'frozen', False):  # Проверка, если скрипт запущен как .exe
-            current_dir = os.path.dirname(sys.executable)
-        else:
-            current_dir = os.path.dirname(os.path.realpath(__file__))
+        # Добавляем центральный виджет
+        self.setCentralWidget(central_widget)
 
-        print(f"Current directory: {current_dir}")
-        os.chdir(current_dir)  # Изменение текущей директории на директорию скрипта
+        # Создаем первую вкладку
+        self.create_shell_tab("Tab 1")
 
-        # Запуск Go файла main.go
-        go_command = "go run main.go"
-        print(f"Running command: {go_command}")
-        result = subprocess.run(go_command, shell=True, capture_output=True, text=True)
+    def create_shell_tab(self, tab_name):
+        """Создает вкладку с оболочкой."""
+        tab_widget = QWidget()
+        tab_layout = QVBoxLayout(tab_widget)
 
-        if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, go_command, output=result.stdout, stderr=result.stderr)
-        else:
-            print("Go script executed successfully.")
+        # Создаем текстовое поле для вывода результатов
+        output_text = QTextEdit()
+        output_text.setReadOnly(True)
+        output_text.setFont(self.custom_font)
 
-    except Exception as e:
-        error_message = f"An error occurred:\n\n{''.join(traceback.format_exception(None, e, e.__traceback__))}"
-        print(error_message)
-        insert_error_to_db(go_command, error_message)  # Передаем команду, которую запускали, и сообщение об ошибке
+        # Создаем кнопку для запуска команды
+        run_button = QPushButton("Run Command")
+        run_button.clicked.connect(lambda: self.run_command(output_text))
 
-def run():
-    try:
-        if platform.system() == 'Windows':
-            run_go_script()
-        else:
-            raise OSError("Unsupported operating system")
-    except Exception as e:
-        error_message = f"An error occurred:\n\n{''.join(traceback.format_exception(None, e, e.__traceback__))}"
-        print(error_message)
-        insert_error_to_db(" ".join(sys.argv), error_message)  # Передаем команду, которую запускали, и сообщение об ошибке
+        # Добавляем элементы на вкладку
+        tab_layout.addWidget(output_text)
+        tab_layout.addWidget(run_button)
+
+        # Добавляем вкладку в основной виджет
+        self.tab_widget.addTab(tab_widget, tab_name)
+
+        # Запускаем команду go run main.go при создании вкладки
+        self.run_command(output_text)
+
+    def run_command(self, output_text):
+        """Запускает команду go run main.go и выводит результаты в текстовое поле."""
+        try:
+            # Запускаем процесс с командой go run main.go
+            result = subprocess.run(['go', 'run', 'main.go'], capture_output=True, text=True)
+
+            # Выводим результат выполнения команды
+            output_text.append(f"> go run main.go\n")
+            output_text.append(result.stdout)
+            if result.stderr:
+                output_text.append(f"Error: {result.stderr}\n")
+        except Exception as e:
+            output_text.append(f"Error: {e}\n")
+
+    def add_new_tab(self):
+        """Добавляет новую вкладку с оболочкой."""
+        tab_count = self.tab_widget.count()
+        new_tab_name = f"Tab {tab_count + 1}"
+        self.create_shell_tab(new_tab_name)
+
+def main():
+    app = QApplication(sys.argv)
+    window = CustomShellApp()
+    window.show()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    run()
+    main()
