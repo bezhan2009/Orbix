@@ -1,39 +1,123 @@
 package main
 
-/*
-#cgo CFLAGS: -I.
-#cgo LDFLAGS: -L. -lopm
-#include "opm.h"
-*/
-import "C"
 import (
+	"database/sql"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
-	"unsafe"
+	"strings"
+
+	_ "github.com/lib/pq"
 )
 
 func showHelp() {
-	C.show_help()
+	fmt.Println("Orbix Package Manager (OPM)")
+	fmt.Println("Usage: opm [command] [options]")
+	fmt.Println("Commands:")
+	fmt.Println("  install <package>   Install a package")
+	fmt.Println("  remove <package>    Remove a package")
+	fmt.Println("  update              Update the package manager")
+	fmt.Println("  list                List installed packages")
+	fmt.Println("  help                Show this help message")
+}
+
+func doExit(db *sql.DB) {
+	db.Close()
+	os.Exit(1)
+}
+
+func downloadFile(url string, filename string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
 
 func installPackage(packageName string) {
-	cPackageName := C.CString(packageName)
-	defer C.free(unsafe.Pointer(cPackageName))
-	C.install_package(cPackageName)
+	connStr := "user=youruser password=yourpassword dbname=yourdbname host=yourhostaddr port=yourport sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Connection to database failed: %v\n", err)
+		doExit(db)
+	}
+	defer db.Close()
+
+	var url string
+	query := fmt.Sprintf("SELECT url FROM Packages WHERE name='%s'", packageName)
+	err = db.QueryRow(query).Scan(&url)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			fmt.Printf("Package '%s' not found.\n", packageName)
+		} else {
+			fmt.Fprintf(os.Stderr, "Query failed: %v\n", err)
+			doExit(db)
+		}
+		return
+	}
+
+	fmt.Printf("Downloading package from: %s\n", url)
+	err = downloadFile(url, packageName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Download failed: %v\n", err)
+		return
+	}
+	fmt.Printf("Package '%s' installed successfully.\n", packageName)
 }
 
 func removePackage(packageName string) {
-	cPackageName := C.CString(packageName)
-	defer C.free(unsafe.Pointer(cPackageName))
-	C.remove_package(cPackageName)
+	filename := "./" + packageName + ".pkg"
+	err := os.Remove(filename)
+	if err != nil {
+		fmt.Printf("Error: Could not remove package '%s'.\n", packageName)
+	} else {
+		fmt.Printf("Package '%s' removed successfully.\n", packageName)
+	}
 }
 
 func updatePackageManager() {
-	C.update_package_manager()
+	fmt.Println("Updating package manager...")
+	updateURL := "your_update_url" // URL для обновления пакетного менеджера
+	updateFilename := "opm_new"
+
+	err := downloadFile(updateURL, updateFilename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Update failed: %v\n", err)
+		return
+	}
+
+	// Замена текущего исполняемого файла новым
+	err = os.Rename(updateFilename, "opm")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to update package manager: %v\n", err)
+	} else {
+		fmt.Println("Package manager updated successfully.")
+	}
 }
 
 func listInstalledPackages() {
-	C.list_installed_packages()
+	fmt.Println("Listing installed packages:")
+	// Для простоты предположим, что установленные пакеты находятся в текущем каталоге с расширением .pkg
+	files, err := os.ReadDir(".")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error listing packages: %v\n", err)
+		return
+	}
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".pkg") {
+			fmt.Println(file.Name())
+		}
+	}
 }
 
 func main() {

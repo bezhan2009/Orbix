@@ -9,6 +9,7 @@ require (
 	github.com/fatih/color v1.17.0
 	github.com/go-ping/ping v1.1.0
 	github.com/google/gopacket v1.1.19
+	github.com/lib/pq v1.10.9
 )
 
 require (
