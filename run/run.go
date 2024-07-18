@@ -5,16 +5,16 @@ import (
 	"github.com/fatih/color"
 	"goCmd/src"
 	"goCmd/utils"
+	"log"
 	"os"
 )
 
 // Init initializes CMD
 func Init() {
-	file, errOpen := os.Open("isRun.txt")
-	if errOpen != nil {
-		red := color.New(color.FgRed).SprintFunc()
-		fmt.Println(red("you must run the program via run_main.bat or via main.sh if you are on Unix"))
-		os.Exit(1)
+	os.Create("running.txt")
+	file, err := os.Open("running.txt")
+	if err != nil {
+		log.Fatal(err)
 	}
 	defer file.Close()
 
