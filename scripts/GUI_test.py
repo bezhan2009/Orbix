@@ -1,57 +1,88 @@
-import os
-import tkinter as tk
-from tkinter import ttk, font
+import sys
+import subprocess
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout
+from PyQt5.QtGui import QFont
 
-class CustomShellApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Custom Shell")
-        self.root.configure(bg='#000000')  # Черный фон
+class CustomShellApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Custom Shell")
+        self.setGeometry(100, 100, 800, 600)
 
         # Настройки шрифта
-        self.custom_font = font.Font(family="Consolas", size=11)
+        self.custom_font = QFont("Consolas", 11)
 
-        # Создаем основной контейнер для вкладок
-        self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+        # Создаем основной виджет для вкладок
+        self.tab_widget = QTabWidget()
+        self.setCentralWidget(self.tab_widget)
 
         # Кнопка для добавления новой вкладки
-        add_tab_button = ttk.Button(self.root, text="+", command=self.add_new_tab)
-        add_tab_button.pack(side=tk.TOP, padx=10, pady=10)
+        add_tab_button = QPushButton("+")
+        add_tab_button.clicked.connect(self.add_new_tab)
+
+        # Создаем главный layout и добавляем кнопку
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(add_tab_button)
+
+        # Создаем виджет для кнопки и layout для главного окна
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+
+        # Добавляем центральный виджет
+        self.setCentralWidget(central_widget)
 
         # Создаем первую вкладку
         self.create_shell_tab("Tab 1")
 
     def create_shell_tab(self, tab_name):
         """Создает вкладку с оболочкой."""
-        tab_frame = ttk.Frame(self.notebook)
-        tab_frame.pack(fill=tk.BOTH, expand=True)
+        tab_widget = QWidget()
+        tab_layout = QVBoxLayout(tab_widget)
 
         # Создаем текстовое поле для вывода результатов
-        output_text = tk.Text(tab_frame, wrap=tk.WORD, height=20, width=80, bg='#000000', fg='#ffffff', insertbackground='#ffffff', font=self.custom_font)
-        output_text.pack(padx=10, pady=10)
+        output_text = QTextEdit()
+        output_text.setReadOnly(True)
+        output_text.setFont(self.custom_font)
 
-        # Функция для запуска CMD
-        def run_cmd():
-            cmd_output = os.popen('cmd').read()
-            output_text.insert(tk.END, cmd_output)
+        # Создаем кнопку для запуска команды
+        run_button = QPushButton("Run Command")
+        run_button.clicked.connect(lambda: self.run_command(output_text))
 
-        # Запускаем CMD при создании вкладки
-        run_cmd()
+        # Добавляем элементы на вкладку
+        tab_layout.addWidget(output_text)
+        tab_layout.addWidget(run_button)
 
-        # Добавляем вкладку в основной ноутбук
-        self.notebook.add(tab_frame, text=tab_name)
+        # Добавляем вкладку в основной виджет
+        self.tab_widget.addTab(tab_widget, tab_name)
+
+        # Запускаем команду go run main.go при создании вкладки
+        self.run_command(output_text)
+
+    def run_command(self, output_text):
+        """Запускает команду go run main.go и выводит результаты в текстовое поле."""
+        try:
+            # Запускаем процесс с командой go run main.go
+            result = subprocess.run(['go', 'run', 'main.go'], capture_output=True, text=True)
+
+            # Выводим результат выполнения команды
+            output_text.append(f"> go run main.go\n")
+            output_text.append(result.stdout)
+            if result.stderr:
+                output_text.append(f"Error: {result.stderr}\n")
+        except Exception as e:
+            output_text.append(f"Error: {e}\n")
 
     def add_new_tab(self):
         """Добавляет новую вкладку с оболочкой."""
-        tab_count = self.notebook.index(tk.END)
+        tab_count = self.tab_widget.count()
         new_tab_name = f"Tab {tab_count + 1}"
         self.create_shell_tab(new_tab_name)
 
 def main():
-    root = tk.Tk()
-    app = CustomShellApp(root)
-    root.mainloop()
+    app = QApplication(sys.argv)
+    window = CustomShellApp()
+    window.show()
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
     main()
