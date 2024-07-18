@@ -4,6 +4,7 @@
 
 # Security File
 passwords
+trash
 
 # Local debug.txt
 debug.txt
@@ -13,6 +14,8 @@ isRun.txt
 running.txt
 activeUser.txt
 build
+scripts/stderr.log
+scripts/stdout.log
 
 # Tests
 testShablon
