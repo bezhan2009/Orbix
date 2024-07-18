@@ -4,7 +4,6 @@ import os
 import sys
 import traceback
 import psycopg2
-
 from dotenv import load_dotenv
 
 # Загрузка переменных окружения из файла .env
@@ -62,16 +61,38 @@ def run_go_script():
         print(f"Current directory: {current_dir}")
         os.chdir(current_dir)  # Изменение текущей директории на директорию скрипта
 
+        # Проверка существования файла main.go в текущей директории
+        go_file = os.path.join(current_dir, "main.go")
+        if not os.path.exists(go_file):
+            raise FileNotFoundError(f"{go_file} does not exist")
+
         # Запуск Go файла main.go
         go_command = "go run main.go"
         print(f"Running command: {go_command}")
-        result = subprocess.run(go_command, shell=True, capture_output=True, text=True)
 
-        if result.returncode != 0:
-            raise subprocess.CalledProcessError(result.returncode, go_command, output=result.stdout, stderr=result.stderr)
-        else:
-            print("Go script executed successfully.")
+        with open('stdout.log', 'w') as stdout_log, open('stderr.log', 'w') as stderr_log:
+            process = subprocess.Popen(go_command, shell=True, stdout=stdout_log, stderr=stderr_log, text=True)
 
+            try:
+                process.wait(timeout=60)  # Увеличен тайм-аут до 60 секунд
+            except subprocess.TimeoutExpired:
+                process.kill()
+                raise subprocess.TimeoutExpired(go_command, 60)
+
+            if process.returncode != 0:
+                with open('stderr.log', 'r') as stderr_log:
+                    stderr = stderr_log.read()
+                raise subprocess.CalledProcessError(process.returncode, go_command, stderr=stderr)
+            else:
+                with open('stdout.log', 'r') as stdout_log:
+                    stdout = stdout_log.read()
+                print("Go script executed successfully.")
+                print(f"stdout: {stdout}")
+
+    except subprocess.TimeoutExpired as e:
+        error_message = f"Command '{e.cmd}' timed out after {e.timeout} seconds"
+        print(error_message)
+        insert_error_to_db(go_command, error_message)
     except Exception as e:
         error_message = f"An error occurred:\n\n{''.join(traceback.format_exception(None, e, e.__traceback__))}"
         print(error_message)

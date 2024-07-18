@@ -49,13 +49,11 @@ def main():
     if os.path.exists(file_user_path):
         print(f"Файл '{file_user_path}' уже существует. Программа завершена.")
         return
-        # raise Exception(f"Файл '{file_user_path}' уже существует. Программа завершена.")
 
     # Проверяем существование файла running.txt и выходим с паникой, если он существует
     if os.path.exists(file_run_path):
         print(f"Файл '{file_run_path}' уже существует. Программа завершена.")
         return
-        # raise Exception(f"Файл '{file_run_path}' уже существует. Программа завершена.")
 
     # Считываем данные из файла activeUser.txt
     try:
