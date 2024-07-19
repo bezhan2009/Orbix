@@ -1,6 +1,9 @@
 package src
 
-import "goCmd/internal/debug"
+import (
+	"fmt"
+	"goCmd/internal/debug"
+)
 
 func displayHelp(commandArgs []string, user, dir string) {
 	helpText := `
@@ -39,7 +42,7 @@ GEOIP              IP address geolocation
 MATRIXMUL          multiplies large matrices
 EXIT               exit
 `
-	animatedPrint(helpText)
+	fmt.Println(helpText)
 	errDebug := debug.Commands("help", true, commandArgs, user, dir)
 	if errDebug != nil {
 		animatedPrint(errDebug.Error() + "\n")

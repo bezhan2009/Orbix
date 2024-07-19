@@ -12,7 +12,7 @@ import (
 )
 
 func showHelp() {
-	fmt.Println("Orbix Package Manager (OPM)")
+	fmt.Println("Orbix Package Manager (ORPM)")
 	fmt.Println("Usage: opm [command] [options]")
 	fmt.Println("Commands:")
 	fmt.Println("  install <package>   Install a package")
