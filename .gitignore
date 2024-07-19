@@ -25,3 +25,7 @@ hw
 
 # exe files
 go_build_goCmd.exe
+
+
+#GUI
+scripts/GUI_test.py
