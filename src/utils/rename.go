@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"goCmd/cmd/commands/commandsWithSignaiture/Rename"
-	"goCmd/debug"
+	"goCmd/internal/debug"
 )
 
 func RenameFileUtil(commandArgs []string, command string, user, dir string) {

@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"goCmd/cmd/commands/commandsWithSignaiture/Create"
-	"goCmd/debug"
+	"goCmd/internal/debug"
 	"path/filepath"
 )
 

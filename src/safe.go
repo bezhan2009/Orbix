@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/fatih/color"
-	"goCmd/algorithms/PasswordAlgoritm"
+	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/validators"
 	"os"
 	"path/filepath"

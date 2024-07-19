@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"goCmd/cmd/commands/commandsWithSignaiture/Remove"
-	"goCmd/debug"
+	"goCmd/internal/debug"
 )
 
 func RemoveFileUtil(commandArgs []string, command string, user, dir string) {

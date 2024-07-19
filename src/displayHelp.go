@@ -1,6 +1,6 @@
 package src
 
-import "goCmd/debug"
+import "goCmd/internal/debug"
 
 func displayHelp(commandArgs []string, user, dir string) {
 	helpText := `
