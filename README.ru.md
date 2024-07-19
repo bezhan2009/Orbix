@@ -23,10 +23,8 @@
 ```bash
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
-# Для Windows
-.\run_main.bat
-# Для Unix-подобных систем
-./main.sh
+cd scripts
+go run main.go
 ```
 
 ### Список доступных команд
