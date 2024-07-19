@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"goCmd/commands/resourceIntensive/PiCalculation"
+	"goCmd/cmd/commands/resourceIntensive/PiCalculation"
 	"strconv"
 )
 

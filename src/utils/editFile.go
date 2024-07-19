@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/Edit"
+	"goCmd/cmd/commands/commandsWithSignaiture/Edit"
 )
 
 func EditFileUtil(commandArgs []string) {

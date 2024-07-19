@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/ExtractZip"
+	"goCmd/cmd/commands/commandsWithSignaiture/ExtractZip"
 )
 
 func ExtractZipUtil(commandArgs []string) {

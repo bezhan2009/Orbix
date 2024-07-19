@@ -3,7 +3,7 @@ package AddOwnCommand
 import (
 	"encoding/json"
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/AddOwnCommand/utils"
+	"goCmd/cmd/commands/commandsWithSignaiture/AddOwnCommand/utils"
 	utils2 "goCmd/utils"
 	"os"
 	"os/exec"

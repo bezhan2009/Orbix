@@ -2,10 +2,10 @@ package WiFi
 
 import (
 	"fmt"
-	"goCmd/Network/wifiUtils/commands/WiFi/darwin"
-	"goCmd/Network/wifiUtils/commands/WiFi/linux"
-	"goCmd/Network/wifiUtils/commands/WiFi/windows"
-	"goCmd/OS"
+	"goCmd/internal/Network/wifiUtils/commands/WiFi/darwin"
+	"goCmd/internal/Network/wifiUtils/commands/WiFi/linux"
+	"goCmd/internal/Network/wifiUtils/commands/WiFi/windows"
+	"goCmd/internal/OS"
 	"math/rand"
 	"strconv"
 	"time"

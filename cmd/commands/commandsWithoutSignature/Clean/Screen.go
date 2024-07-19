@@ -1,7 +1,7 @@
 package Clean
 
 import (
-	"goCmd/OS"
+	"goCmd/internal/OS"
 	"os"
 	"os/exec"
 )

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"goCmd/commands/resourceIntensive/PrimeNumbers"
+	"goCmd/cmd/commands/resourceIntensive/PrimeNumbers"
 	"strconv"
 )
 

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"goCmd/commands/resourceIntensive/FileIOStressTest"
+	"goCmd/cmd/commands/resourceIntensive/FileIOStressTest"
 	"strconv"
 )
 

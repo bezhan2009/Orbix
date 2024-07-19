@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/Network"
+	"goCmd/internal/Network"
 )
 
 func IPInfoUtil(commandArgs []string) {

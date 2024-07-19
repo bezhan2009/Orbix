@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"goCmd/algorithms/PasswordAlgoritm"
-	"goCmd/commands/commandsWithoutSignature/Clean"
+	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"os"
 	"path/filepath"
 	"strings"

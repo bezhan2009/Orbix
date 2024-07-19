@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/Remove"
+	"goCmd/cmd/commands/commandsWithSignaiture/Remove"
 	"goCmd/debug"
 )
 

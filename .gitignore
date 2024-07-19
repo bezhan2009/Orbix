@@ -7,12 +7,12 @@ passwords
 trash
 
 # Local debug.txt
-debug.txt
+trash/debug.txt
 
 # INIT Files
-isRun.txt
+trash/isRun.txt
 running.txt
-activeUser.txt
+trash/activeUser.txt
 build
 scripts/stderr.log
 scripts/stdout.log

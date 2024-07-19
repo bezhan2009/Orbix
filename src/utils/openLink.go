@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"goCmd/Network"
+	"goCmd/internal/Network"
 )
 
 func OpenLinkUtil(commandArgs []string) {

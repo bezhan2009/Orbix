@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/Rename"
+	"goCmd/cmd/commands/commandsWithSignaiture/Rename"
 	"goCmd/debug"
 )
 

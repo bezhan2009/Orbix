@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithoutSignature/CD"
+	"goCmd/cmd/commands/commandsWithoutSignature/CD"
 	"os"
 )
 

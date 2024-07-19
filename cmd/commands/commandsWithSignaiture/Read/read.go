@@ -2,7 +2,7 @@ package Read
 
 import (
 	"fmt"
-	utils2 "goCmd/commands/commandsWithSignaiture/Read/utils"
+	utils2 "goCmd/cmd/commands/commandsWithSignaiture/Read/utils"
 	"goCmd/debug"
 	"goCmd/utils"
 )

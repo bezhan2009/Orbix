@@ -2,7 +2,7 @@ package shablon
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/Edit"
+	"goCmd/cmd/commands/commandsWithSignaiture/Edit"
 	"os"
 )
 

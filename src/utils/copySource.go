@@ -2,7 +2,7 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/copySource"
+	"goCmd/cmd/commands/commandsWithSignaiture/copySource"
 )
 
 func CommandCopySourceUtil(commandArgs []string) {

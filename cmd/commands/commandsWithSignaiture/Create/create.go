@@ -2,7 +2,7 @@ package Create
 
 import (
 	"fmt"
-	"goCmd/commands/commandsWithSignaiture/Create/utils"
+	"goCmd/cmd/commands/commandsWithSignaiture/Create/utils"
 )
 
 func File(commandArgs []string) (string, error) {
