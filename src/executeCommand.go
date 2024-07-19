@@ -39,7 +39,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(commandArgs) },
 		"newshablon":  shablon.Make,
 		"shablon":     func() { ExecuteShablonUtil(commandArgs) },
-		"systemgocmd": utils.SystemInformation,
+		"systemorbix": utils.SystemInformation,
 		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(commandArgs) },
 		"create":      func() { ExCommUtils.CreateFileUtil(commandArgs, command, user, dir) },
 		"write":       func() { Write.File(commandLower, commandArgs, user, dir) },
