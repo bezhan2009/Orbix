@@ -36,15 +36,21 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 		}
 	}
 
+	// Подсказки для первого слова в команде (команды и файлы в текущем каталоге)
 	if len(parts) == 1 {
-		return prompt.FilterHasPrefix(createUniqueCommandSuggestions(), text, true)
-	} else {
-		dir := "."
-		if len(parts) > 2 {
-			dir = strings.Join(parts[:len(parts)-1], " ")
-		}
-		return prompt.FilterHasPrefix(createFileSuggestions(dir), parts[len(parts)-1], true)
+		commandSuggestions := prompt.FilterHasPrefix(createUniqueCommandSuggestions(), text, true)
+		fileSuggestions := prompt.FilterHasPrefix(createFileSuggestions("."), text, true)
+		return append(commandSuggestions, fileSuggestions...)
 	}
+
+	// Подсказки для всех последующих слов (только файлы и ранее введенные команды)
+	dir := "."
+	if len(parts) > 2 {
+		dir = strings.Join(parts[:len(parts)-1], " ")
+	}
+	fileSuggestions := prompt.FilterHasPrefix(createFileSuggestions(dir), parts[len(parts)-1], true)
+	commandHistorySuggestions := prompt.FilterHasPrefix(createCommandHistorySuggestions(), parts[len(parts)-1], true)
+	return append(fileSuggestions, commandHistorySuggestions...)
 }
 
 func createUniqueCommandSuggestions() []prompt.Suggest {
@@ -57,6 +63,13 @@ func createUniqueCommandSuggestions() []prompt.Suggest {
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
 		}
 	}
+
+	return suggestions
+}
+
+func createCommandHistorySuggestions() []prompt.Suggest {
+	uniqueCommands := make(map[string]struct{})
+	var suggestions []prompt.Suggest
 
 	for _, cmd := range commandHistory {
 		if _, exists := uniqueCommands[cmd]; !exists {
