@@ -208,6 +208,11 @@ func Orbix(commandInput string, echo bool) {
 
 		animatedPrint("\n")
 
+		if commandLower == "cd" {
+			fmt.Println(dir)
+			continue
+		}
+
 		if commandLower == "prompt" {
 			handlePromptCommand(commandArgs, &promptText)
 			continue
