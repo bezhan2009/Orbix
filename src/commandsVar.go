@@ -24,6 +24,8 @@ var commands = []structs.Command{
 	{"orbix", "Starts another orbix"},
 	{"wifiutils", "Launches utility for WiFi operations"},
 	{"clean", "Clears the screen"},
+	{"clear", "Clears the screen"},
+	{"cls", "Clears the screen"},
 	{"matrixmul", "Multiplication of large matrices"},
 	{"primes", "Search for large prime numbers"},
 	{"picalc", "Calculates the value of π"},
