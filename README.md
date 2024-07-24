@@ -29,8 +29,6 @@ cd scripts
 go run main.go
 ```
 
-And the program itself will start downloading dependencies and so on
-
 ### List of Available Commands
 
 - **CREATE**: Creates a new file.
