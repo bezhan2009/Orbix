@@ -1,5 +1,6 @@
 
-# Orbix - Expandable Command Line Interface in Go
+![Opera_Снимок_2024-07-28_224908_logo html-removebg-preview](https://github.com/user-attachments/assets/9849e2a9-af26-4e69-bc3e-b335ecdacedc)
+
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI) 
 ![GitHub language count](https://img.shields.io/github/languages/count/bezhan2009/ORPXI)
