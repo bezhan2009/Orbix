@@ -142,12 +142,14 @@ func Orbix(commandInput string, echo bool) {
 			dataRunning := string(sourceRunning)
 			lines := strings.Split(dataRunning, "\n")
 			found := false
+
 			for _, line := range lines {
 				if strings.TrimSpace(line) == username {
 					found = true
 					break
 				}
 			}
+
 			if !found {
 				fmt.Println("Пользователь не авторизован.")
 				isWorking = false
