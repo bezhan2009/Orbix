@@ -3,7 +3,6 @@ package src
 import (
 	"fmt"
 	"goCmd/cmd/cmdPress"
-	"goCmd/cmd/commands/commandsWithSignaiture/AddOwnCommand"
 	"goCmd/cmd/commands/commandsWithSignaiture/Read"
 	"goCmd/cmd/commands/commandsWithSignaiture/Write"
 	"goCmd/cmd/commands/commandsWithSignaiture/shablon"
@@ -23,7 +22,6 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 	user := cmdPress.CmdUser(dir)
 
 	commandMap := map[string]func(){
-		"newcommand":  AddOwnCommand.Start,
 		"wifiutils":   wifiUtils.Start,
 		"pingview":    func() { Network.Ping(commandArgs) },
 		"traceroute":  func() { Network.Traceroute(commandArgs) },
