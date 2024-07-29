@@ -1,0 +1,7 @@
+Timestamp: 2024-07-29T16:56:10+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\src
+Command: read
+Arguments: [Orbix.go]
+Success: True
+

@@ -22,7 +22,7 @@ func File(command string, commandArgs []string, user string, dir string) error {
 		return errReading
 	} else {
 		debug.Commands(command, true, commandArgs, user, dir)
-		utils.AnimatedPrint(string(dataRead))
+		fmt.Println(string(dataRead))
 		return nil
 	}
 }
