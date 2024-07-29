@@ -210,7 +210,7 @@ func Orbix(commandInput string, echo bool) {
 
 		animatedPrint("\n")
 
-		if commandLower == "cd" {
+		if commandLower == "cd" && len(commandArgs) < 1 {
 			fmt.Println(dir)
 			continue
 		}
