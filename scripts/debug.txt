@@ -1,0 +1,7 @@
+Timestamp: 2024-07-30T21:57:31+03:00
+User: bezhan
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: help
+Arguments: []
+Success: True
+
