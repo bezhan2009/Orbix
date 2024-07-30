@@ -54,51 +54,58 @@ func CheckUser(usernameFromDir string) (string, bool) {
 
 	reader := bufio.NewReader(os.Stdin)
 	magenta := color.New(color.FgMagenta).SprintFunc()
-	fmt.Printf("%s", magenta("Введите имя пользователя: "))
-	username, _ := reader.ReadString('\n')
-	username = strings.TrimSpace(username)
-	runningPath := AbsdirRun
-	runningPath += "\\running.txt"
-	sourceRunning, errReading := os.ReadFile(runningPath)
-	var dataRunning string
+	red := color.New(color.FgRed).SprintFunc()
 
-	if errReading == nil {
-		dataRunning = string(sourceRunning)
-		lines := strings.Split(dataRunning, "\n")
-		for _, line := range lines {
-			if strings.TrimSpace(line) == username {
-				red := color.New(color.FgRed).SprintFunc()
-				fmt.Println(red("Этот пользователь уже существует!"))
-				return "", false
+	for {
+		fmt.Printf("%s", magenta("Введите имя пользователя: "))
+		username, _ := reader.ReadString('\n')
+		username = strings.TrimSpace(username)
+		if username == "" {
+			fmt.Println(red("Вы ввели пустое значение!!!"))
+			continue
+		}
+		runningPath := AbsdirRun
+		runningPath += "\\running.txt"
+		sourceRunning, errReading := os.ReadFile(runningPath)
+		var dataRunning string
+
+		if errReading == nil {
+			dataRunning = string(sourceRunning)
+			lines := strings.Split(dataRunning, "\n")
+			for _, line := range lines {
+				if strings.TrimSpace(line) == username {
+					fmt.Println(red("Этот пользователь уже существует!"))
+					return "", false
+				}
 			}
 		}
-	}
 
-	fmt.Printf("%s", magenta("Введите пароль: "))
-	password, _ := reader.ReadString('\n')
-	password = strings.TrimSpace(password)
+		fmt.Printf("%s", magenta("Введите пароль: "))
+		password, _ := reader.ReadString('\n')
+		password = strings.TrimSpace(password)
 
-	password = PasswordAlgoritm.Usage(password, true)
-	hashedPassword := hashPasswordFromUser(password)
+		password = PasswordAlgoritm.Usage(password, true)
+		hashedPassword := hashPasswordFromUser(password)
 
-	passwordsDir, err := getPasswordsDir()
-	if err != nil {
+		passwordsDir, err := getPasswordsDir()
+		if err != nil {
+			Clean.Screen()
+			fmt.Printf("%s\n", magenta("Ошибка при получении пути директории паролей"))
+			return "", false
+		}
+
+		passwordDir := filepath.Join(passwordsDir, username)
+		filePath := filepath.Join(passwordDir, hashedPassword)
+		if _, err := os.Stat(filePath); os.IsNotExist(err) {
+			Clean.Screen()
+			fmt.Printf("%s\n", magenta("Пользователь не найден или неверный пароль"))
+			return usernameFromDir, false
+		}
+
 		Clean.Screen()
-		fmt.Printf("%s\n", magenta("Ошибка при получении пути директории паролей"))
-		return "", false
+		fmt.Printf("%s\n", magenta("Добро пожаловать, ", username))
+		return username, true
 	}
-
-	passwordDir := filepath.Join(passwordsDir, username)
-	filePath := filepath.Join(passwordDir, hashedPassword)
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		Clean.Screen()
-		fmt.Printf("%s\n", magenta("Пользователь не найден или неверный пароль"))
-		return usernameFromDir, false
-	}
-
-	Clean.Screen()
-	fmt.Printf("%s\n", magenta("Добро пожаловать, ", username))
-	return username, true
 }
 
 // hashPasswordFromUser hashes the user's password.

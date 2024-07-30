@@ -8,8 +8,11 @@ import (
 	"goCmd/cmd/commands/commandsWithoutSignature/CD"
 	"goCmd/utils"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 )
 
@@ -27,6 +30,10 @@ func Orbix(commandInput string, echo bool) {
 
 	isWorking := true
 	isPermission := true
+
+	if commandInput != "" {
+		isPermission = false
+	}
 
 	var promptText string
 
@@ -81,6 +88,20 @@ func Orbix(commandInput string, echo bool) {
 			}
 		}
 	}
+
+	// Создаем канал для получения сигналов
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM) // Обработка Ctrl+C и других сигналов завершения
+
+	// Запускаем горутину для обработки сигналов
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		<-signalChan
+		fmt.Println("\nПолучен сигнал прерывания. Завершение программы...")
+		isWorking = false
+	}()
 
 	// Сохранить оригинальные выводы
 	originalStdout := os.Stdout
@@ -265,6 +286,9 @@ func Orbix(commandInput string, echo bool) {
 			break
 		}
 	}
+
+	// Завершаем работу горутины по обработке сигналов
+	wg.Wait()
 
 	// Восстановить оригинальные выводы
 	os.Stdout = originalStdout

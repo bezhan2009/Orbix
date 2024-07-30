@@ -1,6 +1,8 @@
 package main
 
-import "goCmd/run"
+import (
+	"goCmd/run"
+)
 
 func main() {
 	run.Init()
