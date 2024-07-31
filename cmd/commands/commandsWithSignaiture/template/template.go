@@ -1,4 +1,4 @@
-package shablon
+package template
 
 import (
 	"fmt"

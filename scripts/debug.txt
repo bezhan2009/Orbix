@@ -5,3 +5,24 @@ Command: help
 Arguments: []
 Success: True
 
+Timestamp: 2024-07-31T12:50:57+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: del
+Arguments: []
+Success: True
+
+Timestamp: 2024-07-31T12:51:23+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: rem
+Arguments: []
+Success: True
+
+Timestamp: 2024-07-31T12:51:28+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: ren
+Arguments: []
+Success: True
+
