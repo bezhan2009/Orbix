@@ -25,7 +25,7 @@ cd Orbix
 cd scripts
 go run main.go
 ```
-
+![image](https://github.com/user-attachments/assets/1ebc79c5-d402-4c4c-bb91-3b05d9c11f10)
 ### Список доступных команд
 
 - **CREATE**: Создает новый файл.
