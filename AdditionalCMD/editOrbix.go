@@ -1,4 +1,4 @@
-package editCMD
+package AdditionalCMD
 
 import (
 	"fmt"

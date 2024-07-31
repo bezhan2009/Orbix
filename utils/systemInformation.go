@@ -3,12 +3,12 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/editCMD"
+	"goCmd/AdditionalCMD"
 	"goCmd/system"
 )
 
 func SystemInformation() {
-	editCMD.SayOrbix()
+	AdditionalCMD.SayOrbix()
 	magenta := color.New(color.FgMagenta, color.Bold).SprintFunc()
 	systemData := fmt.Sprintf("%s [Version %s]", system.SystemName, system.Version)
 	fmt.Printf("%s\n", magenta(systemData))
