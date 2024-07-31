@@ -1,11 +1,10 @@
 package src
 
 import (
-	"fmt"
 	"goCmd/cmd/cmdPress"
 	"goCmd/cmd/commands/commandsWithSignaiture/Read"
 	"goCmd/cmd/commands/commandsWithSignaiture/Write"
-	"goCmd/cmd/commands/commandsWithSignaiture/shablon"
+	"goCmd/cmd/commands/commandsWithSignaiture/template"
 	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/cmd/commands/commandsWithoutSignature/Ls"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
@@ -14,8 +13,6 @@ import (
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/utils"
-	"os"
-	"os/exec"
 )
 
 func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool, username string) {
@@ -35,7 +32,7 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"primes":      func() { ExCommUtils.CalculatePrimesUtil(commandArgs) },
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(commandArgs) },
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(commandArgs) },
-		"newtemplate": shablon.Make,
+		"newtemplate": template.Make,
 		"template":    func() { ExecuteShablonUtil(commandArgs) },
 		"systemorbix": utils.SystemInformation,
 		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(commandArgs) },
@@ -61,28 +58,8 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"newuser": NewUser,
 		"signout": func() { SignOutUtil(username) },
 		"exit": func() {
-			removeFromRunningFile := true
-			for _, arg := range commandArgs {
-				if arg == "-t" {
-					removeFromRunningFile = false
-					cmd := exec.Command("py", "exit.py")
-					if err := cmd.Start(); err != nil {
-						fmt.Printf("Ошибка запуска exit.py: %v\n", err)
-						return
-					}
-					cmd2 := exec.Command("exit")
-					if err := cmd2.Start(); err != nil {
-						fmt.Printf("Ошибка запуска команды exit: %v\n", err)
-						return
-					}
-					os.Exit(cmd2.ProcessState.ExitCode())
-					return
-				}
-			}
-			if removeFromRunningFile {
-				removeUserFromRunningFile(username)
-			}
 			*isWorking = false
+			removeUserFromRunningFile(username)
 		},
 	}
 

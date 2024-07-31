@@ -48,7 +48,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 	if isEmpty {
 		Clean.Screen()
 		green := color.New(color.FgGreen).SprintFunc()
-		fmt.Printf("%s\n", green("Добро пожаловать,", usernameFromDir))
+		fmt.Printf("%s\n", green("Welcome,", usernameFromDir))
 		return usernameFromDir, true
 	}
 
@@ -57,11 +57,29 @@ func CheckUser(usernameFromDir string) (string, bool) {
 	red := color.New(color.FgRed).SprintFunc()
 
 	for {
-		fmt.Printf("%s", magenta("Введите имя пользователя: "))
+		fmt.Print(magenta("enable secure[Y/N]: "))
+		var enable string
+		enable, _ = reader.ReadString('\n')
+		enable = strings.TrimSpace(enable)
+
+		if enable == "" {
+			fmt.Println(red("You entered a blank value!"))
+			continue
+		}
+
+		if strings.ToLower(enable) != "y" {
+			return usernameFromDir, true
+		} else {
+			break
+		}
+	}
+
+	for {
+		fmt.Printf("%s", magenta("Enter username: "))
 		username, _ := reader.ReadString('\n')
 		username = strings.TrimSpace(username)
 		if username == "" {
-			fmt.Println(red("Вы ввели пустое значение!!!"))
+			fmt.Println(red("You entered a blank value!"))
 			continue
 		}
 		runningPath := AbsdirRun
@@ -74,13 +92,13 @@ func CheckUser(usernameFromDir string) (string, bool) {
 			lines := strings.Split(dataRunning, "\n")
 			for _, line := range lines {
 				if strings.TrimSpace(line) == username {
-					fmt.Println(red("Этот пользователь уже существует!"))
+					fmt.Println(red("This user already exists!"))
 					return "", false
 				}
 			}
 		}
 
-		fmt.Printf("%s", magenta("Введите пароль: "))
+		fmt.Printf("%s", magenta("Enter password: "))
 		password, _ := reader.ReadString('\n')
 		password = strings.TrimSpace(password)
 
@@ -98,12 +116,12 @@ func CheckUser(usernameFromDir string) (string, bool) {
 		filePath := filepath.Join(passwordDir, hashedPassword)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			Clean.Screen()
-			fmt.Printf("%s\n", magenta("Пользователь не найден или неверный пароль"))
+			fmt.Printf("%s\n", red("User not found or password is incorrect!"))
 			return usernameFromDir, false
 		}
 
 		Clean.Screen()
-		fmt.Printf("%s\n", magenta("Добро пожаловать, ", username))
+		fmt.Printf("%s\n", magenta("Welcome, ", username))
 		return username, true
 	}
 }

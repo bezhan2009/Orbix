@@ -20,9 +20,11 @@ var Absdir, _ = filepath.Abs("")
 var DirUser, _ = filepath.Abs("")
 
 func Orbix(commandInput string, echo bool) {
+	fmt.Println("Hello")
 	if !echo && commandInput == "" {
 		red := color.New(color.FgRed).SprintFunc()
 		fmt.Println(red("You cannot enable echo with an empty Input command!"))
+		return
 	}
 	if echo {
 		utils.SystemInformation()
@@ -286,9 +288,6 @@ func Orbix(commandInput string, echo bool) {
 			break
 		}
 	}
-
-	// Завершаем работу горутины по обработке сигналов
-	wg.Wait()
 
 	// Восстановить оригинальные выводы
 	os.Stdout = originalStdout

@@ -23,6 +23,9 @@ func File(commandArgs []string) (string, error) {
 		return name, err
 	}
 
-	fmt.Printf("File '%s' successfully removed.\n", name)
+	if name != "" {
+		fmt.Printf("File '%s' successfully removed.\n", name)
+	}
+
 	return name, nil
 }
