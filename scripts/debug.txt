@@ -61,3 +61,10 @@ Command: rename
 Arguments: []
 Success: True
 
+Timestamp: 2024-07-31T23:49:58+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: help
+Arguments: []
+Success: True
+

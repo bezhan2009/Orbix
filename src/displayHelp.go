@@ -12,6 +12,9 @@ CREATE             creates a new file
 CLEAN              clears the screen	
 CD                 changes the current directory
 COPUSOURCE         copies the source code of the file
+CF                 Creates a folder
+DNSLOOKUP          DNS queries
+DF                 Deletes a folder
 LS                 lists directory contents
 NEWSHABLON         creates a new command template for execution
 REMOVE             deletes a file
@@ -35,7 +38,6 @@ EXTRACTZIP         extracts .zip archives
 SCANPORT           scans ports
 OPEN_LINK          opens the link in the browser
 WHOIS              domain information
-DNSLOOKUP          DNS queries
 FILEIO             intensive file operation test
 IPINFO             IP address information
 GEOIP              IP address geolocation
