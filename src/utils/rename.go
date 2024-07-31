@@ -7,7 +7,7 @@ import (
 )
 
 func RenameFileUtil(commandArgs []string, command string, user, dir string) {
-	if err := Rename.Rename(commandArgs); err != nil {
+	if err := Rename.Rename(commandArgs, command); err != nil {
 		debug.Commands(command, false, commandArgs, user, dir)
 		fmt.Println(err)
 	} else {

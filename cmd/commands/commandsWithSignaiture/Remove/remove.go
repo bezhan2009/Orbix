@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-func File(commandArgs []string) (string, error) {
+func File(commandArgs []string, command string) (string, error) {
 	if len(commandArgs) < 1 {
-		fmt.Println("Usage: remove <file>")
+		fmt.Printf("Usage: %s <file>\n", command)
 		return "", nil
 	}
 

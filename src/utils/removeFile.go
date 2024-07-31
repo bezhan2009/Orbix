@@ -7,7 +7,7 @@ import (
 )
 
 func RemoveFileUtil(commandArgs []string, command string, user, dir string) {
-	_, err := Remove.File(commandArgs)
+	_, err := Remove.File(commandArgs, command)
 	if err != nil {
 		debug.Commands(command, false, commandArgs, user, dir)
 		fmt.Println(err)

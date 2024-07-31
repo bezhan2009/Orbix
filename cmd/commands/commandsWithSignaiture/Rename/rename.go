@@ -6,9 +6,12 @@ import (
 	"strings"
 )
 
-func Rename(commandArgs []string) error {
+func Rename(commandArgs []string, command string) error {
 	if len(commandArgs) < 2 {
-		fmt.Println("Usage: rename <file> <new name for file>")
+		if len(commandArgs) == 1 {
+			fmt.Printf("Usage: %s %s <new name for file>\n", command, commandArgs[0])
+		}
+		fmt.Printf("Usage: %s <file> <new name for file>\n", command)
 		return nil
 	}
 
