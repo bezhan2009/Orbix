@@ -1,4 +1,4 @@
-package cmdPress
+package dirInfo
 
 func CmdDir(dir string) string {
 	var count uint8

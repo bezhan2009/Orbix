@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/fatih/color"
-	"goCmd/cmd/cmdPress"
 	"goCmd/cmd/commands/commandsWithoutSignature/CD"
+	"goCmd/cmd/dirInfo"
 	"goCmd/utils"
 	"os"
 	"os/signal"
@@ -47,7 +47,7 @@ func Orbix(commandInput string, echo bool) {
 	username := ""
 	if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
-		user := cmdPress.CmdUser(dir)
+		user := dirInfo.CmdUser(dir)
 		nameuser, isSuccess := CheckUser(user)
 		if !isSuccess {
 			return
@@ -147,8 +147,8 @@ func Orbix(commandInput string, echo bool) {
 		magenta := color.New(color.FgMagenta).SprintFunc()
 		yellow := color.New(color.FgYellow).SprintFunc()
 
-		dirC := cmdPress.CmdDir(dir)
-		user := cmdPress.CmdUser(dir)
+		dirC := dirInfo.CmdDir(dir)
+		user := dirInfo.CmdUser(dir)
 
 		if username != "" {
 			user = username

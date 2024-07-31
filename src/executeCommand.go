@@ -1,13 +1,13 @@
 package src
 
 import (
-	"goCmd/cmd/cmdPress"
 	"goCmd/cmd/commands/commandsWithSignaiture/Read"
 	"goCmd/cmd/commands/commandsWithSignaiture/Write"
 	"goCmd/cmd/commands/commandsWithSignaiture/template"
 	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/cmd/commands/commandsWithoutSignature/Ls"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
+	"goCmd/cmd/dirInfo"
 	"goCmd/internal/Network"
 	"goCmd/internal/Network/wifiUtils"
 	ExCommUtils "goCmd/src/utils"
@@ -16,7 +16,7 @@ import (
 )
 
 func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool, username string) {
-	user := cmdPress.CmdUser(dir)
+	user := dirInfo.CmdUser(dir)
 
 	commandMap := map[string]func(){
 		"wifiutils":   wifiUtils.Start,
