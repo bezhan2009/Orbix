@@ -39,6 +39,7 @@ go run main.go
 - **CF**: Creates a folder.
 - **COPYSOURCE**: Copies the source code of the file.
 - **DF**: Deletes a folder.
+- **DNSLOOKUP**: Performs DNS lookups.
 - **LS**: Lists directory contents.
 - **NEWTEMPLATE**: Creates a new template of commands to execute.
 - **REMOVE**: Deletes a file.
@@ -58,7 +59,6 @@ go run main.go
 - **EXTRACTZIP**: Extracts .zip archives.
 - **SCANPORT**: Scans ports.
 - **WHOIS**: Retrieves information about a domain.
-- **DNSLOOKUP**: Performs DNS lookups.
 - **WIFIUTILS**: Launches the WiFi utility.
 - **IPINFO**: Retrieves information about an IP address.
 - **GEOIP**: Retrieves geolocation information for an IP address.
