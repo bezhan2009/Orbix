@@ -26,3 +26,38 @@ Command: ren
 Arguments: []
 Success: True
 
+Timestamp: 2024-07-31T16:09:39+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: help
+Arguments: []
+Success: True
+
+Timestamp: 2024-07-31T17:11:34+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: ren
+Arguments: []
+Success: True
+
+Timestamp: 2024-07-31T17:11:38+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: ren
+Arguments: [d]
+Success: True
+
+Timestamp: 2024-07-31T17:11:46+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: ren
+Arguments: []
+Success: True
+
+Timestamp: 2024-07-31T17:11:50+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: rename
+Arguments: []
+Success: True
+
