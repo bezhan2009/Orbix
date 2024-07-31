@@ -36,6 +36,8 @@ go run main.go
 - **CREATE**: Creates a new file.
 - **CLEAN**: Clears the screen.
 - **CD**: Changes the current directory.
+- **CF**: Creates a folder.
+- **DF**: Deletes a folder.
 - **LS**: Lists directory contents.
 - **COPYSOURCE**: Copies the source code of the file.
 - **NEWTEMPLATE**: Creates a new template of commands to execute.
