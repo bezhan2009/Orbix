@@ -20,6 +20,8 @@ var commands = []structs.Command{
 	{"remove", "Deletes a file"},
 	{"rem", "Deletes a file"},
 	{"del", "Deletes a file"},
+	{"cf", "creates a folder"},
+	{"df", "deletes a folder"},
 	{"read", "Displays file contents"},
 	{"write", "Writes data to a file"},
 	{"create", "Creates a new file"},

@@ -43,6 +43,8 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"del":         func() { ExCommUtils.RemoveFileUtil(commandArgs, command, user, dir) },
 		"rem":         func() { ExCommUtils.RemoveFileUtil(commandArgs, command, user, dir) },
 		"rename":      func() { ExCommUtils.RenameFileUtil(commandArgs, command, user, dir) },
+		"cf":          func() { ExCommUtils.CFUtil(commandArgs) },
+		"df":          func() { ExCommUtils.DFUtil(commandArgs) },
 		"ren":         func() { ExCommUtils.RenameFileUtil(commandArgs, command, user, dir) },
 		"clean":       Clean.Screen,
 		"cls":         Clean.Screen,
