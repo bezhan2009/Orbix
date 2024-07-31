@@ -20,7 +20,6 @@ var Absdir, _ = filepath.Abs("")
 var DirUser, _ = filepath.Abs("")
 
 func Orbix(commandInput string, echo bool) {
-	fmt.Println("Hello")
 	if !echo && commandInput == "" {
 		red := color.New(color.FgRed).SprintFunc()
 		fmt.Println(red("You cannot enable echo with an empty Input command!"))
@@ -112,7 +111,11 @@ func Orbix(commandInput string, echo bool) {
 	// Перенаправить вывод в нулевой девайс
 	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
 	defer devNull.Close()
-
+	//
+	//if !isWorking {
+	//	removeUserFromRunningFile(username)
+	//}
+	//
 	for isWorking {
 		if !echo {
 			os.Stdout = devNull
