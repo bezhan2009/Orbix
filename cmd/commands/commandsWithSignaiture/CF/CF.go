@@ -7,7 +7,7 @@ import (
 
 func CreateFolder(commandArgs []string) (bool, error) {
 	if len(commandArgs) < 1 {
-		fmt.Println("Usage: cf <dir name>")
+		fmt.Println("Usage: cf <folder_name>")
 		return false, nil
 	}
 	err := os.Mkdir(commandArgs[0], 0755) // 0755 - права доступа к директории
