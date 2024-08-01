@@ -68,3 +68,17 @@ Command: help
 Arguments: []
 Success: True
 
+Timestamp: 2024-08-01T15:35:47+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: del
+Arguments: []
+Success: True
+
+Timestamp: 2024-08-01T15:56:56+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\scripts
+Command: remove
+Arguments: [gol]
+Success: False
+

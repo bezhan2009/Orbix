@@ -13,7 +13,7 @@ var commands = []structs.Command{
 	{"newtemplate", "Creates a new command template for execution"},
 	{"template", "Executes a specific command template"},
 	{"newuser", "New user for Orbix"},
-	{"promptSet", "Changes Orbix"},
+	{"prompt", "Changes Orbix"},
 	{"systemorbix", "Displays information about Orbix"},
 	{"rename", "Renames a file"},
 	{"ren", "Renames a file"},

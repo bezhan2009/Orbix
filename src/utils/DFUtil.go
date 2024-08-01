@@ -2,11 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"goCmd/cmd/commands/commandsWithSignaiture/CF"
+	"goCmd/cmd/commands/commandsWithSignaiture/DF"
 )
 
 func DFUtil(commandArgs []string) {
-	isSuccess, err := CF.CreateFolder(commandArgs)
+	isSuccess, err := DF.DeleteFolder(commandArgs)
 	if err != nil {
 		fmt.Println("Error deleting folder:", err)
 		return
