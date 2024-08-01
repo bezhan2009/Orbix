@@ -24,22 +24,37 @@ func DeleteFolder(commandArgs []string) (bool, error) {
 		return false, fmt.Errorf("%s is not a directory", folderName)
 	}
 
+	// Создаем срез для хранения директорий, чтобы удалить их позже
+	var dirs []string
+
 	// Рекурсивное удаление всех файлов и поддиректорий
 	err = filepath.Walk(folderName, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		// Удаляем файлы и пустые директории
+		// Сохраняем директории для удаления позже
 		if info.IsDir() {
-			return os.Remove(path)
+			dirs = append(dirs, path)
+		} else {
+			// Удаляем файлы сразу
+			if err := os.Remove(path); err != nil {
+				return err
+			}
 		}
 
-		return os.Remove(path)
+		return nil
 	})
 
 	if err != nil {
 		return false, err
+	}
+
+	// Удаляем директории в обратном порядке
+	for i := len(dirs) - 1; i >= 0; i-- {
+		if err := os.Remove(dirs[i]); err != nil {
+			return false, err
+		}
 	}
 
 	// Удаляем саму директорию
