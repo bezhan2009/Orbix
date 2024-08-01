@@ -26,6 +26,8 @@ cd scripts
 go run main.go
 ```
 ![image](https://github.com/user-attachments/assets/1ebc79c5-d402-4c4c-bb91-3b05d9c11f10)
+![image](https://github.com/user-attachments/assets/c2a23ac9-e6d3-45a6-bde7-d9301202f637)
+
 ### Список доступных команд
 
 - **CREATE**: Создает новый файл.
