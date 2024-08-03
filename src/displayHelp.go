@@ -2,7 +2,7 @@ package src
 
 import (
 	"fmt"
-	"goCmd/internal/debug"
+	"goCmd/internal/logger"
 )
 
 func displayHelp(commandArgs []string, user, dir string) {
@@ -45,7 +45,7 @@ MATRIXMUL          multiplies large matrices
 EXIT               exit
 `
 	fmt.Println(helpText)
-	errDebug := debug.Commands("help", true, commandArgs, user, dir)
+	errDebug := logger.Commands("help", true, commandArgs, user, dir)
 	if errDebug != nil {
 		animatedPrint(errDebug.Error() + "\n")
 	}
