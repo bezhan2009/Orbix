@@ -18,8 +18,11 @@ import (
 
 var Absdir, _ = filepath.Abs("")
 var DirUser, _ = filepath.Abs("")
+var UsernameFromDir = dirInfo.CmdUser(DirUser)
 
 func Orbix(commandInput string, echo bool) {
+	var printUserDir string
+
 	if !echo && commandInput == "" {
 		red := color.New(color.FgRed).SprintFunc()
 		fmt.Println(red("You cannot enable echo with an empty Input command!"))
@@ -152,6 +155,7 @@ func Orbix(commandInput string, echo bool) {
 
 		if username != "" {
 			user = username
+			printUserDir = user
 		}
 
 		currentTime := time.Now().Format("15:04")
@@ -192,8 +196,11 @@ func Orbix(commandInput string, echo bool) {
 				gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
 			}
 
+			if printUserDir == "" {
+				printUserDir = UsernameFromDir
+			}
 			fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
-				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
+				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+printUserDir), yellow(")"), yellow("─"), yellow("["),
 				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
 				cyan("~"), cyan(dirC), yellow("]"), gitInfo)
 			fmt.Printf("%s%s%s %s",

@@ -1,7 +1,7 @@
 package dirInfo
 
 func CmdDir(dir string) string {
-	var count uint8
+	var count uint16
 	var dirC string
 
 	for i := 0; i < len(dir); i++ {
@@ -19,7 +19,7 @@ func CmdDir(dir string) string {
 }
 
 func CmdUser(dir string) string {
-	var count uint8
+	var count uint16
 	var user string
 
 	for i := 0; i < len(dir); i++ {
@@ -38,7 +38,7 @@ func CmdUser(dir string) string {
 }
 
 func CMDGetDirWithOutApp(dir string) string {
-	var count uint8
+	var count uint16
 	var dirC string
 
 	for i := 0; i < len(dir); i++ {
