@@ -22,6 +22,7 @@ testShablon
 testTxt.txt
 test.txt
 hw
+activeUser.txt
 
 # exe files
 go_build_goCmd.exe
