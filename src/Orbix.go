@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -242,6 +243,13 @@ func Orbix(commandInput string, echo bool) {
 		}
 
 		animatedPrint("\n")
+
+		num, err := strconv.Atoi(commandLower)
+
+		if err == nil && len(commandArgs) == 0 {
+			fmt.Println(num)
+			continue
+		}
 
 		if commandLower == "cd" && len(commandArgs) < 1 {
 			fmt.Println(dir)
