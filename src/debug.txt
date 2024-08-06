@@ -5,3 +5,10 @@ Command: read
 Arguments: [Orbix.go]
 Success: True
 
+Timestamp: 2024-08-06T17:21:43+03:00
+User: Admin
+Directory: C:\Users\Admin\MyCMD\goCMD\src
+Command: rename
+Arguments: [startShablon.go startTemplate.go]
+Success: True
+
