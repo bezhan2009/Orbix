@@ -16,6 +16,7 @@ trash/activeUser.txt
 build
 scripts/stderr.log
 scripts/stdout.log
+debug.txt
 
 # Tests
 testShablon
