@@ -5,12 +5,14 @@ import (
 	"goCmd/run"
 	"os"
 	"os/exec"
+	"runtime"
+	"strconv"
 	"strings"
 )
 
 // checkSystemResources checks the system resources.
 func checkSystemResources() error {
-	// Check CPU usage and memory
+	// Check CPU usage
 	cpuUsage, err := getCPUUsage()
 	if err != nil {
 		return fmt.Errorf("error getting CPU usage: %v", err)
@@ -19,65 +21,86 @@ func checkSystemResources() error {
 		return fmt.Errorf("high CPU usage: %f%%", cpuUsage)
 	}
 
-	//memStats := runtime.MemStats{}
-	//runtime.ReadMemStats(&memStats)
-	//if memStats.Frees < 100*1024*1024 { // less than 100 MB free memory
-	//	return fmt.Errorf("low free memory: %d bytes", memStats.Frees)
-	//}
-
-	// Check free disk space
-	//freeDiskSpace, err := getFreeDiskSpace("C:")
-	//if err != nil {
-	//	return fmt.Errorf("error getting free disk space: %v", err)
-	//}
-	//if freeDiskSpace < 10*1024*1024*1024 { // less than 10 GB free space
-	//	return fmt.Errorf("low free disk space: %d bytes", freeDiskSpace)
-	//}
+	// You can add memory and disk space checks similarly
+	// ...
 
 	return nil
 }
 
 // getCPUUsage returns the current CPU usage in percentage.
 func getCPUUsage() (float64, error) {
-	// Depends on the OS; for Windows, use PowerShell or WMI.
-	cmd := exec.Command("wmic", "cpu", "get", "loadpercentage")
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("wmic", "cpu", "get", "loadpercentage")
+	case "linux":
+		cmd = exec.Command("sh", "-c", "top -bn1 | grep 'Cpu(s)' | sed 's/.*, *\\([0-9.]*\\)%* id.*/\\1/' | awk '{print 100 - $1}'")
+	case "darwin":
+		cmd = exec.Command("sh", "-c", "ps -A -o %cpu | awk '{s+=$1} END {print s}'")
+	default:
+		return 0, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, err
 	}
-	lines := strings.Split(string(output), "\n")
-	if len(lines) < 2 {
+	return parseCPUUsageOutput(output)
+}
+
+// parseCPUUsageOutput parses the output from the CPU usage command.
+func parseCPUUsageOutput(output []byte) (float64, error) {
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+	if len(lines) < 1 {
 		return 0, fmt.Errorf("unable to get CPU load data")
 	}
-	cpuUsage := strings.TrimSpace(lines[1])
-	var usage float64
-	_, err = fmt.Sscanf(cpuUsage, "%f", &usage)
-	if err != nil {
-		return 0, err
+	// For Windows
+	if runtime.GOOS == "windows" {
+		if len(lines) < 2 {
+			return 0, fmt.Errorf("unable to get CPU load data")
+		}
+		return strconv.ParseFloat(strings.TrimSpace(lines[1]), 64)
 	}
-	return usage, nil
+	// For Linux and macOS
+	cpuUsage := strings.TrimSpace(lines[len(lines)-1])
+	return strconv.ParseFloat(cpuUsage, 64)
 }
 
 // getFreeDiskSpace returns the free disk space in bytes.
 func getFreeDiskSpace(drive string) (uint64, error) {
-	cmd := exec.Command("powershell", "-Command", fmt.Sprintf("(Get-PSDrive -Name %s).Used", drive))
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("powershell", "-Command", fmt.Sprintf("(Get-PSDrive -Name %s).Free", drive))
+	case "linux", "darwin":
+		cmd = exec.Command("sh", "-c", fmt.Sprintf("df -k %s | tail -1 | awk '{print $4}'", drive))
+	default:
+		return 0, fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+	}
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, err
 	}
-	var usedSpace uint64
-	_, err = fmt.Sscanf(string(output), "%d", &usedSpace)
+	var freeSpace uint64
+	_, err = fmt.Sscanf(string(output), "%d", &freeSpace)
 	if err != nil {
 		return 0, err
 	}
-	return usedSpace, nil
+	return freeSpace * 1024, nil // Convert from KB to bytes
 }
 
 // checkForBlockingProcesses checks for processes that may interfere.
 func checkForBlockingProcesses() error {
 	blockingProcesses := []string{"example.exe"} // List of processes that may interfere
 	for _, process := range blockingProcesses {
-		cmd := exec.Command("tasklist", "/FI", fmt.Sprintf("IMAGENAME eq %s", process))
+		var cmd *exec.Cmd
+		switch runtime.GOOS {
+		case "windows":
+			cmd = exec.Command("tasklist", "/FI", fmt.Sprintf("IMAGENAME eq %s", process))
+		case "linux", "darwin":
+			cmd = exec.Command("sh", "-c", fmt.Sprintf("ps -A | grep %s", process))
+		default:
+			return fmt.Errorf("unsupported OS: %s", runtime.GOOS)
+		}
 		output, err := cmd.Output()
 		if err != nil {
 			return fmt.Errorf("error checking processes: %v", err)
