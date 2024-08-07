@@ -21,9 +21,6 @@ func checkSystemResources() error {
 		return fmt.Errorf("high CPU usage: %f%%", cpuUsage)
 	}
 
-	// You can add memory and disk space checks similarly
-	// ...
-
 	return nil
 }
 
