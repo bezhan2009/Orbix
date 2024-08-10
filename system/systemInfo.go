@@ -14,4 +14,6 @@ const (
 var (
 	// Path the value for this variable is given after the program is started
 	Path = ""
+	// User the value for this variable is given also after the program is started
+	User = ""
 )
