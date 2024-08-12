@@ -50,7 +50,7 @@ go run main.go
 - **NEWUSER**: Adds a new user for Orbix.
 - **ORBIX**: Starts another instance of Orbix.
 - **TEMPLATE**: Executes a specific command template.
-- **SYSTEMGOCMD**: Displays information about Orbix.
+- **SYSTEMORBIX**: Displays information about Orbix.
 - **SYSTEMINFO**: Displays system information.
 - **SIGNOUT**: Logs out the user from Orbix.
 - **TREE**: Graphically displays the directory structure of a disk or path.
