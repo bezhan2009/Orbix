@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// Start executes a series of commands defined in the given shablon file.
-func Start(shablonName string, echo string) error {
+// Start executes a series of Commands defined in the given template file.
+func Start(templateName string, echo string) error {
 	echoExecute := false
 
 	if echo == "true" {
@@ -17,9 +17,9 @@ func Start(shablonName string, echo string) error {
 		echoExecute = false
 	}
 
-	shablonName = strings.TrimSpace(shablonName)
+	templateName = strings.TrimSpace(templateName)
 
-	file, err := os.OpenFile(shablonName, os.O_RDWR, 0644)
+	file, err := os.OpenFile(templateName, os.O_RDWR, 0644)
 	if err != nil {
 		return fmt.Errorf("error opening file: %v", err)
 	}

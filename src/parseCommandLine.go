@@ -2,7 +2,7 @@ package src
 
 import "strings"
 
-func parseCommandLine(commandLine string) []string {
+func ParseCommandLine(commandLine string) []string {
 	var parts []string
 	var currentPart strings.Builder
 	var inQuotes bool

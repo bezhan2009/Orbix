@@ -2,8 +2,9 @@ package src
 
 import "goCmd/structs"
 
-var commands = []structs.Command{
-	{"help", "List of available commands"},
+// Commands available Orbix commands
+var Commands = []structs.Command{
+	{"help", "List of available Commands"},
 	{"whois", "Domain information"},
 	{"pingview", "Displays ping"},
 	{"traceroute", "Route tracing"},
@@ -50,4 +51,4 @@ var commands = []structs.Command{
 	{"''", "Close single quote"},
 }
 
-var commandHistory []string
+var CommandHistory []string

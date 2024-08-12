@@ -2,15 +2,20 @@ package src
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 	"strings"
 )
 
 func handlePromptCommand(commandArgs []string, prompt *string) {
+	yellow := color.New(color.FgYellow).SprintFunc()
 	if len(commandArgs) < 1 {
-		animatedPrint("prompt <name_prompt>\n")
-		animatedPrint("to delete prompt enter:\n")
-		animatedPrint("prompt delete\n")
+		printHint1 := fmt.Sprintf("prompt <name_prompt>\n")
+		printHint2 := fmt.Sprintf("to delete prompt enter:\n")
+		printHint3 := fmt.Sprintf("prompt delete\n")
+		animatedPrint(yellow(printHint1))
+		animatedPrint(yellow(printHint2))
+		animatedPrint(yellow(printHint3))
 		return
 	}
 

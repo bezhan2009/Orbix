@@ -1,10 +1,17 @@
 package system
 
-import "runtime"
+import (
+	"runtime"
+)
 
 const (
 	Version         = "1.0.10"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
+)
+
+var (
+	// Path the value for this variable is given after the program is started
+	Path = ""
 )

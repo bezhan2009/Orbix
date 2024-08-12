@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-var AbsdirRun, _ = filepath.Abs("")
+var AbsDirRun, _ = filepath.Abs("")
 
 // getPasswordsDir returns the absolute path of the passwords directory.
 func getPasswordsDir() (string, error) {
@@ -82,7 +82,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 			fmt.Println(red("You entered a blank value!"))
 			continue
 		}
-		runningPath := AbsdirRun
+		runningPath := AbsDirRun
 		runningPath += "\\running.txt"
 		sourceRunning, errReading := os.ReadFile(runningPath)
 		var dataRunning string

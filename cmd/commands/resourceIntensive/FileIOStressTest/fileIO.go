@@ -3,6 +3,7 @@ package FileIOStressTest
 import (
 	"crypto/rand"
 	"fmt"
+	"github.com/fatih/color"
 	"io/ioutil"
 	"os"
 	"time"
@@ -19,23 +20,31 @@ func readLargeFile(filename string) ([]byte, error) {
 }
 
 func FileIOCommand(filename string, size int) {
+	red := color.New(color.FgRed).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
+
 	start := time.Now()
 	err := writeLargeFile(filename, size)
 	if err != nil {
-		fmt.Println("Error writing file:", err)
+		fmt.Println(red("Error writing file:", err))
 		return
 	}
 	elapsed := time.Since(start)
-	fmt.Printf("Wrote %d bytes to %s in %s\n", size, filename, elapsed)
+	printResult := fmt.Sprintf("Wrote %d bytes to %s in %s\n", size, filename, elapsed)
+	fmt.Printf(green(printResult))
 
 	start = time.Now()
 	data, err := readLargeFile(filename)
 	if err != nil {
-		fmt.Println("Error reading file:", err)
+		fmt.Println(red("Error reading file:", err))
 		return
 	}
 	elapsed = time.Since(start)
-	fmt.Printf("Read %d bytes from %s in %s\n", len(data), filename, elapsed)
+	printElapsedResult := fmt.Sprintf("Read %d bytes from %s in %s\n", len(data), filename, elapsed)
+	fmt.Printf(green(printElapsedResult))
 
-	os.Remove(filename)
+	err = os.Remove(filename)
+	if err != nil {
+		fmt.Println(red("Error removing file:", err))
+	}
 }

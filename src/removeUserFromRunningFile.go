@@ -12,7 +12,7 @@ func removeUserFromRunningFile(username string) {
 
 	sourceRunning, err := os.ReadFile(runningPath)
 	if err != nil {
-		fmt.Printf("Ошибка чтения файла running.txt: %v\n", err)
+		fmt.Printf("File reading error running.txt: %v\n", err)
 		return
 	}
 
@@ -27,7 +27,7 @@ func removeUserFromRunningFile(username string) {
 	newContent := strings.Join(updatedLines, "\n")
 	err = os.WriteFile(runningPath, []byte(newContent), 0644)
 	if err != nil {
-		fmt.Printf("Ошибка записи в файл running.txt: %v\n", err)
+		fmt.Printf("Error writing to the file running.txt: %v\n", err)
 		return
 	}
 }

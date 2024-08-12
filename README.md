@@ -11,13 +11,13 @@
 
 Read in [Русский](README.ru.md)
 
-**Orbix** is an alternative command line interface written in the Go programming language. It provides the same basic commands as the standard CMD, but also includes additional commands specific to this tool.
+**Orbix** is an alternative command line interface written in the Go programming language. It provides the same basic Commands as the standard CMD, but also includes additional Commands specific to this tool.
 
 ### Features
 
-- **Orbix Compatibility**: Orbix supports most Orbix commands, ensuring a smooth transition for users.
-- **Additional Commands**: Orbix includes a range of additional commands designed to simplify everyday tasks for system administrators and developers.
-- **Extensibility**: Since Orbix is written in Go, its functionality can be easily extended by developing custom commands.
+- **Orbix Compatibility**: Orbix supports most Orbix Commands, ensuring a smooth transition for users.
+- **Additional Commands**: Orbix includes a range of additional Commands designed to simplify everyday tasks for system administrators and developers.
+- **Extensibility**: Since Orbix is written in Go, its functionality can be easily extended by developing custom Commands.
 - **Performance**: Go is known for its high performance, making Orbix fast and responsive.
 - **Support and Feedback**: Users can contact the developer directly via Telegram.
 
@@ -42,7 +42,7 @@ go run main.go
 - **DF**: Deletes a folder.
 - **DNSLOOKUP**: Performs DNS lookups.
 - **LS**: Lists directory contents.
-- **NEWTEMPLATE**: Creates a new template of commands to execute.
+- **NEWTEMPLATE**: Creates a new template of Commands to execute.
 - **REMOVE**: Deletes a file.
 - **READ**: Displays the contents of a file.
 - **PROMPT**: Changes the Orbix prompt.

@@ -10,8 +10,9 @@ import (
 )
 
 func OpenLinkUtil(commandArgs []string) {
+	yellow := color.New(color.FgYellow).SprintFunc()
 	if len(commandArgs) < 1 {
-		fmt.Println("Usage: open_link <url>")
+		fmt.Println(yellow("Usage: open_link <url>"))
 		return
 	}
 

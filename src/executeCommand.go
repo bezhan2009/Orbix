@@ -1,8 +1,6 @@
 package src
 
 import (
-	"goCmd/cmd/commands/commandsWithSignaiture/Read"
-	"goCmd/cmd/commands/commandsWithSignaiture/Write"
 	"goCmd/cmd/commands/commandsWithSignaiture/template"
 	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/cmd/commands/commandsWithoutSignature/Ls"
@@ -12,6 +10,7 @@ import (
 	"goCmd/internal/Network/wifiUtils"
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
+	"goCmd/system"
 	"goCmd/utils"
 )
 
@@ -32,13 +31,13 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 		"primes":      func() { ExCommUtils.CalculatePrimesUtil(commandArgs) },
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(commandArgs) },
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(commandArgs) },
-		"newtemplate": template.Make,
+		"newtemplate": func() { template.Make(commandArgs) },
 		"template":    func() { ExecuteShablonUtil(commandArgs) },
 		"systemorbix": utils.SystemInformation,
 		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(commandArgs) },
 		"create":      func() { ExCommUtils.CreateFileUtil(commandArgs, command, user, dir) },
-		"write":       func() { Write.File(commandLower, commandArgs, user, dir) },
-		"read":        func() { Read.File(commandLower, commandArgs, user, dir) },
+		"write":       func() { ExCommUtils.WriteFileUtil(commandLower, commandArgs, user, dir) },
+		"read":        func() { ExCommUtils.ReadFileUtil(commandLower, commandArgs, user, dir) },
 		"remove":      func() { ExCommUtils.RemoveFileUtil(commandArgs, command, user, dir) },
 		"del":         func() { ExCommUtils.RemoveFileUtil(commandArgs, command, user, dir) },
 		"rem":         func() { ExCommUtils.RemoveFileUtil(commandArgs, command, user, dir) },
@@ -57,8 +56,8 @@ func ExecuteCommand(commandLower, command, commandLine, dir string, commands []s
 
 	permissionRequiredCommands := map[string]func(){
 		"orbix":   func() { Orbix("", true) },
-		"newuser": NewUser,
-		"signout": func() { SignOutUtil(username) },
+		"newuser": func() { NewUser(system.Path) },
+		"signout": func() { SignOutUtil(username, system.Path) },
 		"exit": func() {
 			*isWorking = false
 			removeUserFromRunningFile(username)

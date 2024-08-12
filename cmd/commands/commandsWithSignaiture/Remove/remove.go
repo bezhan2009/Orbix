@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func File(commandArgs []string, command string) (string, error) {
+func File(command string, commandArgs []string) (string, error) {
 	if len(commandArgs) < 1 {
 		fmt.Printf("Usage: %s <file>\n", command)
 		return "", nil

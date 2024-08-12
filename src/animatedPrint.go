@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// animatedPrint custom print
 func animatedPrint(text string) {
 	for _, char := range text {
 		fmt.Print(string(char))

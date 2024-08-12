@@ -17,11 +17,19 @@ import (
 	"time"
 )
 
-var Absdir, _ = filepath.Abs("")
-var DirUser, _ = filepath.Abs("")
-var UsernameFromDir = dirInfo.CmdUser(DirUser)
+var (
+	Absdir, _       = filepath.Abs("")
+	DirUser, _      = filepath.Abs("")
+	UsernameFromDir = dirInfo.CmdUser(DirUser)
+)
 
 func Orbix(commandInput string, echo bool) {
+	red := color.New(color.FgRed).SprintFunc()
+	yellow := color.New(color.FgYellow).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
+	magenta := color.New(color.FgMagenta).SprintFunc()
+
 	var printUserDir string
 
 	if !echo && commandInput == "" {
@@ -60,7 +68,10 @@ func Orbix(commandInput string, echo bool) {
 		username = nameuser
 		// Создаем файл running.txt, если его нет
 		if _, err := os.Stat("running.txt"); os.IsNotExist(err) {
-			os.Create("running.txt")
+			_, err := os.Create("running.txt")
+			if err != nil {
+				panic(err)
+			}
 		}
 
 		// Проверка наличия username в файле running.txt
@@ -143,13 +154,15 @@ func Orbix(commandInput string, echo bool) {
 		activeUserFilePath := DirUser
 		activeUserFilePath += "\\activeUser.txt"
 
-		os.Create(activeUserFilePath)
-		os.WriteFile(activeUserFilePath, []byte(username), 0644)
+		_, err := os.Create(activeUserFilePath)
+		if err != nil {
+			fmt.Println(red(err))
+		}
 
-		cyan := color.New(color.FgCyan).SprintFunc()
-		green := color.New(color.FgGreen).SprintFunc()
-		magenta := color.New(color.FgMagenta).SprintFunc()
-		yellow := color.New(color.FgYellow).SprintFunc()
+		err = os.WriteFile(activeUserFilePath, []byte(username), 0644)
+		if err != nil {
+			fmt.Println(red(err))
+		}
 
 		dirC := dirInfo.CmdDir(dir)
 		user := dirInfo.CmdUser(dir)
@@ -182,7 +195,7 @@ func Orbix(commandInput string, echo bool) {
 			}
 
 			if !found {
-				fmt.Println("Пользователь не авторизован.")
+				fmt.Println(red("Пользователь не авторизован."))
 				isWorking = false
 				isPermission = false
 				continue
@@ -239,7 +252,7 @@ func Orbix(commandInput string, echo bool) {
 			commandArgs = commandParts[1:]
 			commandLower = strings.ToLower(command)
 
-			commandHistory = append(commandHistory, commandLine)
+			CommandHistory = append(CommandHistory, commandLine)
 		}
 
 		animatedPrint("\n")
@@ -280,7 +293,7 @@ func Orbix(commandInput string, echo bool) {
 			continue
 		}
 
-		isValid := utils.ValidCommand(commandLower, commands)
+		isValid := utils.ValidCommand(commandLower, Commands)
 
 		if !isValid {
 			fullCommand := append([]string{command}, commandArgs...)
@@ -291,16 +304,16 @@ func Orbix(commandInput string, echo bool) {
 				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
 					suggestedCommand := suggestCommand(commandLower)
-					fmt.Printf("Error executing command '%s': %v\n", commandLine, err)
+					fmt.Printf(red(fmt.Sprintf("Error executing command '%s': %v\n", commandLine, err)))
 					if suggestedCommand != "" {
-						fmt.Printf("Did you mean: %s?\n", suggestedCommand)
+						fmt.Printf(yellow(fmt.Sprintf("Did you mean: %s?\n", suggestedCommand)))
 					}
 				}
 			}
 			continue
 		}
 
-		ExecuteCommand(commandLower, command, commandLine, dir, commands, commandArgs, &isWorking, isPermission, username)
+		ExecuteCommand(commandLower, command, commandLine, dir, Commands, commandArgs, &isWorking, isPermission, username)
 
 		if commandLower == "signout" {
 			break

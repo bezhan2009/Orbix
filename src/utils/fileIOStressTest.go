@@ -6,7 +6,7 @@ import (
 )
 
 func FileIOStressTestUtil(commandArgs []string) {
-	filename := "largefile.dat"
+	filename := "FileIOStressTestUtil.dat"
 	size := 100 * 1024 * 1024
 	if len(commandArgs) > 0 {
 		if s, err := strconv.Atoi(commandArgs[0]); err == nil {

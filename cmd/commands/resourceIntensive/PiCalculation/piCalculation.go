@@ -2,6 +2,7 @@ package PiCalculation
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"math/big"
 	"time"
 )
@@ -28,10 +29,13 @@ func calculatePi(precision int) *big.Float {
 }
 
 func PiCalcCommand(precision int) {
+	green := color.New(color.FgGreen).SprintFunc()
+
 	start := time.Now()
 	pi := calculatePi(precision)
 	elapsed := time.Since(start)
 
-	fmt.Printf("Calculated pi to %d digits in %s\n", precision, elapsed)
-	fmt.Println("Pi:", pi.Text('f', 6))
+	printResult := fmt.Sprintf("Calculated pi to %d digits in %s\n", precision, elapsed)
+	fmt.Printf(green(printResult))
+	fmt.Println(green("Pi:", pi.Text('f', 6)))
 }
