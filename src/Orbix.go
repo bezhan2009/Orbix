@@ -6,6 +6,7 @@ import (
 	"github.com/fatih/color"
 	"goCmd/cmd/commands/commandsWithoutSignature/CD"
 	"goCmd/cmd/dirInfo"
+	"goCmd/system"
 	"goCmd/utils"
 	"os"
 	"os/signal"
@@ -24,6 +25,7 @@ var (
 )
 
 func Orbix(commandInput string, echo bool) {
+	Init()
 	red := color.New(color.FgRed).SprintFunc()
 	yellow := color.New(color.FgYellow).SprintFunc()
 	cyan := color.New(color.FgCyan).SprintFunc()
@@ -142,83 +144,92 @@ func Orbix(commandInput string, echo bool) {
 
 		dir, _ := os.Getwd()
 
-		runFilePath := Absdir
-		runFilePath += "\\isRun.txt"
-
-		currentBranchGit, errGitBranch := GetCurrentGitBranch()
-		if errGitBranch != nil {
-			currentBranchGit = "" // Ensure currentBranchGit is empty on error
+		if promptText == "" && echo && system.IsAdmin {
+			fmt.Printf("\n%s>", dir)
 		}
 
-		// Ensure absolute path for activeUser.txt
-		activeUserFilePath := DirUser
-		activeUserFilePath += "\\activeUser.txt"
+		if !system.IsAdmin {
+			runFilePath := Absdir
+			runFilePath += "\\isRun.txt"
 
-		_, err := os.Create(activeUserFilePath)
-		if err != nil {
-			fmt.Println(red(err))
-		}
-
-		err = os.WriteFile(activeUserFilePath, []byte(username), 0644)
-		if err != nil {
-			fmt.Println(red(err))
-		}
-
-		dirC := dirInfo.CmdDir(dir)
-		user := dirInfo.CmdUser(dir)
-
-		if username != "" {
-			user = username
-			printUserDir = user
-		}
-
-		currentTime := time.Now().Format("15:04")
-		location := os.Getenv("CITY")
-		if location == "" {
-			location = "Unknown City"
-		}
-
-		// Проверка наличия username в файле running.txt
-		runningPath := Absdir
-		runningPath += "\\running.txt"
-		sourceRunning, errReading := os.ReadFile(runningPath)
-		if errReading == nil {
-			dataRunning := string(sourceRunning)
-			lines := strings.Split(dataRunning, "\n")
-			found := false
-
-			for _, line := range lines {
-				if strings.TrimSpace(line) == username {
-					found = true
-					break
-				}
+			currentBranchGit, errGitBranch := GetCurrentGitBranch()
+			if errGitBranch != nil {
+				currentBranchGit = "" // Ensure currentBranchGit is empty on error
 			}
 
-			if !found {
-				fmt.Println(red("Пользователь не авторизован."))
-				isWorking = false
-				isPermission = false
-				continue
+			// Ensure absolute path for activeUser.txt
+			activeUserFilePath := DirUser
+			activeUserFilePath += "\\activeUser.txt"
+
+			_, err := os.Create(activeUserFilePath)
+			if err != nil {
+				fmt.Println(red(err))
+			}
+
+			err = os.WriteFile(activeUserFilePath, []byte(username), 0644)
+			if err != nil {
+				fmt.Println(red(err))
+			}
+
+			dirC := dirInfo.CmdDir(dir)
+			user := dirInfo.CmdUser(dir)
+
+			if username != "" {
+				user = username
+				printUserDir = user
+			}
+
+			currentTime := time.Now().Format("15:04")
+			location := os.Getenv("CITY")
+			if location == "" {
+				location = "Unknown City"
+			}
+
+			// Проверка наличия username в файле running.txt
+			runningPath := Absdir
+			runningPath += "\\running.txt"
+			sourceRunning, errReading := os.ReadFile(runningPath)
+			if errReading == nil {
+				dataRunning := string(sourceRunning)
+				lines := strings.Split(dataRunning, "\n")
+				found := false
+
+				for _, line := range lines {
+					if strings.TrimSpace(line) == username {
+						found = true
+						break
+					}
+				}
+
+				if !found {
+					fmt.Println(red("Пользователь не авторизован."))
+					isWorking = false
+					isPermission = false
+					continue
+				}
+			}
+			if promptText != "" && echo {
+				fmt.Println("\n" + promptText)
+			} else if echo {
+				var gitInfo string
+				if currentBranchGit != "" {
+					gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
+				}
+				if printUserDir == "" {
+					printUserDir = UsernameFromDir
+				}
+
+				fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
+					yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+printUserDir), yellow(")"), yellow("─"), yellow("["),
+					yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
+					cyan("~"), cyan(dirC), yellow("]"), gitInfo)
+				fmt.Printf("%s%s%s %s",
+					yellow("└"), yellow("─"), green("$"), green(commandInput))
 			}
 		}
 
 		if promptText != "" && echo {
-			animatedPrint("\n" + promptText)
-		} else if echo {
-			var gitInfo string
-			if currentBranchGit != "" {
-				gitInfo = fmt.Sprintf(" %s%s", yellow("git:"), green("[", currentBranchGit, "]"))
-			}
-
-			if printUserDir == "" {
-				printUserDir = UsernameFromDir
-			}
-			fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s\n",
-				yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+printUserDir), yellow(")"), yellow("─"), yellow("["),
-				yellow(location), magenta(currentTime), yellow("]"), yellow("─"), yellow("["),
-				cyan("~"), cyan(dirC), yellow("]"), gitInfo)
-			fmt.Printf("%s%s%s %s",
-				yellow("└"), yellow("─"), green("$"), green(commandInput))
+			fmt.Print("\n" + promptText)
 		}
 
 		var commandLine string
@@ -255,7 +266,7 @@ func Orbix(commandInput string, echo bool) {
 			CommandHistory = append(CommandHistory, commandLine)
 		}
 
-		animatedPrint("\n")
+		fmt.Println()
 
 		num, err := strconv.Atoi(commandLower)
 
@@ -275,7 +286,7 @@ func Orbix(commandInput string, echo bool) {
 		}
 
 		if commandLower == "help" {
-			displayHelp(commandArgs, user, dir)
+			displayHelp()
 			continue
 		}
 

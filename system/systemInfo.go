@@ -16,4 +16,6 @@ var (
 	Path = ""
 	// User the value for this variable is given also after the program is started
 	User = ""
+	// IsAdmin It was added for the sake of optimization
+	IsAdmin = true
 )

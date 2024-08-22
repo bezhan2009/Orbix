@@ -48,7 +48,20 @@ var Commands = []structs.Command{
 	{"[]", "Close square bracket"},
 	{"{}", "Close curly brace"},
 	{"\"\"", "Close double quote"},
-	{"''", "Close single quote"},
+	{"n", ""},
+	{"и", ""},
+	{"т", ""},
+	{"b", ""},
+	{"/", ""},
 }
 
 var CommandHistory []string
+
+func Init() {
+	CommandHistory = append(CommandHistory, "help")
+	CommandHistory = append(CommandHistory, "n")
+	CommandHistory = append(CommandHistory, "/")
+	CommandHistory = append(CommandHistory, "b")
+	CommandHistory = append(CommandHistory, "т")
+	CommandHistory = append(CommandHistory, "и")
+}

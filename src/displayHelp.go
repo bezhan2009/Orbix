@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func displayHelp(commandArgs []string, user, dir string) {
+func displayHelp() {
 	helpText := `
 For command information, type HELP
 CREATE             creates a new file	

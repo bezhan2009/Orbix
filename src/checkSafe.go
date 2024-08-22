@@ -8,6 +8,7 @@ import (
 	"github.com/fatih/color"
 	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
+	"goCmd/system"
 	"os"
 	"path/filepath"
 	"strings"
@@ -70,6 +71,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 		if strings.ToLower(enable) != "y" {
 			return usernameFromDir, true
 		} else {
+			system.IsAdmin = false
 			break
 		}
 	}
@@ -122,6 +124,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 
 		Clean.Screen()
 		fmt.Printf("%s\n", magenta("Welcome, ", username))
+		system.User = username
 		return username, true
 	}
 }
