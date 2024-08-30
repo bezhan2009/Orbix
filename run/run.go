@@ -3,7 +3,6 @@ package run
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/src"
 	"goCmd/system"
 	"goCmd/utils"
 	"log"
@@ -38,6 +37,4 @@ func Init() {
 			return
 		}
 	}
-
-	src.Orbix("", true)
 }

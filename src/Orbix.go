@@ -145,7 +145,7 @@ func Orbix(commandInput string, echo bool) {
 		dir, _ := os.Getwd()
 
 		if promptText == "" && echo && system.IsAdmin {
-			fmt.Printf("\n%s>", dir)
+			fmt.Printf("\nORB %s>%s", dir, green(commandInput))
 		}
 
 		if !system.IsAdmin {
@@ -315,9 +315,9 @@ func Orbix(commandInput string, echo bool) {
 				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
 					suggestedCommand := suggestCommand(commandLower)
-					fmt.Printf(red(fmt.Sprintf("Error executing command '%s': %v\n", commandLine, err)))
+					fmt.Print(red(fmt.Sprintf("Error executing command '%s': %v\n", commandLine, err)))
 					if suggestedCommand != "" {
-						fmt.Printf(yellow(fmt.Sprintf("Did you mean: %s?\n", suggestedCommand)))
+						fmt.Print(yellow(fmt.Sprintf("Did you mean: %s?\n", suggestedCommand)))
 					}
 				}
 			}
