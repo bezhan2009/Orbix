@@ -145,7 +145,7 @@ func Orbix(commandInput string, echo bool) {
 		dir, _ := os.Getwd()
 
 		if promptText == "" && echo && system.IsAdmin {
-			fmt.Printf("\n%s>", dir)
+			fmt.Printf("\nORB %s>%s", dir, green(commandInput))
 		}
 
 		if !system.IsAdmin {
