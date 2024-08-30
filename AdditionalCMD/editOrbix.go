@@ -8,13 +8,13 @@ import (
 )
 
 func SayOrbix() {
-	// Создаем фигуру с текстом "Orbix" в доступном стиле
+	// Creating a shape with the text "Orbix" in an accessible style
 	say := fmt.Sprintf("%s %s", system.SystemName, system.Version)
 	myFigure := figure.NewFigure(say, "larry3d", true)
 
-	// Определяем цвет текста как магента
+	// Defining the color of the text as a magenta
 	magenta := color.New(color.FgMagenta).SprintFunc()
 
-	// Выводим фигуру с текстом в магента цвете
+	// We output a shape with text in magenta color
 	fmt.Println(magenta(myFigure.String()))
 }
