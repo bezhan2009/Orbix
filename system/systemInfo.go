@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	Version         = "1.0.13"
+	Version         = "1.1.4"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
