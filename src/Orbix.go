@@ -19,6 +19,7 @@ var (
 )
 
 func Orbix(commandInput string, echo bool) {
+	panic("GGGG")
 	// Initialize Global Vars
 	Init()
 
