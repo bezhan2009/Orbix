@@ -57,7 +57,8 @@ func createUniqueCommandSuggestions() []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
 	var suggestions []prompt.Suggest
 
-	for _, cmd := range Commands {
+	// Assuming AdditionalCommands is a predefined list of commands
+	for _, cmd := range AdditionalCommands {
 		if _, exists := uniqueCommands[cmd.Name]; !exists {
 			uniqueCommands[cmd.Name] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
@@ -71,6 +72,7 @@ func createCommandHistorySuggestions() []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
 	var suggestions []prompt.Suggest
 
+	// Assuming CommandHistory is a predefined slice of strings (previous commands)
 	for _, cmd := range CommandHistory {
 		if _, exists := uniqueCommands[cmd]; !exists {
 			uniqueCommands[cmd] = struct{}{}
@@ -95,7 +97,7 @@ func createFileSuggestions(dir string) []prompt.Suggest {
 }
 
 func suggestCommand(input string) string {
-	for _, cmd := range Commands {
+	for _, cmd := range AdditionalCommands {
 		if strings.HasPrefix(cmd.Name, input) {
 			return cmd.Name
 		}

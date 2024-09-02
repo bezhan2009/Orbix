@@ -93,7 +93,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 			dataRunning = string(sourceRunning)
 			lines := strings.Split(dataRunning, "\n")
 			for _, line := range lines {
-				if strings.TrimSpace(line) == username {
+				if strings.TrimSpace(line) == strings.TrimSpace(username) {
 					fmt.Println(red("This user already exists!"))
 					return "", false
 				}

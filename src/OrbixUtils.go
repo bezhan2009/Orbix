@@ -44,8 +44,6 @@ func checkUserInRunningFile(username string) bool {
 }
 
 func printPromptInfo(location, user, dirC string, green, cyan, yellow, magenta func(...interface{}) string, commandInput string) {
-	var optimize error
-	fmt.Println(optimize)
 	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s%s%s\n",
 		yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
 		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),

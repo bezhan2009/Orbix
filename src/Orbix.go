@@ -126,6 +126,31 @@ func Orbix(commandInput string, echo bool) {
 			continue
 		}
 
+		CommandHistory = append(CommandHistory, commandLine)
+
+		isValid := utils.ValidCommand(commandLower, Commands)
+
+		if !isValid {
+			fullCommand := append([]string{command}, commandArgs...)
+			err := utils.ExternalCommand(fullCommand)
+			if err != nil {
+				fullPath := filepath.Join(dir, command)
+				fullCommand[0] = fullPath
+				err = utils.ExternalCommand(fullCommand)
+				if err != nil {
+					isValid = utils.ValidCommand(commandLower, AdditionalCommands)
+					if !isValid {
+						suggestedCommand := suggestCommand(commandLower)
+						fmt.Print(red(fmt.Sprintf("Error executing command '%s': %v\n", commandLine, err)))
+						if suggestedCommand != "" {
+							fmt.Print(yellow(fmt.Sprintf("Did you mean: %s?\n", suggestedCommand)))
+						}
+					}
+				}
+			}
+			continue
+		}
+
 		// Process command
 		if err := processCommand(commandLower, commandArgs, dir); err != nil {
 			fmt.Println(red(err.Error()))

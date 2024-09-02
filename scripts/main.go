@@ -14,18 +14,20 @@ const maxRetryAttempts = 5         // Maximum number of restart attempts
 const retryDelay = 1 * time.Second // Delay before restarting
 
 // OrbixLoop executes the basic Orbix logic with panic handling.
-func OrbixLoop(red func(a ...interface{}) string) error {
-	defer func() {
+func OrbixLoop(red func(a ...interface{}) string) any {
+	var ret any
+	defer func(ret *any) {
 		if r := recover(); r != nil {
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
 			log.Printf("Panic recovered: %v", r)
+			*ret = r
 		}
-	}()
+	}(&ret)
 
 	run.Init()
 	src.Orbix("", true)
-	return nil
+	return ret
 }
 
 func main() {
@@ -44,10 +46,13 @@ func main() {
 	magenta := color.New(color.FgMagenta).SprintFunc()
 
 	for {
+		isPanic := false
+
 		if err := OrbixLoop(red); err != nil {
 			ErrorText := fmt.Sprintf("Error occurred: %v", err)
 			fmt.Println(red(ErrorText))
 			log.Printf("Error occurred: %v", err)
+			isPanic = true
 		}
 
 		attempts++
@@ -56,9 +61,14 @@ func main() {
 			log.Println("Max retry attempts reached. Exiting...")
 			break
 		}
-		RestartText := fmt.Sprintf("Restarting Orbix in %v", magenta(retryDelay.Seconds()))
-		fmt.Println(green(RestartText), green("seconds..."))
-		log.Printf("Restarting Orbix in %v seconds...", retryDelay.Seconds())
-		time.Sleep(retryDelay)
+		if isPanic {
+			RestartText := fmt.Sprintf("Restarting Orbix in %v", magenta(retryDelay.Seconds()))
+			fmt.Println(green(RestartText), green("seconds..."))
+			log.Printf("Restarting Orbix in %v seconds...", retryDelay.Seconds())
+			time.Sleep(retryDelay)
+		}
+		if !isPanic {
+			break
+		}
 	}
 }
