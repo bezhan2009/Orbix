@@ -18,4 +18,6 @@ var (
 	User = ""
 	// IsAdmin It was added for the sake of optimization
 	IsAdmin = true
+	// GitBranch It is stored here, current git branch
+	GitBranch = ""
 )

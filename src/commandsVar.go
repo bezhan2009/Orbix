@@ -1,6 +1,18 @@
 package src
 
-import "goCmd/structs"
+import (
+	"github.com/fatih/color"
+	"goCmd/structs"
+)
+
+var (
+	red     func(a ...interface{}) string
+	green   func(a ...interface{}) string
+	yellow  func(a ...interface{}) string
+	blue    func(a ...interface{}) string
+	magenta func(a ...interface{}) string
+	cyan    func(a ...interface{}) string
+)
 
 // Commands available Orbix commands
 var Commands = []structs.Command{
@@ -48,30 +60,29 @@ var Commands = []structs.Command{
 	{"py", "Runs Python interpreter"},
 
 	// new commands
-	{"branch", "Manages git branches"},
-	{"checkout", "Switches between git branches"},
-	{"status", "Shows the working tree status"},
-	{"commit", "Records changes to the repository"},
-	{"clone", "Clones a repository into a new directory"},
-	{"log", "Shows commit logs"},
-	{"rebase", "Reapply commits on top of another base tip"},
-	{"cherry-pick", "Apply the changes introduced by some existing commits"},
-	{"stash", "Stashes the changes in a dirty working directory away"},
-	{"reset", "Resets the current HEAD to the specified state"},
-	{"diff", "Shows changes between commits, commit and working tree, etc."},
-	{"grep", "Prints lines matching a pattern"},
-	{"fetch", "Downloads objects and refs from another repository"},
-	{"remote", "Manages set of tracked repositories"},
-	{"tag", "Lists, creates, deletes, or verifies tags object in repository"},
-	{"show", "Displays various types of objects"},
-	{"revert", "Reverts some existing commits"},
-	{"rm", "Removes files from the working tree and from the index"},
-	{"mv", "Moves or renames a file, a directory, or a symlink"},
-	{"apply", "Applies a patch to files and/or to the index"},
-	{"patch", "Creates patches from changes"},
-	{"changelog", "Generates a changelog from git history"},
-	{"build", "Builds the project from source"},
-	{"test", "Runs tests for the project"},
+	{"git branch", "Manages git branches"},
+	{"git checkout", "Switches between git branches"},
+	{"git status", "Shows the working tree status"},
+	{"git commit", "Records changes to the repository"},
+	{"git clone", "Clones a repository into a new directory"},
+	{"git log", "Shows commit logs"},
+	{"git rebase", "Reapply commits on top of another base tip"},
+	{"git cherry-pick", "Apply the changes introduced by some existing commits"},
+	{"git stash", "Stashes the changes in a dirty working directory away"},
+	{"git reset", "Resets the current HEAD to the specified state"},
+	{"git diff", "Shows changes between commits, commit and working tree, etc."},
+	{"git grep", "Prints lines matching a pattern"},
+	{"git fetch", "Downloads objects and refs from another repository"},
+	{"git remote", "Manages set of tracked repositories"},
+	{"git tag", "Lists, creates, deletes, or verifies tags object in repository"},
+	{"git show", "Displays various types of objects"},
+	{"git revert", "Reverts some existing commits"},
+	{"git rm", "Removes files from the working tree and from the index"},
+	{"git mv", "Moves or renames a file, a directory, or a symlink"},
+	{"git apply", "Applies a patch to files and/or to the index"},
+	{"git changelog", "Generates a changelog from git history"},
+	{"go build", "Builds the project from source"},
+	{"go test", "Runs tests for the project"},
 	{"deploy", "Deploys the application"},
 	{"upgrade", "Upgrades installed packages"},
 	{"export", "Exports data to a file"},
@@ -86,6 +97,7 @@ var Commands = []structs.Command{
 var CommandHistory []string
 
 func Init() {
+	// Initialize CommandHistory
 	CommandHistory = append(CommandHistory, "help")
 	CommandHistory = append(CommandHistory, "run")
 	CommandHistory = append(CommandHistory, "push")
@@ -140,4 +152,15 @@ func Init() {
 	CommandHistory = append(CommandHistory, "convert")
 	CommandHistory = append(CommandHistory, "monitor")
 	CommandHistory = append(CommandHistory, "network")
+
+	// Initialize colors
+	red = color.New(color.FgRed).SprintFunc()
+	yellow = color.New(color.FgYellow).SprintFunc()
+	cyan = color.New(color.FgCyan).SprintFunc()
+	green = color.New(color.FgGreen).SprintFunc()
+	magenta = color.New(color.FgMagenta).SprintFunc()
+	blue = color.New(color.FgBlue).SprintFunc()
+
+	// Initialize git branch
+	SetGitBranch()
 }

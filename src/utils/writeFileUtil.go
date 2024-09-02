@@ -6,8 +6,8 @@ import (
 	"goCmd/cmd/commands/commandsWithSignaiture/Write"
 )
 
-func WriteFileUtil(commandLower string, commandArgs []string, user string, dir string) {
-	err := Write.File(commandLower, commandArgs, user, dir)
+func WriteFileUtil(commandArgs []string) {
+	err := Write.File(commandArgs)
 	if err != nil {
 		red := color.New(color.FgRed).SprintFunc()
 		fmt.Println(red(err))
