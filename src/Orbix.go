@@ -3,11 +3,13 @@ package src
 import (
 	"fmt"
 	"goCmd/cmd/dirInfo"
+	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"syscall"
 )
@@ -126,6 +128,11 @@ func Orbix(commandInput string, echo bool) {
 			continue
 		}
 
+		if commandInt, err := strconv.Atoi(command); err == nil && len(commandArgs) == 0 {
+			fmt.Println(magenta(commandInt))
+			continue
+		}
+
 		CommandHistory = append(CommandHistory, commandLine)
 
 		isValid := utils.ValidCommand(commandLower, Commands)
@@ -155,7 +162,18 @@ func Orbix(commandInput string, echo bool) {
 		if err := processCommand(commandLower, commandArgs, dir); err != nil {
 			fmt.Println(red(err.Error()))
 		}
-		ExecuteCommand(commandLower, command, commandLine, dir, Commands, commandArgs, &isWorking, isPermission, username)
+
+		execCommand := structs.ExecuteCommandFuncParams{
+			Command:      command,
+			CommandLower: commandLower,
+			CommandArgs:  commandArgs,
+			Dir:          dir,
+			IsWorking:    &isWorking,
+			IsPermission: isPermission,
+			Username:     username,
+		}
+
+		ExecuteCommand(execCommand)
 	}
 
 	// Restore original outputs

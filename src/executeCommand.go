@@ -5,7 +5,6 @@ import (
 	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/cmd/commands/commandsWithoutSignature/Ls"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
-	"goCmd/cmd/dirInfo"
 	"goCmd/internal/Network"
 	"goCmd/internal/Network/wifiUtils"
 	ExCommUtils "goCmd/src/utils"
@@ -14,63 +13,69 @@ import (
 	"goCmd/utils"
 )
 
-func ExecuteCommand(commandLower, command, commandLine, dir string, commands []structs.Command, commandArgs []string, isWorking *bool, isPermission bool, username string) {
-	user := dirInfo.CmdUser(dir)
-
+func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	commandMap := map[string]func(){
-		"wifiutils":   wifiUtils.Start,
-		"pingview":    func() { Network.Ping(commandArgs) },
-		"traceroute":  func() { Network.Traceroute(commandArgs) },
-		"extractzip":  func() { ExCommUtils.ExtractZipUtil(commandArgs) },
-		"scanport":    func() { ExCommUtils.ScanPortUtil(commandArgs) },
-		"whois":       func() { ExCommUtils.WhoisUtil(commandArgs) },
-		"dnslookup":   func() { ExCommUtils.DnsLookupUtil(commandArgs) },
-		"ipinfo":      func() { ExCommUtils.IPInfoUtil(commandArgs) },
-		"geoip":       func() { ExCommUtils.GeoIPUtil(commandArgs) },
-		"matrixmul":   func() { MatrixMultiplication.MatrixMulCommand(commandArgs) },
-		"primes":      func() { ExCommUtils.CalculatePrimesUtil(commandArgs) },
-		"picalc":      func() { ExCommUtils.CalculatePiUtil(commandArgs) },
-		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(commandArgs) },
-		"newtemplate": func() { template.Make(commandArgs) },
-		"template":    func() { ExecuteShablonUtil(commandArgs) },
+		// Network related commands
+		"wifiutils":  wifiUtils.Start,
+		"pingview":   func() { Network.Ping(executeCommand.CommandArgs) },
+		"traceroute": func() { Network.Traceroute(executeCommand.CommandArgs) },
+
+		// File operations
+		"extractzip": func() { ExCommUtils.ExtractZipUtil(executeCommand.CommandArgs) },
+		"copysource": func() { ExCommUtils.CommandCopySourceUtil(executeCommand.CommandArgs) },
+		"create":     func() { ExCommUtils.CreateFileUtil(executeCommand.CommandArgs, executeCommand.Dir) },
+		"write":      func() { ExCommUtils.WriteFileUtil(executeCommand.CommandArgs) },
+		"read":       func() { ExCommUtils.ReadFileUtil(executeCommand.CommandArgs) },
+		"edit":       func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
+		"rename":     func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"ren":        func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"remove":     func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"del":        func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"rem":        func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"clean":      Clean.Screen,
+		"cls":        Clean.Screen,
+		"clear":      Clean.Screen,
+		"cd":         func() { ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs) },
+
+		// Utility commands
 		"systemorbix": utils.SystemInformation,
-		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(commandArgs) },
-		"create":      func() { ExCommUtils.CreateFileUtil(commandArgs, dir) },
-		"write":       func() { ExCommUtils.WriteFileUtil(commandArgs) },
-		"read":        func() { ExCommUtils.ReadFileUtil(commandLower, commandArgs, user, dir) },
-		"remove":      func() { ExCommUtils.RemoveFileUtil(commandArgs, command) },
-		"del":         func() { ExCommUtils.RemoveFileUtil(commandArgs, command) },
-		"rem":         func() { ExCommUtils.RemoveFileUtil(commandArgs, command) },
-		"rename":      func() { ExCommUtils.RenameFileUtil(commandArgs, command) },
-		"cf":          func() { ExCommUtils.CFUtil(commandArgs) },
-		"df":          func() { ExCommUtils.DFUtil(commandArgs) },
-		"ren":         func() { ExCommUtils.RenameFileUtil(commandArgs, command) },
-		"clean":       Clean.Screen,
-		"cls":         Clean.Screen,
-		"clear":       Clean.Screen,
-		"cd":          func() { ExCommUtils.ChangeDirectoryUtil(commandArgs) },
-		"edit":        func() { ExCommUtils.EditFileUtil(commandArgs) },
-		"ls":          Ls.PrintLS,
-		"open_link":   func() { ExCommUtils.OpenLinkUtil(commandArgs) },
+		"open_link":   func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
+
+		// Calculation and resource intensive operations
+		"matrixmul": func() { MatrixMultiplication.MatrixMulCommand(executeCommand.CommandArgs) },
+		"primes":    func() { ExCommUtils.CalculatePrimesUtil(executeCommand.CommandArgs) },
+		"picalc":    func() { ExCommUtils.CalculatePiUtil(executeCommand.CommandArgs) },
+		"fileio":    func() { ExCommUtils.FileIOStressTestUtil(executeCommand.CommandArgs) },
+
+		// Template and miscellaneous commands
+		"newtemplate": func() { template.Make(executeCommand.CommandArgs) },
+		"template":    func() { ExecuteShablonUtil(executeCommand.CommandArgs) },
+
+		// Disk operations
+		"cf": func() { ExCommUtils.CFUtil(executeCommand.CommandArgs) },
+		"df": func() { ExCommUtils.DFUtil(executeCommand.CommandArgs) },
+
+		// Listing and viewing
+		"ls": Ls.PrintLS,
 	}
 
 	permissionRequiredCommands := map[string]func(){
 		"orbix":   func() { Orbix("", true) },
 		"newuser": func() { NewUser(system.Path) },
-		"signout": func() { SignOutUtil(username, system.Path) },
+		"signout": func() { SignOutUtil(executeCommand.Username, system.Path) },
 		"exit": func() {
-			*isWorking = false
-			removeUserFromRunningFile(username)
+			*executeCommand.IsWorking = false
+			removeUserFromRunningFile(executeCommand.Username)
 		},
 	}
 
-	if handler, exists := commandMap[commandLower]; exists {
+	if handler, exists := commandMap[executeCommand.CommandLower]; exists {
 		handler()
-	} else if handler, exists := permissionRequiredCommands[commandLower]; exists {
-		if isPermission {
+	} else if handler, exists := permissionRequiredCommands[executeCommand.CommandLower]; exists {
+		if executeCommand.IsPermission {
 			handler()
 		}
 	} else {
-		HandleUnknownCommandUtil(commandLower, commandLine, commands)
+		HandleUnknownCommandUtil(executeCommand.CommandLower, executeCommand.CommandLine, executeCommand.Commands)
 	}
 }

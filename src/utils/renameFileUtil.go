@@ -6,8 +6,8 @@ import (
 	"goCmd/cmd/commands/commandsWithSignaiture/Read"
 )
 
-func ReadFileUtil(commandLower string, commandArgs []string, user, dir string) {
-	err := Read.File(commandLower, commandArgs, user, dir)
+func ReadFileUtil(commandArgs []string) {
+	err := Read.File(commandArgs)
 	if err != nil {
 		red := color.New(color.FgRed).SprintFunc()
 		fmt.Println(red(err))
