@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-// PrintNewUser выводит сообщение New User!!! в стиле ASCII-арт зелёным цветом
+// PrintNewUser displays the message NewUser!!! ASCII-style art in green
 func PrintNewUser() {
 	myFigure := figure.NewFigure("New User!!!", "", true)
 	greenText := color.New(color.FgGreen).SprintFunc()
