@@ -3,6 +3,7 @@ package src
 import (
 	"bufio"
 	"fmt"
+	"goCmd/structs"
 	"os"
 	"strings"
 )
@@ -47,6 +48,6 @@ func Start(templateName string, echo string) error {
 // executeCommand executes a single command using the Orbix function.
 func executeCommand(command string, echo bool) error {
 	// Assuming Orbix function handles the command execution.
-	Orbix(command, echo)
+	Orbix(command, echo, structs.RebootedData{})
 	return nil
 }

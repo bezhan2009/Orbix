@@ -5,6 +5,7 @@ import (
 	"github.com/fatih/color"
 	"goCmd/run"
 	"goCmd/src"
+	"goCmd/structs"
 	"log"
 	"os"
 	"time"
@@ -26,7 +27,7 @@ func OrbixLoop(red func(a ...interface{}) string) any {
 	}(&ret)
 
 	run.Init()
-	src.Orbix("", true)
+	src.Orbix("", true, structs.RebootedData{})
 	return ret
 }
 

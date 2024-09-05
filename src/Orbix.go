@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 )
@@ -20,7 +21,7 @@ var (
 	UsernameFromDir = dirInfo.CmdUser(DirUser)
 )
 
-func Orbix(commandInput string, echo bool) {
+func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 	// Initialize Global Vars
 	Init()
 
@@ -29,7 +30,7 @@ func Orbix(commandInput string, echo bool) {
 		return
 	}
 
-	if echo {
+	if echo && rebooted.Username == "" && commandInput == "" {
 		utils.SystemInformation()
 	}
 
@@ -46,9 +47,11 @@ func Orbix(commandInput string, echo bool) {
 		return
 	}
 
-	// Directory initialization and user check outside the loop
 	username := ""
-	if !isEmpty && commandInput == "" {
+
+	if strings.TrimSpace(rebooted.Username) != "" {
+		username = strings.TrimSpace(rebooted.Username)
+	} else if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
 		user := dirInfo.CmdUser(dir)
 		nameuser, isSuccess := CheckUser(user)
@@ -59,29 +62,60 @@ func Orbix(commandInput string, echo bool) {
 		initializeRunningFile(username) // New helper function
 	}
 
+	location := os.Getenv("CITY")
+	if location == "" {
+		location = "Unknown City"
+	}
+
 	// Signal handling setup (outside the loop)
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
+	var signalReceived bool
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		defer wg.Done()
-		<-signalChan
-		fmt.Println("\nReceived interrupt signal. Exiting program...")
-		isWorking = false
+		for {
+			<-signalChan
+			signalReceived = true
+			fmt.Print(red("^C"))
+			if !system.IsAdmin {
+				dir, _ := os.Getwd()
+
+				dirC := dirInfo.CmdDir(dir)
+				user := system.User
+				if user == "" {
+					user = dirInfo.CmdUser(dir)
+				}
+
+				var printUserDir string
+
+				if username != "" {
+					user = username
+					printUserDir = user
+				}
+				fmt.Println()
+				printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, commandInput)
+			} else {
+				dir, _ := os.Getwd()
+				fmt.Println()
+				fmt.Printf("\nORB %s>%s", dir, green(commandInput))
+			}
+		}
 	}()
 
 	originalStdout, originalStderr := os.Stdout, os.Stderr
 	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
 	defer devNull.Close()
 
-	location := os.Getenv("CITY")
-	if location == "" {
-		location = "Unknown City"
-	}
-
 	for isWorking {
+		// Check if signal was received and reset flag after handling it
+		if signalReceived {
+			signalReceived = false
+			continue // Continue the loop after signal
+		}
+
 		// Redirect output based on the echo setting
 		if echo {
 			os.Stdout, os.Stderr = originalStdout, originalStderr

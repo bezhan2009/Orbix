@@ -60,7 +60,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	}
 
 	permissionRequiredCommands := map[string]func(){
-		"orbix":   func() { Orbix("", true) },
+		"orbix":   func() { Orbix("", true, structs.RebootedData{}) },
 		"newuser": func() { NewUser(system.Path) },
 		"signout": func() { SignOutUtil(executeCommand.Username, system.Path) },
 		"exit": func() {

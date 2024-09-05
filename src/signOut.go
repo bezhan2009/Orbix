@@ -1,6 +1,7 @@
 package src
 
 import (
+	"goCmd/structs"
 	"log"
 	"os"
 )
@@ -12,5 +13,5 @@ func SignOutUtil(username string, systemPath string) {
 	}
 
 	removeUserFromRunningFile(username)
-	Orbix("", true)
+	Orbix("", true, structs.RebootedData{})
 }
