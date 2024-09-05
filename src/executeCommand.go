@@ -38,6 +38,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"cd":         func() { ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs) },
 
 		// Utility commands
+		"help":        displayHelp,
 		"systemorbix": utils.SystemInformation,
 		"open_link":   func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
 

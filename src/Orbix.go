@@ -193,7 +193,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 		}
 
 		// Process command
-		if err := processCommand(commandLower, commandArgs, dir); err != nil {
+		if err := processCommand(commandLower, commandArgs); err != nil {
 			fmt.Println(red(err.Error()))
 		}
 

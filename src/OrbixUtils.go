@@ -70,9 +70,8 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 	return commandLine, command[0], commandParts[1:], strings.ToLower(commandParts[0])
 }
 
-func processCommand(commandLower string, commandArgs []string, dir string) error {
-	if commandLower == "cd" && len(commandArgs) < 1 {
-		fmt.Println(dir)
+func processCommand(commandLower string, commandArgs []string) error {
+	if commandLower == "cd" {
 		SetGitBranch()
 		return nil
 	}
@@ -81,11 +80,6 @@ func processCommand(commandLower string, commandArgs []string, dir string) error
 		if commandArgs[0] == "switch" {
 			SetGitBranch()
 		}
-	}
-
-	if commandLower == "help" {
-		displayHelp()
-		return nil
 	}
 
 	if commandLower == "signout" {
