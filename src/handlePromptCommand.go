@@ -13,9 +13,9 @@ func handlePromptCommand(commandArgs []string, prompt *string) {
 		printHint1 := fmt.Sprintf("prompt <name_prompt>\n")
 		printHint2 := fmt.Sprintf("to delete prompt enter:\n")
 		printHint3 := fmt.Sprintf("prompt delete\n")
-		animatedPrint(yellow(printHint1))
-		animatedPrint(yellow(printHint2))
-		animatedPrint(yellow(printHint3))
+		fmt.Print(yellow(printHint1))
+		fmt.Print(yellow(printHint2))
+		fmt.Print(yellow(printHint3))
 		return
 	}
 

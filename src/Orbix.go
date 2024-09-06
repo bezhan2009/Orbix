@@ -109,6 +109,8 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
 	defer devNull.Close()
 
+	var prompt string
+
 	for isWorking {
 		// Check if signal was received and reset flag after handling it
 		if signalReceived {
@@ -128,7 +130,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 		printUserDir := UsernameFromDir // Use cached username for printing
 
 		if echo && system.IsAdmin {
-			fmt.Printf("\nORB %s>%s", dir, green(commandInput))
+			if prompt == "" {
+				fmt.Printf("\nORB %s>%s", dir, green(commandInput))
+			} else {
+				fmt.Print(green(prompt))
+			}
 		}
 
 		if !system.IsAdmin {
@@ -152,7 +158,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 			}
 
 			if echo {
-				printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, commandInput) // New helper function
+				if prompt == "" {
+					printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, commandInput) // New helper function
+				} else {
+					fmt.Print(green(prompt))
+				}
 			}
 		}
 
@@ -192,9 +202,15 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 			continue
 		}
 
+		if strings.TrimSpace(commandLower) == "prompt" {
+			handlePromptCommand(commandArgs, &prompt)
+			continue
+		}
+
 		// Process command
 		if err := processCommand(commandLower, commandArgs); err != nil {
 			fmt.Println(red(err.Error()))
+			isWorking = false
 		}
 
 		execCommand := structs.ExecuteCommandFuncParams{

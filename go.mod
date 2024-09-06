@@ -10,6 +10,7 @@ require (
 	github.com/go-ping/ping v1.1.0
 	github.com/google/gopacket v1.1.19
 	github.com/lib/pq v1.10.9
+	golang.org/x/term v0.22.0
 )
 
 require (
