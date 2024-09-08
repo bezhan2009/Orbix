@@ -11,24 +11,25 @@ import (
 	"time"
 )
 
-const maxRetryAttempts = 5         // Maximum number of restart attempts
-const retryDelay = 1 * time.Second // Delay before restarting
+const maxRetryAttempts = 5         // Максимальное количество попыток перезапуска
+const retryDelay = 1 * time.Second // Задержка перед перезапуском
 
-// OrbixLoop executes the basic Orbix logic with panic handling.
-func OrbixLoop(red func(a ...interface{}) string) any {
-	var ret any
-	defer func(ret *any) {
+// OrbixLoop запускает основную логику Orbix с обработкой паники.
+func OrbixLoop(red func(a ...interface{}) string, panicChan chan any) {
+	defer func() {
 		if r := recover(); r != nil {
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
 			log.Printf("Panic recovered: %v", r)
-			*ret = r
+			panicChan <- r // Отправляем панику в канал
+		} else {
+			panicChan <- nil // Если нет паники, отправляем nil
 		}
-	}(&ret)
+	}()
 
 	run.Init()
 	src.Orbix("", true, structs.RebootedData{})
-	return ret
+	panicChan <- nil // Если все прошло успешно
 }
 
 func main() {
@@ -41,15 +42,22 @@ func main() {
 	log.SetOutput(logFile)
 
 	attempts := 0
-
 	green := color.New(color.FgGreen).SprintFunc()
 	red := color.New(color.FgRed).SprintFunc()
 	magenta := color.New(color.FgMagenta).SprintFunc()
 
+	// Канал для получения уведомлений о панике
+	panicChan := make(chan any)
+
 	for {
 		isPanic := false
 
-		if err := OrbixLoop(red); err != nil {
+		// Запускаем OrbixLoop в отдельной горутине
+		go OrbixLoop(red, panicChan)
+
+		// Ожидаем результат работы OrbixLoop
+		err := <-panicChan
+		if err != nil {
 			ErrorText := fmt.Sprintf("Error occurred: %v", err)
 			fmt.Println(red(ErrorText))
 			log.Printf("Error occurred: %v", err)
@@ -62,13 +70,13 @@ func main() {
 			log.Println("Max retry attempts reached. Exiting...")
 			break
 		}
+
 		if isPanic {
 			RestartText := fmt.Sprintf("Restarting Orbix in %v", magenta(retryDelay.Seconds()))
 			fmt.Println(green(RestartText), green("seconds..."))
 			log.Printf("Restarting Orbix in %v seconds...", retryDelay.Seconds())
 			time.Sleep(retryDelay)
-		}
-		if !isPanic {
+		} else {
 			break
 		}
 	}
