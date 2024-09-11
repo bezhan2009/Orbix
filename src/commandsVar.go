@@ -167,6 +167,8 @@ func Init() {
 	CommandHistory = append(CommandHistory, "echo=off")
 	CommandHistory = append(CommandHistory, "changelog")
 	CommandHistory = append(CommandHistory, "beta")
+	CommandHistory = append(CommandHistory, "http://localhost:6060")
+	CommandHistory = append(CommandHistory, "https://github.com/bezhan2009/Orbix")
 	CommandHistory = append(CommandHistory, "upgrade")
 	CommandHistory = append(CommandHistory, "export")
 	CommandHistory = append(CommandHistory, "import")
