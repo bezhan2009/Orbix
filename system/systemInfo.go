@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	Version         = "1.1.8"
+	Version         = "1.2.0"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	Port            = "6060"
