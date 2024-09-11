@@ -8,6 +8,7 @@ const (
 	Version         = "1.1.8"
 	License         = "MIT"
 	SystemName      = "Orbix"
+	Port            = "6060"
 	OperationSystem = runtime.GOOS
 )
 

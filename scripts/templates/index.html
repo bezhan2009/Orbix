@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbix Documentation</title>
+    <style>
+        a {
+            color: #fff;
+            font-family: sans-serif;
+            transition: 0.2s;
+        }
+
+        a:hover {
+            opacity: 0.7;
+        }
+    </style>
+    <link rel="stylesheet" href="../static/styles.css">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-image: url('https://th.bing.com/th/id/R.46f7ae9eae25894a8a1dae27b983b3d1?rik=VJgEvW1bz8719w&pid=ImgRaw&r=0');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .header-logo img {
+            height: 40px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links li {
+            margin: 0;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #ff9800;
+        }
+
+        /* Стили для мобильного меню */
+        .header-nav-menu {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.5s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .header-nav-menu.show {
+            display: flex;
+            max-height: 300px; /* Максимальная высота при открытии */
+            opacity: 1;
+        }
+
+        /* Анимация появления меню */
+        .header-nav-menu {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Для декстопов (чтобы не мешала адаптивная версия) */
+        @media (min-width: 768px) {
+            .header-nav-menu {
+                display: flex;
+                flex-direction: row;
+                gap: 20px;
+                opacity: 1;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="header-container">
+        <div class="header-logo">
+            <a href="#"><img src="../static/images/main.svg" alt="Orbix Logo"></a>
+        </div>
+        <nav class="header-nav">
+            <ul class="header-nav-menu">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#usage">Usage</a></li>
+                <li><a href="#guide">Guide</a></li>
+                <li><a href="#commands">Commands</a></li>
+            </ul>
+            <div class="menu-toggle">&#9776;</div>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section id="overview" class="my-tasks">
+        <h1>Orbix Overview</h1>
+        <h4>
+            Orbix is an alternative command line interface written in the Go programming language. It provides the same basic commands as the standard CMD, but also includes additional commands specific to this tool.
+        </h4>
+        <br>
+        <h2>Features</h2>
+        <ul>
+            <li><b>Orbix Compatibility</b>: Orbix supports most Orbix commands, ensuring a smooth transition for users.</li>
+            <li><b>Additional Commands</b>: Orbix includes a range of additional commands designed to simplify everyday tasks for system administrators and developers.</li>
+            <li><b>Extensibility</b>: Since Orbix is written in Go, its functionality can be easily extended by developing custom commands.</li>
+            <li><b>Performance</b>: Go is known for its high performance, making Orbix fast and responsive.</li>
+            <li><b>Support and Feedback</b>: Users can contact the developer directly via Telegram.</li>
+        </ul>
+    </section>
+
+    <section id="installation" class="my-tasks">
+        <h2>Installation and Running</h2>
+        <pre>
+    <code lang="sh">
+    git clone https://github.com/bezhan2009/Orbix.git
+    cd Orbix
+    cd scripts
+    go run .
+    </code>
+  </pre>
+    </section>
+
+    <section id="usage" class="my-tasks">
+        <h2>Usage</h2>
+        <p>Start Orbix and the server will automatically run on port 6060. Open the following URL to access the documentation:</p>
+        <pre>http://localhost:6060</pre>
+    </section>
+
+    <section id="guide" class="my-tasks">
+        <h2>Development Guide</h2>
+        <p>
+            If you want to extend the functionality of Orbix, you can contact the developer <a href="https://t.me/JustBejan">here</a>.
+        </p>
+        <br>
+        <h2>Feedback and Support</h2>
+        <p>
+            If you have any questions, suggestions, or issues, please create a new <a href="https://github.com/bezhan2009/Orbix/issues/new">issue</a> in our GitHub repository.
+        </p>
+    </section>
+
+    <section id="commands" class="my-tasks">
+        <h2>Commands:</h2>
+        <ul dir="auto">
+            <li><strong>CREATE</strong>: Creates a new file.</li>
+            <li><strong>CLEAN</strong>: Clears the screen.</li>
+            <li><strong>CD</strong>: Changes the current directory.</li>
+            <li><strong>CF</strong>: Creates a folder.</li>
+            <li><strong>COPYSOURCE</strong>: Copies the source code of the file.</li>
+            <li><strong>DF</strong>: Deletes a folder.</li>
+            <li><strong>DNSLOOKUP</strong>: Performs DNS lookups.</li>
+            <li><strong>LS</strong>: Lists directory contents.</li>
+            <li><strong>NEWTEMPLATE</strong>: Creates a new template of Commands to execute.</li>
+            <li><strong>REMOVE</strong>: Deletes a file.</li>
+            <li><strong>READ</strong>: Displays the contents of a file.</li>
+            <li><strong>PROMPT</strong>: Changes the Orbix prompt.</li>
+            <li><strong>PINGVIEW</strong>: Displays ping.</li>
+            <li><strong>NEWUSER</strong>: Adds a new user for Orbix.</li>
+            <li><strong>ORBIX</strong>: Starts another instance of Orbix.</li>
+            <li><strong>TEMPLATE</strong>: Executes a specific command template.</li>
+            <li><strong>SYSTEMORBIX</strong>: Displays information about Orbix.</li>
+            <li><strong>SYSTEMINFO</strong>: Displays system information.</li>
+            <li><strong>SIGNOUT</strong>: Logs out the user from Orbix.</li>
+            <li><strong>TREE</strong>: Graphically displays the directory structure of a disk or path.</li>
+            <li><strong>WRITE</strong>: Writes data to a file.</li>
+            <li><strong>EDIT</strong>: Edits a file.</li>
+            <li><strong>OPEN_LINK</strong>: Opens the link in the browser.</li>
+            <li><strong>EXTRACTZIP</strong>: Extracts .zip archives.</li>
+            <li><strong>SCANPORT</strong>: Scans ports.</li>
+            <li><strong>WHOIS</strong>: Retrieves information about a domain.</li>
+            <li><strong>WIFIUTILS</strong>: Launches the WiFi utility.</li>
+            <li><strong>IPINFO</strong>: Retrieves information about an IP address.</li>
+            <li><strong>GEOIP</strong>: Retrieves geolocation information for an IP address.</li>
+            <li><strong>EXIT</strong>: Exits Orbix.</li>
+        </ul>
+    </section>
+</main>
+
+<footer class="header" style="top: 0;height: 100px;position: relative">
+    <div class="header-container">
+        <p>&copy; 2024 Orbix Documentation. All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+    // Toggle mobile menu
+    document.querySelector('.menu-toggle').addEventListener('click', function() {
+        const menu = document.querySelector('.header-nav-menu');
+        menu.classList.toggle('show');
+    });
+    //
+    // document.getElementById('to-russian').addEventListener('click', function() {
+    //     document.getElementById('english-content').style.opacity = '0';
+    //     setTimeout(function() {
+    //         document.getElementById('english-content').style.display = 'none';
+    //         document.getElementById('russian-content').style.display = 'block';
+    //         document.getElementById('russian-content').style.opacity = '1';
+    //         document.getElementById('to-russian').style.display = 'none';
+    //         document.getElementById('to-english').style.display = 'inline';
+    //     }, 500); // время задержки для анимации
+    // });
+    //
+    // document.getElementById('to-english').addEventListener('click', function() {
+    //     document.getElementById('russian-content').style.opacity = '0';
+    //     setTimeout(function() {
+    //         document.getElementById('russian-content').style.display = 'none';
+    //         document.getElementById('english-content').style.display = 'block';
+    //         document.getElementById('english-content').style.opacity = '1';
+    //         document.getElementById('to-english').style.display = 'none';
+    //         document.getElementById('to-russian').style.display = 'inline';
+    //     }, 500); // время задержки для анимации
+    // });
+
+</script>
+</body>
+</html>

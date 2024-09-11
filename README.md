@@ -27,7 +27,7 @@ Read in [Русский](README.ru.md)
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
 cd scripts
-go run main.go
+go run .
 ```
 ![image](https://github.com/user-attachments/assets/acab7584-39ef-43ae-82a9-d022bbfc9359)
 ![image](https://github.com/user-attachments/assets/7c4c019a-2372-4f0f-9303-fb368fe3bd83)
@@ -67,7 +67,7 @@ go run main.go
 
 ### Development Guide
 
-If you want to extend the functionality of Orbix, you can contact the developer [here](https://t.me/Rust_Bezhan).
+If you want to extend the functionality of Orbix, you can contact the developer [here](https://t.me/JustBejan).
 
 ### Feedback and Support
 

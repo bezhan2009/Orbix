@@ -1,0 +1,469 @@
+@charset "UTF-8";
+* {
+    box-sizing: border-box;
+    font-family: "Source Sans 3", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    background-image: image("template/images/background.jpg"); /* Путь к изображению может отличаться */
+    background-attachment: fixed;
+    background-size: cover; /* Опционально, чтобы изображение занимало всю площадь */
+    background-position: center; /* Опционально, чтобы центрировать изображение */
+    color: aliceblue;
+}
+
+
+.header {
+    background: rgba(0, 0, 0, 0.7);
+    border-bottom: 1px solid #eceef2;
+    backdrop-filter: blur(20px);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 21;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1; /* Ensures header-nav takes up available space */
+}
+
+.header-nav-menu {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.header-nav-menu a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-family: sans-serif;
+    line-height: 16px;
+    position: relative;
+    transition: 0.3s;
+    opacity: 1;
+}
+
+.header-nav-menu a:hover {
+    opacity: 0.7;
+}
+
+.header-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 0 auto; /* Ensures header-nav-actions only takes up as much space as needed */
+}
+
+.btn {
+    background-color: transparent;
+    border: 1px solid transparent;
+    outline: 0;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    transition: 0.2s;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn.btn-primary {
+    background: #3d40c6;
+    color: #fff;
+}
+
+.btn.btn-primary:hover {
+    background-color: #2528b1;
+}
+
+.btn-transparent {
+    border: 1px solid #dedfe2;
+    color: #4d49ce;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-transparent:hover {
+    background-color: #efeef9;
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #4d49ce;
+}
+
+@media (max-width: 768px) {
+    .header-nav-menu {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.7);
+        position: absolute;
+        top: 64px;
+        left: 0;
+        padding: 10px 0;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .header-nav-menu.show {
+        display: flex;
+        transform: translateY(0);
+    }
+
+    .header-nav-menu a,
+    .btn {
+        font-size: 1em;
+        padding: 10px 15px;
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-logo {
+    margin-right: 20px; /* Отступ справа от логотипа */
+}
+
+.header-logo img {
+    height: 40px; /* Высота логотипа */
+}
+
+.header-logo a {
+    opacity: 1;
+    transition: 0.3s;
+}
+
+.header-logo a:hover {
+    opacity: 0.7;
+}
+
+.my-tasks {
+    width: 80%;
+    margin: 100px auto;
+    height: auto;
+    background: rgba(0, 0, 0, .6);
+    position: relative;
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    padding: 10px;
+    transition: 0.3s;
+
+}
+
+.create-task {
+    width: 80%;
+    margin: 100px auto;
+    height: auto;
+    background: rgba(255, 255, 255, .4);
+    border-radius: 20px;
+    padding: 10px;
+    transition: 0.2s;
+    position: fixed;
+    transform: scale(0, 0);
+    left: 10%;
+    top: 10%
+}
+
+.my-tasks-text {
+    font-family: sans-serif;
+    color: #2528b1;
+    transition: 0.1s;
+    margin: 10px 20px;
+    position: relative;
+    width: 190px;
+}
+
+.header {
+    transition: transform 0.3s ease-in-out;
+}
+
+.header.hidden {
+    transform: translateY(-100%);
+}
+
+.header.visible {
+    transform: translateY(0);
+}
+
+.task {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+    position: relative;
+}
+
+.task:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.my-tasks:hover {
+    background: rgba(10, 9, 5, 0.5);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.task h2 {
+    font-size: 1.5rem;
+    color: #2528b1;
+    margin-bottom: 10px;
+}
+
+.task h3 {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.task pre {
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    font-family: monospace;
+    color: #444;
+}
+
+.task .delete-btn {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: -10px;
+    right: 10px;
+    background: #ff4d4d;
+    border: none;
+    color: white;
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.3s ease;
+}
+
+.task .delete-btn:hover {
+    background: #ff1a1a;
+    transform: translateY(-3px);
+}
+
+.task .update-btn {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    top: -10px;
+    right: 50px;
+    background: #7b7bd2;
+    border: none;
+    color: white;
+    padding: 5px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: 0.3s ease;
+}
+
+.task .update-btn:hover {
+    background: #2528b1;
+    transform: translateY(-3px);
+}
+
+.task:hover .update-btn {
+    top: 10px;
+    opacity: 1;
+}
+
+.task:hover .delete-btn {
+    top: 10px;
+    opacity: 1;
+}
+
+
+.task input[type="text"], .task textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    color: #333;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.task input[type="text"]:focus, .task textarea:focus {
+    background: #fff;
+    border-color: #2528b1;
+    outline: none;
+}
+
+.task textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.create-task.hidden {
+    transform: scale(0, 0);
+    opacity: 0;
+}
+
+.task.fade-out {
+    opacity: 0;
+    transform: scale(0.0);
+}
+
+
+.no-tasks-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #666;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.create-task.show {
+    transform: scale(1, 1);
+    opacity: 1;
+}
+
+.black_block {
+    background: rgba(0, 0, 0, 0.4);
+    transition: 0.3s ease;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    transform: scale(0, 0);
+}
+
+/* Скрываем стандартный select */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+}
+
+.custom-select {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 1rem;
+    color: #333;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+}
+
+.custom-select:hover {
+    border-color: #2528b1;
+}
+
+.select-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.arrow {
+    margin-left: 10px;
+    border: solid #333;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 5px;
+    transform: rotate(45deg);
+    transition: transform 0.3s ease;
+}
+
+.custom-select.open .arrow {
+    transform: rotate(-135deg);
+}
+
+.custom-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    overflow: hidden;
+    z-index: 99;
+}
+
+.custom-select.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.custom-option {
+    overflow: hidden;
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.custom-option:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.custom-option.selected {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.custom-option.selected::before {
+    content: '✔';
+    margin-right: 10px;
+    color: #2528b1;
+}
+
+.custom-select.open .custom-option {
+    display: block;
+}
