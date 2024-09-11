@@ -31,6 +31,8 @@ go run .
 ```
 ![image](https://github.com/user-attachments/assets/acab7584-39ef-43ae-82a9-d022bbfc9359)
 ![image](https://github.com/user-attachments/assets/7c4c019a-2372-4f0f-9303-fb368fe3bd83)
+### On http://localhost:6060
+![image](https://github.com/user-attachments/assets/1b1b04c0-7c8d-4fc5-a025-6993372acc1f)
 
 ### List of Available Commands
 
