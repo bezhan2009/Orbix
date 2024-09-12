@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orbix Documentation</title>
+    <link rel="stylesheet" href="../static/styles.css">
     <style>
         a {
             color: #fff;
@@ -14,9 +15,7 @@
         a:hover {
             opacity: 0.7;
         }
-    </style>
-    <link rel="stylesheet" href="../static/styles.css">
-    <style>
+
         html {
             scroll-behavior: smooth;
         }
@@ -53,7 +52,6 @@
             color: #ff9800;
         }
 
-        /* Стили для мобильного меню */
         .header-nav-menu {
             display: none;
             flex-direction: column;
@@ -66,11 +64,10 @@
 
         .header-nav-menu.show {
             display: flex;
-            max-height: 300px; /* Максимальная высота при открытии */
+            max-height: 300px;
             opacity: 1;
         }
 
-        /* Анимация появления меню */
         .header-nav-menu {
             animation: fadeIn 0.5s ease-in-out;
         }
@@ -86,7 +83,6 @@
             }
         }
 
-        /* Для декстопов (чтобы не мешала адаптивная версия) */
         @media (min-width: 768px) {
             .header-nav-menu {
                 display: flex;
@@ -95,6 +91,58 @@
                 opacity: 1;
                 max-height: none;
             }
+        }
+
+        .code-block {
+            position: relative;
+            margin: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+            color: aliceblue;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.0);
+            border: 1px solid #3d40c6;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #2528b1;
+            color: #fff;
+        }
+
+        .copy-icon::before {
+            content: '';
+            display: inline-block;
+            background-image: url('../static/images/copy_icon.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+
+        .copied-icon::before {
+            content: '\2714'; /* Галочка для "Скопировано" */
+            font-size: 16px;
         }
     </style>
 </head>
@@ -135,15 +183,23 @@
     </section>
 
     <section id="installation" class="my-tasks">
-        <h2>Installation and Running</h2>
-        <pre>
+        <h2>Installation</h2>
+        <div class="code-block">
+            <pre id="code-sample">
     <code lang="sh">
     git clone https://github.com/bezhan2009/Orbix.git
     cd Orbix
     cd scripts
     go run .
     </code>
-  </pre>
+            </pre>
+            <button class="copy-btn copy-icon" data-code="code-sample"><span class="copy-icon">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-sm">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path>
+    </svg>
+</span>
+            </button>
+        </div>
     </section>
 
     <section id="usage" class="my-tasks">
@@ -208,12 +264,25 @@
 </footer>
 
 <script>
-    // Toggle mobile menu
     document.querySelector('.menu-toggle').addEventListener('click', function() {
         const menu = document.querySelector('.header-nav-menu');
         menu.classList.toggle('show');
     });
 
+    document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const codeId = button.getAttribute('data-code');
+            const codeElement = document.getElementById(codeId).innerText;
+            navigator.clipboard.writeText(codeElement).then(() => {
+                button.classList.remove('copy-icon');
+                button.classList.add('copied-icon');
+                setTimeout(() => {
+                    button.classList.remove('copied-icon');
+                    button.classList.add('copy-icon');
+                }, 2000);
+            });
+        });
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
         const headerNavMenu = document.querySelector('.header');
