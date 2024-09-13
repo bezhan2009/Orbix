@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/run"
+	"goCmd/internal/run"
 	"goCmd/src"
 	"goCmd/structs"
 	"goCmd/system"
