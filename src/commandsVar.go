@@ -102,6 +102,8 @@ var AdditionalCommands = []structs.Command{
 	{"go", "Runs Go language commands"},
 	{"pip", "Runs Python package installer"},
 	{"py", "Runs Python interpreter"},
+	{"npm", "Runs NPM package"},
+	{"gcc", "Runs C compiled gcc"},
 	{"deploy", "Deploys the application"},
 	{"upgrade", "Upgrades installed packages"},
 	{"export", "Exports data to a file"},
@@ -125,9 +127,14 @@ func Init() {
 	CommandHistory = append(CommandHistory, "main")
 	CommandHistory = append(CommandHistory, "master")
 	CommandHistory = append(CommandHistory, "merge")
+	CommandHistory = append(CommandHistory, "run")
+	CommandHistory = append(CommandHistory, "start")
 	CommandHistory = append(CommandHistory, ".")
 	CommandHistory = append(CommandHistory, "remote")
+	CommandHistory = append(CommandHistory, "remote -v")
 	CommandHistory = append(CommandHistory, "add")
+	CommandHistory = append(CommandHistory, "add .")
+	CommandHistory = append(CommandHistory, "add README.md")
 	CommandHistory = append(CommandHistory, "--version")
 	CommandHistory = append(CommandHistory, "install")
 	CommandHistory = append(CommandHistory, "django")
