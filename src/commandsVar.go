@@ -1,6 +1,14 @@
 package src
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"goCmd/system"
+	"io/ioutil"
+	"log"
+	"os"
+
 	"github.com/fatih/color"
 	"goCmd/structs"
 )
@@ -13,6 +21,103 @@ var (
 	magenta func(a ...interface{}) string
 	cyan    func(a ...interface{}) string
 )
+
+// Config represents the structure of the JSON configuration file
+type Config struct {
+	Colors             map[string]string `json:"colors"`
+	Commands           []structs.Command `json:"commands"`
+	AdditionalCommands []structs.Command `json:"additionalCommands"`
+	CommandHistory     []string          `json:"commandHistory"`
+}
+
+//var Commands []structs.Command
+//var AdditionalCommands []structs.Command
+//var CommandHistory []string
+
+func SetCommands() {
+	// Load config from JSON
+	config, err := ReadConfigs("commands.json")
+	if err != nil {
+		panic(err)
+		return
+	}
+
+	// Initialize colors
+	red = color.New(getColor(config.Colors["red"])).SprintFunc()
+	yellow = color.New(getColor(config.Colors["yellow"])).SprintFunc()
+	cyan = color.New(getColor(config.Colors["cyan"])).SprintFunc()
+	green = color.New(getColor(config.Colors["green"])).SprintFunc()
+	magenta = color.New(getColor(config.Colors["magenta"])).SprintFunc()
+	blue = color.New(getColor(config.Colors["blue"])).SprintFunc()
+
+	// Initialize commands and history
+	Commands = config.Commands
+	AdditionalCommands = config.AdditionalCommands
+	CommandHistory = config.CommandHistory
+
+	// Initialize git branch
+	SetGitBranch()
+}
+
+func loadConfig(filename string) Config {
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalf("Failed to open config file: %v", err)
+	}
+	defer file.Close()
+
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Fatalf("Failed to read config file: %v", err)
+	}
+
+	var config Config
+	if err := json.Unmarshal(bytes, &config); err != nil {
+		log.Fatalf("Failed to parse config file: %v", err)
+	}
+
+	return config
+}
+
+func ReadConfigs(filename string) (Config, error) {
+	var AppSettings Config
+	configFile, err := os.Open(filename)
+	if err != nil {
+		return Config{}, errors.New(fmt.Sprintf("Couldn't open config file. Error is: %s", err.Error()))
+	}
+
+	defer func(configFile *os.File) {
+		err = configFile.Close()
+		if err != nil {
+			log.Fatal("Couldn't close config file. Error is: ", err.Error())
+		}
+	}(configFile)
+
+	if err = json.NewDecoder(configFile).Decode(&AppSettings); err != nil {
+		return Config{}, errors.New(fmt.Sprintf("Couldn't decode settings json file. Error is: %s", err.Error()))
+	}
+
+	return AppSettings, nil
+}
+
+func getColor(colorName string) color.Attribute {
+	switch colorName {
+	case "FgRed":
+		return color.FgRed
+	case "FgGreen":
+		return color.FgGreen
+	case "FgYellow":
+		return color.FgYellow
+	case "FgBlue":
+		return color.FgBlue
+	case "FgMagenta":
+		return color.FgMagenta
+	case "FgCyan":
+		return color.FgCyan
+	default:
+		return color.FgWhite
+	}
+}
 
 // Commands available Orbix commands
 var Commands = []structs.Command{
@@ -44,6 +149,13 @@ var Commands = []structs.Command{
 	{"cls", "Clears the terminal screen"},
 	{"matrixmul", "Performs matrix multiplication"},
 	{"primes", "Searches for prime numbers"},
+	{"redis", "Starts redis server"},
+	{"redisserver", "Starts redis server"},
+	{"redis-server", "Starts redis server"},
+	{"ubuntu_redis", "Starts redis server"},
+	{"redis_server", "Starts redis server"},
+	{"panic", "Panics inside the command line"},
+	{"print", "prints the text(args: font; example font=3d)"},
 	{"picalc", "Calculates the value of π"},
 	{"fileio", "Performs file input/output intensive tests"},
 	{"cd", "Changes the current directory"},
@@ -100,6 +212,13 @@ var AdditionalCommands = []structs.Command{
 	{"calc", "Launches a calculator"},
 	{"cmd", "Launches the command prompt"},
 	{"go", "Runs Go language commands"},
+	{"redis", "Starts redis server"},
+	{"redisserver", "Starts redis server"},
+	{"redis-server", "Starts redis server"},
+	{"ubuntu_redis", "Starts redis server"},
+	{"redis_server", "Starts redis server"},
+	{"panic", "Panics inside the command line"},
+	{"print", "prints the text(args: font; example font=3d)"},
 	{"pip", "Runs Python package installer"},
 	{"py", "Runs Python interpreter"},
 	{"npm", "Runs NPM package"},
@@ -113,11 +232,15 @@ var AdditionalCommands = []structs.Command{
 	{"convert", "Converts files from one format to another"},
 	{"monitor", "Monitors system resources"},
 	{"network", "Displays network information and status"},
+	{"ubuntu", ""},
 }
 
 var CommandHistory []string
 
 func Init() {
+	// Initialize system variables
+	system.Attempts = 0
+
 	// Initialize CommandHistory with package or tool names
 	CommandHistory = append(CommandHistory, "help")
 	CommandHistory = append(CommandHistory, "run")
@@ -167,6 +290,10 @@ func Init() {
 	CommandHistory = append(CommandHistory, "rm")
 	CommandHistory = append(CommandHistory, "mv")
 	CommandHistory = append(CommandHistory, "apply")
+	CommandHistory = append(CommandHistory, "3d")
+	CommandHistory = append(CommandHistory, "2d")
+	CommandHistory = append(CommandHistory, "font")
+	CommandHistory = append(CommandHistory, "hello")
 	CommandHistory = append(CommandHistory, "patch")
 	CommandHistory = append(CommandHistory, "delete")
 	CommandHistory = append(CommandHistory, "echo")

@@ -25,7 +25,12 @@ func initializeRunningFile(username string) {
 	if sourceRunning, err := os.ReadFile(runningPath); err == nil {
 		if !strings.Contains(string(sourceRunning), username) {
 			if file, err := os.OpenFile("running.txt", os.O_APPEND|os.O_WRONLY, 0644); err == nil {
-				defer file.Close()
+				defer func() {
+					err = file.Close()
+					if err != nil {
+						return
+					}
+				}()
 				if _, err := file.WriteString(username + "\n"); err != nil {
 					fmt.Println("Error writing to running.txt:", err)
 				}
@@ -87,4 +92,34 @@ func processCommand(commandLower string, commandArgs []string) error {
 	}
 
 	return nil
+}
+
+// Функция обработки каждой команды
+func handleCommand(command string) (ok bool) {
+	// Пример конкатенации строк через оператор "+"
+	if strings.Contains(command, "+") {
+		parts := strings.Split(command, "+")
+		var result string
+		for _, part := range parts {
+			// Убираем кавычки и пробелы
+			cleanPart := strings.Trim(part, "\" ")
+			result += cleanPart
+		}
+
+		if result != command {
+			fmt.Println(result)
+			return true
+		}
+
+		return false
+	} else {
+		// Вывод просто строки (если нет "+")
+		cleanCommand := strings.Trim(command, "\"")
+		if command != cleanCommand {
+			fmt.Println(cleanCommand)
+			return true
+		}
+
+		return false
+	}
 }

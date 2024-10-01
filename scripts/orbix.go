@@ -14,8 +14,8 @@ import (
 	"time"
 )
 
-const maxRetryAttempts = 5         // Maximum number of restart attempts
-const retryDelay = 1 * time.Second // Delay before restart
+const maxRetryAttempts = system.MaxRetryAttempts // Maximum number of restart attempts
+const retryDelay = system.RetryDelay             // Delay before restart
 
 func setHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -32,7 +32,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Template error: %v", err)
 		return
 	}
-	tmpl.Execute(w, nil)
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		return
+	}
 }
 
 // OrbixLoop runs the basic Orbix logic with panic handling.
@@ -71,10 +75,15 @@ func main() {
 		fmt.Printf("Failed to open log file: %v\n", err)
 		return
 	}
-	defer logFile.Close()
+	defer func() {
+		err = logFile.Close()
+		if err != nil {
+			return
+		}
+	}()
+
 	log.SetOutput(logFile)
 
-	attempts := 0
 	green := color.New(color.FgGreen).SprintFunc()
 	red := color.New(color.FgRed).SprintFunc()
 	magenta := color.New(color.FgMagenta).SprintFunc()
@@ -96,8 +105,8 @@ func main() {
 			isPanic = true
 		}
 
-		attempts++
-		if attempts >= maxRetryAttempts {
+		system.Attempts++
+		if system.Attempts >= maxRetryAttempts {
 			fmt.Println(red("Max retry attempts reached. Exiting..."))
 			log.Println("Max retry attempts reached. Exiting...")
 			break
