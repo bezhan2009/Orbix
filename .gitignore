@@ -9,6 +9,7 @@ trash
 # Local debug.txt
 trash/debug.txt
 bufer
+orbix.log
 
 # INIT Files
 trash/isRun.txt
@@ -28,6 +29,7 @@ activeUser.txt
 
 # exe files
 go_build_goCmd.exe
+scripts/scripts.exe
 
 
 #GUI
