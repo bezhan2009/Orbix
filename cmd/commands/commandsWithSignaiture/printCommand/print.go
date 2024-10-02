@@ -57,7 +57,7 @@ func Print(commandArgs []string) {
 	fmt.Println()
 }
 
-// Вспомогательная функция для вывода текста с шрифтом и цветом
+// Вспомогательная функция для вывода текста со шрифтом и цветом
 func printWithFont(text, font string, colorFunc func(a ...interface{}) string) {
 	if font == "3d" {
 		myFigure := figure.NewFigure(text, "larry3d", true)

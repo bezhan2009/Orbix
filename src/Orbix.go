@@ -54,11 +54,12 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 	} else if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
 		user := dirInfo.CmdUser(dir)
-		nameuser, isSuccess := CheckUser(user)
+		nameUser, isSuccess := CheckUser(user)
 		if !isSuccess {
 			return
 		}
-		username = nameuser
+
+		username = nameUser
 		initializeRunningFile(username) // New helper function
 	}
 
@@ -107,7 +108,12 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 
 	originalStdout, originalStderr := os.Stdout, os.Stderr
 	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
-	defer devNull.Close()
+	defer func() {
+		err = devNull.Close()
+		if err != nil {
+			return
+		}
+	}()
 
 	var prompt string
 
@@ -131,7 +137,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 
 		if echo && system.IsAdmin {
 			if prompt == "" {
-				fmt.Printf("\nORB %s>%s", dir, green(commandInput))
+				fmt.Printf("ORB %s>%s", dir, green(commandInput))
 			} else {
 				fmt.Print(green(prompt))
 			}
@@ -183,7 +189,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 
 		if !isValid {
 			fullCommand := append([]string{command}, commandArgs...)
-			err := utils.ExternalCommand(fullCommand)
+			err = utils.ExternalCommand(fullCommand)
 			if err != nil {
 				fullPath := filepath.Join(dir, command)
 				fullCommand[0] = fullPath
@@ -191,11 +197,8 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 				if err != nil {
 					isValid = utils.ValidCommand(commandLower, AdditionalCommands)
 					if !isValid {
-						suggestedCommand := suggestCommand(commandLower)
-						fmt.Print(red(fmt.Sprintf("Error executing command '%s': %v\n", commandLine, err)))
-						if suggestedCommand != "" {
-							fmt.Print(yellow(fmt.Sprintf("Did you mean: %s?\n", suggestedCommand)))
-						}
+						HandleUnknownCommandUtil(commandLower, commandLine, Commands)
+						continue
 					}
 				}
 			}

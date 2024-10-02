@@ -5,18 +5,19 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/fatih/color"
 	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
+	"golang.org/x/term"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 )
 
 var AbsDirRun, _ = filepath.Abs("")
 
-// getPasswordsDir returns the absolute path of the passwords directory.
+// getPasswordsDir returns the absolute path of the passwords' directory.
 func getPasswordsDir() (string, error) {
 	return filepath.Abs("passwords")
 }
@@ -41,21 +42,17 @@ func CheckUser(usernameFromDir string) (string, bool) {
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
 		Clean.Screen()
-		red := color.New(color.FgRed).SprintFunc()
-		fmt.Printf("%s\n", red("Ошибка при проверке директории с паролями:", err))
+		fmt.Printf("%s\n", red("Error checking the password directory:", err))
 		return "", false
 	}
 
 	if isEmpty {
 		Clean.Screen()
-		green := color.New(color.FgGreen).SprintFunc()
 		fmt.Printf("%s\n", green("Welcome,", usernameFromDir))
 		return usernameFromDir, true
 	}
 
 	reader := bufio.NewReader(os.Stdin)
-	magenta := color.New(color.FgMagenta).SprintFunc()
-	red := color.New(color.FgRed).SprintFunc()
 
 	for {
 		fmt.Print(magenta("enable secure[Y/N]: "))
@@ -68,7 +65,7 @@ func CheckUser(usernameFromDir string) (string, bool) {
 			continue
 		}
 
-		if strings.ToLower(enable) != "y" {
+		if strings.ToLower(strings.TrimSpace(enable)) != "y" {
 			return usernameFromDir, true
 		} else {
 			system.IsAdmin = false
@@ -84,9 +81,11 @@ func CheckUser(usernameFromDir string) (string, bool) {
 			fmt.Println(red("You entered a blank value!"))
 			continue
 		}
+
 		runningPath := AbsDirRun
 		runningPath += "\\running.txt"
 		sourceRunning, errReading := os.ReadFile(runningPath)
+
 		var dataRunning string
 
 		if errReading == nil {
@@ -101,7 +100,13 @@ func CheckUser(usernameFromDir string) (string, bool) {
 		}
 
 		fmt.Printf("%s", magenta("Enter password: "))
-		password, _ := reader.ReadString('\n')
+		bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			fmt.Println("Error:", err)
+			return "", false
+		}
+
+		password := string(bytePassword)
 		password = strings.TrimSpace(password)
 
 		password = PasswordAlgoritm.Usage(password, true)
