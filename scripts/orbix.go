@@ -59,7 +59,6 @@ func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *
 }
 
 func main() {
-
 	// Initialization AppState
 	appState := system.NewSystemData()
 

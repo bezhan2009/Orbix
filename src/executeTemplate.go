@@ -2,14 +2,10 @@ package src
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"goCmd/system"
 )
 
-func ExecuteShablonUtil(commandArgs []string, SD *system.AppState) {
-	yellow := color.New(color.FgYellow).SprintFunc()
-	red := color.New(color.FgRed).SprintFunc()
-
+func ExecuteTemplateUtil(commandArgs []string, SD *system.AppState) {
 	if len(commandArgs) < 2 {
 		fmt.Println(yellow("Usage: template <template_name> echo=on"))
 		fmt.Println(yellow("Or: template <template_name> echo=off if you want without outputting the result"))

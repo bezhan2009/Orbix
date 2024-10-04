@@ -16,12 +16,15 @@ DNSLOOKUP          DNS queries
 DF                 Deletes a folder
 LS                 lists directory contents
 NEWSHABLON         creates a new command template for execution
-REMOVE             deletes a file
-READ               displays the contents of a file
+REMOVE             deletes a file.
+READ               displays the contents of a file.
+REDIS-SERVER       Starts redis server
 PROMPT             changes src prompt.
+PANIC              Panics inside the command line.
 PINGVIEW           shows ping.
 PRIMES             finds large prime numbers
 PICALC             calculates the value of π.
+PRINT              prints the text(args: font; example font=3d).
 NEWUSER            creates a new user for src.
 NEWCOMMAND         created a new command
 ORBIX              starts another ORBIX session
@@ -41,6 +44,7 @@ FILEIO             intensive file operation test
 IPINFO             IP address information
 GEOIP              IP address geolocation
 MATRIXMUL          multiplies large matrices
+NEOFETCH           displays information about the system
 EXIT               exit
 `
 	fmt.Println(helpText)

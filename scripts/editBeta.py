@@ -12,7 +12,7 @@ def clear_screen():
 def display_editor(filename, lines, cursor):
     clear_screen()
     print(f"==== ORBIX Text Editor ====\n")
-    print(f"EditFile: {filename}")
+    print(f"File: {filename}")
     print("=" * 30)
 
     # Печать содержимого файла

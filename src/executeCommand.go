@@ -36,7 +36,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(executeCommand.CommandArgs) },
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(executeCommand.CommandArgs) },
 		"newtemplate": func() { template.Make(executeCommand.CommandArgs) },
-		"template":    func() { ExecuteShablonUtil(executeCommand.CommandArgs, executeCommand.SD) },
+		"template":    func() { ExecuteTemplateUtil(executeCommand.CommandArgs, executeCommand.SD) },
 		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(executeCommand.CommandArgs) },
 		"create":      func() { ExCommUtils.CreateFileUtil(executeCommand.CommandArgs, executeCommand.Dir) },
 		"write":       func() { ExCommUtils.WriteFileUtil(executeCommand.CommandArgs) },

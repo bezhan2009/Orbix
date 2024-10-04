@@ -25,7 +25,12 @@ func Start(templateName string, echo string, SD *system.AppState) error {
 	if err != nil {
 		return fmt.Errorf("error opening file: %v", err)
 	}
-	defer file.Close()
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			return
+		}
+	}()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
