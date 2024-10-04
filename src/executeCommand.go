@@ -76,7 +76,6 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 			dir, _ := os.Getwd()
 
 			session.Path = dir
-			fmt.Println(green(session.Path))
 			Orbix("", true, structs.RebootedData{}, executeCommand.SD)
 			PreviousSessionPrefix = executeCommand.SessionPrefix
 		},

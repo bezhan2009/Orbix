@@ -153,7 +153,7 @@ func fetchNeofetch() {
 	username := GlobalSession.User
 
 	// Получаем информацию о системе
-	osName := fmt.Sprintf("%s %s", runtime.GOOS, runtime.GOARCH)
+	osName := fmt.Sprintf("%s %s", system.OperationSystem, runtime.GOARCH)
 	hostStat, _ := host.Info()
 	uptime := fmt.Sprintf("%v", time.Duration(hostStat.Uptime)*time.Second)
 	cpuInfo, _ := cpu.Info()
