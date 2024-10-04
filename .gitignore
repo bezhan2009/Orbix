@@ -1,12 +1,13 @@
-# IDE File
+# IDE Files
 .idea
 .vs
 
-# Security File
+# Security Files
 passwords
 trash
 
 # Local debug.txt
+debug.txt
 trash/debug.txt
 bufer
 orbix.log
@@ -18,7 +19,6 @@ trash/activeUser.txt
 build
 scripts/stderr.log
 scripts/stdout.log
-debug.txt
 
 # Tests
 testShablon
@@ -27,10 +27,11 @@ test.txt
 hw
 activeUser.txt
 
-# exe files
+# GUI Files(tests)
+scripts/GUI_test.py
+
+# Build Files
+scripts/dump.rdb
+scripts/dist
 go_build_goCmd.exe
 scripts/scripts.exe
-
-
-#GUI
-scripts/GUI_test.py

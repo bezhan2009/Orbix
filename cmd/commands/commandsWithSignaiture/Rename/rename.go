@@ -10,6 +10,7 @@ func Rename(commandArgs []string, command string) error {
 	if len(commandArgs) < 2 {
 		if len(commandArgs) == 1 {
 			fmt.Printf("Usage: %s %s <new name for file>\n", command, commandArgs[0])
+			return nil
 		}
 		fmt.Printf("Usage: %s <file> <new name for file>\n", command)
 		return nil

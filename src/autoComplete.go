@@ -73,7 +73,7 @@ func createCommandHistorySuggestions() []prompt.Suggest {
 	var suggestions []prompt.Suggest
 
 	// Assuming CommandHistory is a predefined slice of strings (previous commands)
-	for _, cmd := range CommandHistory {
+	for _, cmd := range GlobalSession.CommandHistory {
 		if _, exists := uniqueCommands[cmd]; !exists {
 			uniqueCommands[cmd] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd})

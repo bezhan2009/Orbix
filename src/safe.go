@@ -23,14 +23,15 @@ func PrintNewUser() {
 }
 
 func NewUser(systemPath string) {
+	fmt.Println(systemPath)
 	err := os.Chdir(systemPath)
 	if err != nil {
+		fmt.Println(red("Error when changing the path:", err))
 		log.Fatalf("Error when changing the path: %v", err)
 	}
 
 	reader := bufio.NewReader(os.Stdin)
 	PrintNewUser()
-	magenta := color.New(color.FgMagenta).SprintFunc()
 	fmt.Printf("%s", magenta("Enter username: "))
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
@@ -41,15 +42,15 @@ func NewUser(systemPath string) {
 	isValid := validators.Password(password)
 
 	if !isValid {
-		fmt.Println("NewUser is Invalid")
+		fmt.Println(red("NewUser is Invalid"))
 		return
 	}
 
 	passwordDir := filepath.Join("passwords", username)
-	if _, err := os.Stat(passwordDir); os.IsNotExist(err) {
+	if _, err = os.Stat(passwordDir); os.IsNotExist(err) {
 		err = os.MkdirAll(passwordDir, os.ModePerm)
 		if err != nil {
-			fmt.Println("Error creating passwords directory:", err)
+			fmt.Println(red("Error creating passwords directory:", err))
 			return
 		}
 	}
@@ -62,12 +63,12 @@ func NewUser(systemPath string) {
 	passwordFilePath := filepath.Join(passwordDir, hashedPassword)
 	err = os.WriteFile(passwordFilePath, []byte(hashedPassword), os.ModePerm)
 	if err != nil {
-		fmt.Println("Error writing to password file:", err)
+		fmt.Println(red("Error writing to password file:", err))
 		return
 	}
 
-	fmt.Println("Your password (file):", passwordFilePath)
-	fmt.Println("Hashed password saved to file.")
+	fmt.Println(green("Your password (file):", passwordFilePath))
+	fmt.Println(green("Hashed password saved to file."))
 	os.Exit(1)
 }
 

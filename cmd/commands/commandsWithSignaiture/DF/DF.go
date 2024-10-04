@@ -2,16 +2,19 @@ package DF
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 	"path/filepath"
 )
 
 // DeleteFolder удаляет директорию и все ее содержимое
 func DeleteFolder(commandArgs []string) (bool, error) {
+	yellow := color.New(color.FgYellow).SprintFunc()
 	if len(commandArgs) < 1 {
-		fmt.Println("Usage: df <foldername>")
+		fmt.Println(yellow("Usage: df <folder_name>"))
 		return false, nil
 	}
+
 	folderName := commandArgs[0]
 	// Проверяем, существует ли директория
 	info, err := os.Stat(folderName)

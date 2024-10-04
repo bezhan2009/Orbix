@@ -3,9 +3,10 @@ package src
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"goCmd/system"
 )
 
-func ExecuteShablonUtil(commandArgs []string) {
+func ExecuteShablonUtil(commandArgs []string, SD *system.AppState) {
 	yellow := color.New(color.FgYellow).SprintFunc()
 	red := color.New(color.FgRed).SprintFunc()
 
@@ -23,7 +24,7 @@ func ExecuteShablonUtil(commandArgs []string) {
 		commandArgs[1] = "false"
 	}
 
-	if err := Start(commandArgs[0], commandArgs[1]); err != nil {
+	if err := Start(commandArgs[0], commandArgs[1], SD); err != nil {
 		fmt.Println(red(err))
 	}
 }

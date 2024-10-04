@@ -40,7 +40,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // OrbixLoop runs the basic Orbix logic with panic handling.
-func OrbixLoop(red func(a ...interface{}) string, panicChan chan any) {
+func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *system.AppState) {
 	defer func() {
 		if r := recover(); r != nil {
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
@@ -53,11 +53,14 @@ func OrbixLoop(red func(a ...interface{}) string, panicChan chan any) {
 	}()
 
 	run.Init()
-	src.Orbix("", true, structs.RebootedData{})
+	src.Orbix("", true, structs.RebootedData{}, appState)
 	panicChan <- nil
 }
 
 func main() {
+	// Инициализация AppState
+	appState := system.NewSystemData()
+
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
@@ -94,7 +97,7 @@ func main() {
 		isPanic := false
 
 		// Launching OrbixLoop in a separate goroutine
-		go OrbixLoop(red, panicChan)
+		go OrbixLoop(red, panicChan, appState)
 
 		// We are waiting for the result of OrbixLoop's work
 		err := <-panicChan

@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"goCmd/structs"
+	"goCmd/system"
 	"os"
 	"strings"
 )
 
 // Start executes a series of Commands defined in the given template file.
-func Start(templateName string, echo string) error {
+func Start(templateName string, echo string, SD *system.AppState) error {
 	echoExecute := false
 
 	if echo == "true" {
@@ -33,7 +34,7 @@ func Start(templateName string, echo string) error {
 			continue // Ignore empty lines
 		}
 		// Execute each command from the template
-		if err := executeCommand(line, echoExecute); err != nil {
+		if err := executeCommand(line, echoExecute, SD); err != nil {
 			fmt.Printf("Error executing command '%s': %v\n", line, err)
 		}
 	}
@@ -46,8 +47,8 @@ func Start(templateName string, echo string) error {
 }
 
 // executeCommand executes a single command using the Orbix function.
-func executeCommand(command string, echo bool) error {
+func executeCommand(command string, echo bool, SD *system.AppState) error {
 	// Assuming Orbix function handles the command execution.
-	Orbix(command, echo, structs.RebootedData{})
+	Orbix(command, echo, structs.RebootedData{}, SD)
 	return nil
 }

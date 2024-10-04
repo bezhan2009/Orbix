@@ -3,7 +3,6 @@ package run
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/system"
 	"goCmd/utils"
 	"log"
 	"os"
@@ -28,8 +27,6 @@ func Init() {
 			return
 		}
 	}()
-
-	system.Path = utils.Getwd()
 
 	if utils.IsHidden() {
 		fmt.Println(red("You are BLOCKED!!!"))

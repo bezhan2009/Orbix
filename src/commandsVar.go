@@ -34,7 +34,7 @@ type Config struct {
 //var AdditionalCommands []structs.Command
 //var CommandHistory []string
 
-func SetCommands() {
+func SetCommands(session *system.Session) {
 	// Load config from JSON
 	config, err := ReadConfigs("commands.json")
 	if err != nil {
@@ -56,7 +56,7 @@ func SetCommands() {
 	CommandHistory = config.CommandHistory
 
 	// Initialize git branch
-	SetGitBranch()
+	SetGitBranch(session)
 }
 
 func loadConfig(filename string) Config {
@@ -134,6 +134,7 @@ var Commands = []structs.Command{
 	{"prompt", "Changes the command prompt in Orbix"},
 	{"systemorbix", "Displays system information about Orbix"},
 	{"rename", "Renames a file or directory"},
+	{"neofetch", ""},
 	{"rem", "Deletes a file"},
 	{"del", "Deletes a file"},
 	{"cf", "Creates a new folder"},
@@ -181,6 +182,7 @@ var AdditionalCommands = []structs.Command{
 	{"template", "Executes a specific command template"},
 	{"newuser", "Adds a new user to Orbix"},
 	{"prompt", "Changes the command prompt in Orbix"},
+	{"neofetch", ""},
 	{"systemorbix", "Displays system information about Orbix"},
 	{"rename", "Renames a file or directory"},
 	{"rem", "Deletes a file"},
@@ -237,81 +239,85 @@ var AdditionalCommands = []structs.Command{
 
 var CommandHistory []string
 
-func Init() {
-	// Initialize system variables
-	system.Attempts = 0
-
+func Init(session *system.Session) {
 	// Initialize CommandHistory with package or tool names
-	CommandHistory = append(CommandHistory, "help")
-	CommandHistory = append(CommandHistory, "run")
-	CommandHistory = append(CommandHistory, "push")
-	CommandHistory = append(CommandHistory, "pull")
-	CommandHistory = append(CommandHistory, "origin")
-	CommandHistory = append(CommandHistory, "main")
-	CommandHistory = append(CommandHistory, "master")
-	CommandHistory = append(CommandHistory, "merge")
-	CommandHistory = append(CommandHistory, "run")
-	CommandHistory = append(CommandHistory, "start")
-	CommandHistory = append(CommandHistory, ".")
-	CommandHistory = append(CommandHistory, "remote")
-	CommandHistory = append(CommandHistory, "remote -v")
-	CommandHistory = append(CommandHistory, "add")
-	CommandHistory = append(CommandHistory, "add .")
-	CommandHistory = append(CommandHistory, "add README.md")
-	CommandHistory = append(CommandHistory, "--version")
-	CommandHistory = append(CommandHistory, "install")
-	CommandHistory = append(CommandHistory, "django")
-	CommandHistory = append(CommandHistory, "flask")
-	CommandHistory = append(CommandHistory, "config")
-	CommandHistory = append(CommandHistory, "--global")
-	CommandHistory = append(CommandHistory, "-m")
-	CommandHistory = append(CommandHistory, "-am")
-	CommandHistory = append(CommandHistory, "--list")
-	CommandHistory = append(CommandHistory, "config --global user.name \"Your name\"")
-	CommandHistory = append(CommandHistory, "config --global user.email \"your_email@example.com\"")
-	CommandHistory = append(CommandHistory, "branch")
-	CommandHistory = append(CommandHistory, "checkout")
-	CommandHistory = append(CommandHistory, "status")
-	CommandHistory = append(CommandHistory, "commit")
-	CommandHistory = append(CommandHistory, "clone")
-	CommandHistory = append(CommandHistory, "log")
-	CommandHistory = append(CommandHistory, "rebase")
-	CommandHistory = append(CommandHistory, "cherry-pick")
-	CommandHistory = append(CommandHistory, "stash")
-	CommandHistory = append(CommandHistory, "reset")
-	CommandHistory = append(CommandHistory, "diff")
-	CommandHistory = append(CommandHistory, "grep")
-	CommandHistory = append(CommandHistory, "fetch")
-	CommandHistory = append(CommandHistory, "remote add")
-	CommandHistory = append(CommandHistory, "remote remove")
-	CommandHistory = append(CommandHistory, "tag")
-	CommandHistory = append(CommandHistory, "show")
-	CommandHistory = append(CommandHistory, "revert")
-	CommandHistory = append(CommandHistory, "rm")
-	CommandHistory = append(CommandHistory, "mv")
-	CommandHistory = append(CommandHistory, "apply")
-	CommandHistory = append(CommandHistory, "3d")
-	CommandHistory = append(CommandHistory, "2d")
-	CommandHistory = append(CommandHistory, "font")
-	CommandHistory = append(CommandHistory, "hello")
-	CommandHistory = append(CommandHistory, "patch")
-	CommandHistory = append(CommandHistory, "delete")
-	CommandHistory = append(CommandHistory, "echo")
-	CommandHistory = append(CommandHistory, "echo=on")
-	CommandHistory = append(CommandHistory, "echo=off")
-	CommandHistory = append(CommandHistory, "changelog")
-	CommandHistory = append(CommandHistory, "beta")
-	CommandHistory = append(CommandHistory, "http://localhost:6060")
-	CommandHistory = append(CommandHistory, "https://github.com/bezhan2009/Orbix")
-	CommandHistory = append(CommandHistory, "upgrade")
-	CommandHistory = append(CommandHistory, "export")
-	CommandHistory = append(CommandHistory, "import")
-	CommandHistory = append(CommandHistory, "tar compress")
-	CommandHistory = append(CommandHistory, "tar decompress")
-	CommandHistory = append(CommandHistory, "convert")
-	CommandHistory = append(CommandHistory, "nmap monitor")
+	session.CommandHistory = append(session.CommandHistory, "help")
+	session.CommandHistory = append(session.CommandHistory, "run")
+	session.CommandHistory = append(session.CommandHistory, "push")
+	session.CommandHistory = append(session.CommandHistory, "pull")
+	session.CommandHistory = append(session.CommandHistory, "origin")
+	session.CommandHistory = append(session.CommandHistory, "main")
+	session.CommandHistory = append(session.CommandHistory, "master")
+	session.CommandHistory = append(session.CommandHistory, "merge")
+	session.CommandHistory = append(session.CommandHistory, "run")
+	session.CommandHistory = append(session.CommandHistory, "start")
+	session.CommandHistory = append(session.CommandHistory, ".")
+	session.CommandHistory = append(session.CommandHistory, "remote")
+	session.CommandHistory = append(session.CommandHistory, "remote -v")
+	session.CommandHistory = append(session.CommandHistory, "add")
+	session.CommandHistory = append(session.CommandHistory, "add .")
+	session.CommandHistory = append(session.CommandHistory, "add README.md")
+	session.CommandHistory = append(session.CommandHistory, "--version")
+	session.CommandHistory = append(session.CommandHistory, "install")
+	session.CommandHistory = append(session.CommandHistory, "django")
+	session.CommandHistory = append(session.CommandHistory, "flask")
+	session.CommandHistory = append(session.CommandHistory, "config")
+	session.CommandHistory = append(session.CommandHistory, "--global")
+	session.CommandHistory = append(session.CommandHistory, "-m")
+	session.CommandHistory = append(session.CommandHistory, "-am")
+	session.CommandHistory = append(session.CommandHistory, "--list")
+	session.CommandHistory = append(session.CommandHistory, "config --global user.name \"Your name\"")
+	session.CommandHistory = append(session.CommandHistory, "config --global user.email \"your_email@example.com\"")
+	session.CommandHistory = append(session.CommandHistory, "branch")
+	session.CommandHistory = append(session.CommandHistory, "checkout")
+	session.CommandHistory = append(session.CommandHistory, "status")
+	session.CommandHistory = append(session.CommandHistory, "commit")
+	session.CommandHistory = append(session.CommandHistory, "clone")
+	session.CommandHistory = append(session.CommandHistory, "log")
+	session.CommandHistory = append(session.CommandHistory, "rebase")
+	session.CommandHistory = append(session.CommandHistory, "cherry-pick")
+	session.CommandHistory = append(session.CommandHistory, "stash")
+	session.CommandHistory = append(session.CommandHistory, "reset")
+	session.CommandHistory = append(session.CommandHistory, "diff")
+	session.CommandHistory = append(session.CommandHistory, "grep")
+	session.CommandHistory = append(session.CommandHistory, "fetch")
+	session.CommandHistory = append(session.CommandHistory, "remote add")
+	session.CommandHistory = append(session.CommandHistory, "remote remove")
+	session.CommandHistory = append(session.CommandHistory, "tag")
+	session.CommandHistory = append(session.CommandHistory, "show")
+	session.CommandHistory = append(session.CommandHistory, "revert")
+	session.CommandHistory = append(session.CommandHistory, "rm")
+	session.CommandHistory = append(session.CommandHistory, "mv")
+	session.CommandHistory = append(session.CommandHistory, "apply")
+	session.CommandHistory = append(session.CommandHistory, "3d")
+	session.CommandHistory = append(session.CommandHistory, "2d")
+	session.CommandHistory = append(session.CommandHistory, "font")
+	session.CommandHistory = append(session.CommandHistory, "hello")
+	session.CommandHistory = append(session.CommandHistory, "patch")
+	session.CommandHistory = append(session.CommandHistory, "delete")
+	session.CommandHistory = append(session.CommandHistory, "echo")
+	session.CommandHistory = append(session.CommandHistory, "echo=on")
+	session.CommandHistory = append(session.CommandHistory, "echo=off")
+	session.CommandHistory = append(session.CommandHistory, "changelog")
+	session.CommandHistory = append(session.CommandHistory, "beta")
+	session.CommandHistory = append(session.CommandHistory, "http://localhost:6060")
+	session.CommandHistory = append(session.CommandHistory, "https://github.com/bezhan2009/Orbix")
+	session.CommandHistory = append(session.CommandHistory, "upgrade")
+	session.CommandHistory = append(session.CommandHistory, "export")
+	session.CommandHistory = append(session.CommandHistory, "import")
+	session.CommandHistory = append(session.CommandHistory, "tar compress")
+	session.CommandHistory = append(session.CommandHistory, "tar decompress")
+	session.CommandHistory = append(session.CommandHistory, "convert")
+	session.CommandHistory = append(session.CommandHistory, "nmap monitor")
 
-	// Initialize colors
+	// Initialize session data
+	SetGitBranch(session)
+	SetPath(session)
+
+	system.Attempts = 0
+}
+
+func InitColors() {
 	red = color.New(color.FgRed).SprintFunc()
 	yellow = color.New(color.FgYellow).SprintFunc()
 	cyan = color.New(color.FgCyan).SprintFunc()
@@ -319,6 +325,4 @@ func Init() {
 	magenta = color.New(color.FgMagenta).SprintFunc()
 	blue = color.New(color.FgBlue).SprintFunc()
 
-	// Initialize git branch
-	SetGitBranch()
 }

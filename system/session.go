@@ -1,14 +1,16 @@
 package system
 
-var (
+type Session struct {
 	// Path the value for this variable is given after the program is started
-	Path = ""
+	Path string
+	// PreviousPath previous sessions path
+	PreviousPath string
 	// User the value for this variable is given also after the program is started
-	User = ""
+	User string
 	// IsAdmin It was added for the sake of optimization
-	IsAdmin = true
+	IsAdmin bool
 	// GitBranch It is stored here, current git branch
-	GitBranch = ""
-	// Attempts The number of attempts to recover from errors
-	Attempts = 0
-)
+	GitBranch string
+	// CommandHistory Users command history
+	CommandHistory []string
+}

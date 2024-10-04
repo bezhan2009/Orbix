@@ -2,6 +2,7 @@ package src
 
 import (
 	"fmt"
+	"goCmd/cmd/commands/commandsWithoutSignature/CD"
 	"goCmd/cmd/dirInfo"
 	"goCmd/structs"
 	"goCmd/system"
@@ -16,14 +17,33 @@ import (
 )
 
 var (
-	Absdir, _       = filepath.Abs("")
-	DirUser, _      = filepath.Abs("")
-	UsernameFromDir = dirInfo.CmdUser(DirUser)
+	Absdir, _             = filepath.Abs("")
+	DirUser, _            = filepath.Abs("")
+	UsernameFromDir       = dirInfo.CmdUser(DirUser)
+	GlobalSession         = system.Session{}
+	PreviousSessionPath   = ""
+	PreviousSessionPrefix = ""
 )
 
-func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
-	// Initialize Global Vars
-	Init()
+func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
+	RestartAfterInit := false
+	if strings.TrimSpace(commandInput) == "restart" {
+		RestartAfterInit = true
+	}
+
+	if SD == nil {
+		fmt.Println(red("Fatal: Session is nil!!!"))
+		os.Exit(1)
+	}
+
+	if err := CD.ChangeDirectory(Absdir); err != nil {
+		fmt.Println(red(err))
+	}
+
+	sessionData := SD
+
+	// Initialize colors
+	InitColors()
 
 	if !echo && commandInput == "" {
 		fmt.Println(red("You cannot enable echo with an empty Input command!"))
@@ -54,13 +74,22 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 	} else if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
 		user := dirInfo.CmdUser(dir)
-		nameUser, isSuccess := CheckUser(user)
+
+		nameUser, isSuccess := CheckUser(user, sessionData)
 		if !isSuccess {
 			return
 		}
 
 		username = nameUser
 		initializeRunningFile(username) // New helper function
+
+		if user == username {
+			sessionData.IsAdmin = true
+			sessionData.User = user
+		} else {
+			sessionData.IsAdmin = false
+			sessionData.User = username
+		}
 	}
 
 	location := os.Getenv("CITY")
@@ -81,11 +110,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 			<-signalChan
 			signalReceived = true
 			fmt.Print(red("^C"))
-			if !system.IsAdmin {
+			if !sessionData.IsAdmin {
 				dir, _ := os.Getwd()
 
 				dirC := dirInfo.CmdDir(dir)
-				user := system.User
+				user := sessionData.User
 				if user == "" {
 					user = dirInfo.CmdUser(dir)
 				}
@@ -97,7 +126,8 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 					printUserDir = user
 				}
 				fmt.Println()
-				printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, commandInput)
+				gitBranch, _ := GetCurrentGitBranch()
+				printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch}, commandInput)
 			} else {
 				dir, _ := os.Getwd()
 				fmt.Println()
@@ -116,8 +146,46 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 	}()
 
 	var prompt string
+	var prefix string
+
+	prefix = sessionData.NewSessionData(sessionData.Path, sessionData.User, sessionData.GitBranch, sessionData.IsAdmin)
+
+	if rebooted.Prefix != "" {
+		prefix = rebooted.Prefix
+	} else {
+		prefix = sessionData.NewSessionData(sessionData.Path, sessionData.User, sessionData.GitBranch, sessionData.IsAdmin)
+	}
+
+	session, exists := sessionData.GetSession(prefix)
+	if !exists {
+		fmt.Println(red("Session does not exist!"))
+		return
+	}
+
+	if session == nil {
+		fmt.Println(red("Session is nil!"))
+		return
+	}
+
+	// Initialize Global Vars
+	Init(session)
+
+	session.PreviousPath = PreviousSessionPath
+	fmt.Println(green(session.PreviousPath))
+	if PreviousSessionPrefix != "" {
+		session, _ = sessionData.GetSession(PreviousSessionPrefix)
+	}
+
+	GlobalSession = *session
+
+	dir, _ := os.Getwd()
+	system.Path = dir
 
 	for isWorking {
+		if len(session.CommandHistory) < 10 {
+			Init(session)
+		}
+
 		// Check if signal was received and reset flag after handling it
 		if signalReceived {
 			signalReceived = false
@@ -132,10 +200,18 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 		}
 
 		// Directory and user context setup (execute only when necessary)
-		dir, _ := os.Getwd()
+		dir, _ = os.Getwd()
 		printUserDir := UsernameFromDir // Use cached username for printing
 
-		if echo && system.IsAdmin {
+		if RestartAfterInit {
+			SD.User = username
+			SD.IsAdmin = sessionData.IsAdmin
+			rebooted.Prefix = prefix
+			Orbix(commandInput, echo, rebooted, SD)
+			return
+		}
+
+		if echo && session.IsAdmin {
 			if prompt == "" {
 				fmt.Printf("ORB %s>%s", dir, green(commandInput))
 			} else {
@@ -143,9 +219,9 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 			}
 		}
 
-		if !system.IsAdmin {
+		if !session.IsAdmin {
 			dirC := dirInfo.CmdDir(dir)
-			user := system.User
+			user := session.User
 			if user == "" {
 				user = dirInfo.CmdUser(dir)
 			}
@@ -165,7 +241,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 
 			if echo {
 				if prompt == "" {
-					printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, commandInput) // New helper function
+					printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, session, commandInput) // New helper function
 				} else {
 					fmt.Print(green(prompt))
 				}
@@ -183,7 +259,10 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 			continue
 		}
 
-		CommandHistory = append(CommandHistory, commandLine)
+		session.CommandHistory = append(session.CommandHistory, commandLine)
+
+		session.Path = dir
+		GlobalSession.CommandHistory = session.CommandHistory
 
 		isValid := utils.ValidCommand(commandLower, Commands)
 
@@ -211,19 +290,24 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 		}
 
 		// Process command
-		if err := processCommand(commandLower, commandArgs); err != nil {
+		if err = processCommand(commandLower, commandArgs, session); err != nil {
 			fmt.Println(red(err.Error()))
-			isWorking = false
 		}
 
 		execCommand := structs.ExecuteCommandFuncParams{
-			Command:      command,
-			CommandLower: commandLower,
-			CommandArgs:  commandArgs,
-			Dir:          dir,
-			IsWorking:    &isWorking,
-			IsPermission: isPermission,
-			Username:     username,
+			Command:       command,
+			CommandLower:  commandLower,
+			CommandArgs:   commandArgs,
+			Dir:           dir,
+			IsWorking:     &isWorking,
+			IsPermission:  isPermission,
+			Username:      username,
+			SD:            sessionData,
+			SessionPrefix: prefix,
+		}
+
+		if strings.TrimSpace(commandLower) == "orbix" {
+			PreviousSessionPrefix = prefix
 		}
 
 		ExecuteCommand(execCommand)
@@ -231,4 +315,12 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData) {
 
 	// Restore original outputs
 	os.Stdout, os.Stderr = originalStdout, originalStderr
+	PreviousSessionPath = session.Path
+	session, _ = sessionData.GetSession(PreviousSessionPrefix)
+
+	if err = CD.ChangeDirectory(session.Path); err != nil {
+		fmt.Println(red(err))
+	}
+
+	sessionData.DeleteSession(prefix)
 }

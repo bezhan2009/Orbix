@@ -38,17 +38,24 @@ func isPasswordDirectoryEmpty() (bool, error) {
 }
 
 // CheckUser checks the username and password.
-func CheckUser(usernameFromDir string) (string, bool) {
+func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
+	if sd == nil {
+		fmt.Println(red("Fatal: Session is nil!!!"))
+		os.Exit(1)
+	}
+
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
 		Clean.Screen()
 		fmt.Printf("%s\n", red("Error checking the password directory:", err))
+		sd.IsAdmin = true
 		return "", false
 	}
 
 	if isEmpty {
 		Clean.Screen()
 		fmt.Printf("%s\n", green("Welcome,", usernameFromDir))
+		sd.IsAdmin = true
 		return usernameFromDir, true
 	}
 
@@ -66,9 +73,9 @@ func CheckUser(usernameFromDir string) (string, bool) {
 		}
 
 		if strings.ToLower(strings.TrimSpace(enable)) != "y" {
+			sd.IsAdmin = true
 			return usernameFromDir, true
 		} else {
-			system.IsAdmin = false
 			break
 		}
 	}
@@ -129,7 +136,9 @@ func CheckUser(usernameFromDir string) (string, bool) {
 
 		Clean.Screen()
 		fmt.Printf("%s\n", magenta("Welcome, ", username))
-		system.User = username
+
+		sd.IsAdmin = false
+		sd.User = username
 		return username, true
 	}
 }

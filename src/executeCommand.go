@@ -1,11 +1,12 @@
 package src
 
 import (
+	"fmt"
 	"goCmd/cmd/commands/commandsWithSignaiture/printCommand"
 	"goCmd/cmd/commands/commandsWithSignaiture/template"
 	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
 	"goCmd/cmd/commands/commandsWithoutSignature/Ls"
-	redis_server "goCmd/cmd/commands/commandsWithoutSignature/redis-server"
+	redisserver "goCmd/cmd/commands/commandsWithoutSignature/redis-server"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
 	"goCmd/internal/Network"
 	"goCmd/internal/Network/wifiUtils"
@@ -13,9 +14,16 @@ import (
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
+	"os"
 )
 
 func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
+	session, exists := executeCommand.SD.GetSession(executeCommand.SessionPrefix)
+	if !exists {
+		fmt.Println(red("Session Not Found!!!"))
+		*executeCommand.IsWorking = false
+	}
+
 	commandMap := map[string]func(){
 		"wifiutils":   wifiUtils.Start,
 		"pingview":    func() { Network.Ping(executeCommand.CommandArgs) },
@@ -31,7 +39,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(executeCommand.CommandArgs) },
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(executeCommand.CommandArgs) },
 		"newtemplate": func() { template.Make(executeCommand.CommandArgs) },
-		"template":    func() { ExecuteShablonUtil(executeCommand.CommandArgs) },
+		"template":    func() { ExecuteShablonUtil(executeCommand.CommandArgs, executeCommand.SD) },
 		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(executeCommand.CommandArgs) },
 		"create":      func() { ExCommUtils.CreateFileUtil(executeCommand.CommandArgs, executeCommand.Dir) },
 		"write":       func() { ExCommUtils.WriteFileUtil(executeCommand.CommandArgs) },
@@ -39,33 +47,43 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"remove":      func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"del":         func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"rem":         func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
-		"rename":      func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"rename":      func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, yellow) },
 		"cf":          func() { ExCommUtils.CFUtil(executeCommand.CommandArgs) },
 		"df":          func() { ExCommUtils.DFUtil(executeCommand.CommandArgs) },
-		"ren":         func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"ren":         func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, yellow) },
 		"panic":       func() { ExCommUtils.PanicOnError(executeCommand) },
-		"cd":          func() { ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs) },
+		"cd":          func() { ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs, session) },
 		"edit":        func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
 		"open_link":   func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
 		"print":       func() { printCommand.Print(executeCommand.CommandArgs) },
 
 		"systemorbix":  utils.SystemInformation,
+		"neofetch":     fetchNeofetch,
 		"clean":        Clean.Screen,
 		"cls":          Clean.Screen,
 		"clear":        Clean.Screen,
 		"help":         displayHelp,
 		"ls":           Ls.PrintLS,
-		"redis":        redis_server.StartRedisServer,
-		"redis-server": redis_server.StartRedisServer,
-		"redisserver":  redis_server.StartRedisServer,
-		"ubuntu_redis": redis_server.StartRedisServer,
-		"redis_server": redis_server.StartRedisServer,
+		"redis":        redisserver.StartRedisServer,
+		"redis-server": redisserver.StartRedisServer,
+		"redisserver":  redisserver.StartRedisServer,
+		"ubuntu_redis": redisserver.StartRedisServer,
+		"redis_server": redisserver.StartRedisServer,
 	}
 
 	permissionRequiredCommands := map[string]func(){
-		"orbix":   func() { Orbix("", true, structs.RebootedData{}) },
+		"orbix": func() {
+			dir, _ := os.Getwd()
+
+			session.Path = dir
+			fmt.Println(green(session.Path))
+			Orbix("", true, structs.RebootedData{}, executeCommand.SD)
+			PreviousSessionPrefix = executeCommand.SessionPrefix
+		},
 		"newuser": func() { NewUser(system.Path) },
-		"signout": func() { SignOutUtil(executeCommand.Username, system.Path) },
+		"signout": func() {
+			SignOutUtil(executeCommand.Username, executeCommand.SD.Path, executeCommand.SD, executeCommand.SessionPrefix)
+		},
 		"exit": func() {
 			*executeCommand.IsWorking = false
 			removeUserFromRunningFile(executeCommand.Username)
@@ -74,7 +92,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 
 	if handler, exists := commandMap[executeCommand.CommandLower]; exists {
 		handler()
-	} else if handler, exists := permissionRequiredCommands[executeCommand.CommandLower]; exists {
+	} else if handler, exists = permissionRequiredCommands[executeCommand.CommandLower]; exists {
 		if executeCommand.IsPermission {
 			handler()
 		}

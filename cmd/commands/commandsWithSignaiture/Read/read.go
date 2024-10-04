@@ -2,22 +2,24 @@ package Read
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	utils2 "goCmd/cmd/commands/commandsWithSignaiture/Read/utils"
-	"goCmd/utils"
 )
 
 func File(commandArgs []string) error {
+	yellow := color.New(color.FgYellow).SprintFunc()
 	if len(commandArgs) < 1 {
-		utils.AnimatedPrint(fmt.Sprint("Usage: read <file>"))
+		fmt.Println(yellow(fmt.Sprint("Usage: read <file>")))
 		return nil
 	}
+
 	nameFileForRead := commandArgs[0]
 
 	dataRead, errReading := utils2.File(nameFileForRead)
 	if errReading != nil {
 		return errReading
 	} else {
-		fmt.Println(string(dataRead))
+		fmt.Println(yellow(string(dataRead)))
 		return nil
 	}
 }

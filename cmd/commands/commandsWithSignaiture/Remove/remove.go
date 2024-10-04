@@ -2,13 +2,17 @@ package Remove
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"os"
 	"strings"
 )
 
 func File(command string, commandArgs []string) (string, error) {
+	yellow := color.New(color.FgYellow).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
+
 	if len(commandArgs) < 1 {
-		fmt.Printf("Usage: %s <file>\n", command)
+		fmt.Println(yellow(fmt.Sprintf("Usage: %s <file>", command)))
 		return "", nil
 	}
 
@@ -24,7 +28,7 @@ func File(command string, commandArgs []string) (string, error) {
 	}
 
 	if name != "" {
-		fmt.Printf("File '%s' successfully removed.\n", name)
+		fmt.Println(green(fmt.Sprintf("File '%s' successfully removed.\n", name)))
 	}
 
 	return name, nil
