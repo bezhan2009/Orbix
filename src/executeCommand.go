@@ -58,7 +58,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"print":       func() { printCommand.Print(executeCommand.CommandArgs) },
 
 		"systemorbix":  utils.SystemInformation,
-		"neofetch":     fetchNeofetch,
+		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
 		"clean":        Clean.Screen,
 		"cls":          Clean.Screen,
 		"clear":        Clean.Screen,
