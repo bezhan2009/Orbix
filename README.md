@@ -50,6 +50,8 @@ go run .
 - **READ**: Displays the contents of a file.
 - **PROMPT**: Changes the Orbix prompt.
 - **PINGVIEW**: Displays ping.
+- **PANIC**: Panics inside the command line
+- **PRINT**: Prints the text(args: font; example font=3d).
 - **NEWUSER**: Adds a new user for Orbix.
 - **ORBIX**: Starts another instance of Orbix.
 - **TEMPLATE**: Executes a specific command template.
@@ -57,6 +59,7 @@ go run .
 - **SYSTEMINFO**: Displays system information.
 - **SIGNOUT**: Logs out the user from Orbix.
 - **TREE**: Graphically displays the directory structure of a disk or path.
+- **NEOFETCH**: Displays information about the system.
 - **WRITE**: Writes data to a file.
 - **EDIT**: Edits a file.
 - **OPEN_LINK**: Opens the link in the browser.
