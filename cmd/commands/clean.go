@@ -1,4 +1,4 @@
-package Clean
+package commands
 
 import (
 	"goCmd/internal/OS"

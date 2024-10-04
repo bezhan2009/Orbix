@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Edit"
+	"goCmd/cmd/commands"
 	"goCmd/utils"
 	"os"
 	"path/filepath"
@@ -40,7 +40,7 @@ func EditFileUtil(commandArgs []string) {
 		return
 	}
 
-	if err := Edit.File(commandArgs[0]); err != nil {
+	if err := commands.EditFile(commandArgs[0]); err != nil {
 		fmt.Println(err)
 		return
 	}

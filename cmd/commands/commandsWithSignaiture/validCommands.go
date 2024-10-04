@@ -1,4 +1,4 @@
-package utils
+package commandsWithSignaiture
 
 import "goCmd/structs"
 

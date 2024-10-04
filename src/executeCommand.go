@@ -2,11 +2,8 @@ package src
 
 import (
 	"fmt"
-	"goCmd/cmd/commands/commandsWithSignaiture/printCommand"
+	"goCmd/cmd/commands"
 	"goCmd/cmd/commands/commandsWithSignaiture/template"
-	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
-	"goCmd/cmd/commands/commandsWithoutSignature/Ls"
-	redisserver "goCmd/cmd/commands/commandsWithoutSignature/redis-server"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
 	"goCmd/internal/Network"
 	"goCmd/internal/Network/wifiUtils"
@@ -51,27 +48,27 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"cf":          func() { ExCommUtils.CFUtil(executeCommand.CommandArgs) },
 		"df":          func() { ExCommUtils.DFUtil(executeCommand.CommandArgs) },
 		"ren":         func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, yellow) },
-		"panic":       func() { ExCommUtils.PanicOnError(executeCommand) },
 		"cd":          func() { ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs, session) },
 		"edit":        func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
 		"open_link":   func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
-		"print":       func() { printCommand.Print(executeCommand.CommandArgs) },
+		"print":       func() { commands.Print(executeCommand.CommandArgs) },
 
 		"systemorbix":  utils.SystemInformation,
 		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
-		"clean":        Clean.Screen,
-		"cls":          Clean.Screen,
-		"clear":        Clean.Screen,
+		"clean":        commands.Screen,
+		"cls":          commands.Screen,
+		"clear":        commands.Screen,
 		"help":         displayHelp,
-		"ls":           Ls.PrintLS,
-		"redis":        redisserver.StartRedisServer,
-		"redis-server": redisserver.StartRedisServer,
-		"redisserver":  redisserver.StartRedisServer,
-		"ubuntu_redis": redisserver.StartRedisServer,
-		"redis_server": redisserver.StartRedisServer,
+		"ls":           commands.PrintLS,
+		"redis":        commands.StartRedisServer,
+		"redis-server": commands.StartRedisServer,
+		"redisserver":  commands.StartRedisServer,
+		"ubuntu_redis": commands.StartRedisServer,
+		"redis_server": commands.StartRedisServer,
 	}
 
 	permissionRequiredCommands := map[string]func(){
+		"panic": func() { ExCommUtils.PanicOnError(executeCommand) },
 		"orbix": func() {
 			dir, _ := os.Getwd()
 
@@ -85,7 +82,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		},
 		"exit": func() {
 			*executeCommand.IsWorking = false
-			removeUserFromRunningFile(executeCommand.Username)
+			RemoveUserFromRunningFile(executeCommand.Username)
 		},
 	}
 

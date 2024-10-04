@@ -1,4 +1,4 @@
-package CD
+package commands
 
 import (
 	"fmt"

@@ -3,7 +3,7 @@ package template
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Edit"
+	"goCmd/cmd/commands"
 	"os"
 )
 
@@ -26,7 +26,7 @@ func Make(commandArgs []string) {
 	if err != nil {
 		fmt.Println(red(err))
 	}
-	err = Edit.File(name)
+	err = commands.EditFile(name)
 	if err != nil {
 		fmt.Println(red(err))
 	}

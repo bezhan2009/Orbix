@@ -1,4 +1,4 @@
-package utils
+package commandsWithSignaiture
 
 import (
 	"github.com/common-nighthawk/go-figure"

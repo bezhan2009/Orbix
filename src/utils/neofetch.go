@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"goCmd/cmd/commands/commandsWithoutSignature/neofetch"
+	"goCmd/cmd/commands"
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
@@ -10,7 +10,7 @@ import (
 
 func NeofetchUtil(executeCommand structs.ExecuteCommandFuncParams, session *system.Session, Commands []structs.Command) {
 	if system.OperationSystem == "windows" {
-		neofetch.FetchNeofetch(session)
+		commands.FetchNeofetch(session)
 	} else {
 		isValid := utils.ValidCommand(executeCommand.CommandLower, Commands)
 

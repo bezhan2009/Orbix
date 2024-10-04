@@ -1,4 +1,4 @@
-package DF
+package commands
 
 import (
 	"fmt"

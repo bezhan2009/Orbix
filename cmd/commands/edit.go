@@ -1,4 +1,4 @@
-package Edit
+package commands
 
 import (
 	"bufio"
@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// File function for editing a file
-func File(filename string) error {
+// EditFile function for editing a file
+func EditFile(filename string) error {
 	file, err := os.OpenFile(filename, os.O_RDWR, 0644)
 	if err != nil {
 		return fmt.Errorf("error opening file: %v", err)

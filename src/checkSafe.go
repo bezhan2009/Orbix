@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
+	"goCmd/cmd/commands"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
 	"golang.org/x/term"
@@ -46,14 +46,14 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 
 	isEmpty, err := isPasswordDirectoryEmpty()
 	if err != nil {
-		Clean.Screen()
+		commands.Screen()
 		fmt.Printf("%s\n", red("Error checking the password directory:", err))
 		sd.IsAdmin = true
 		return "", false
 	}
 
 	if isEmpty {
-		Clean.Screen()
+		commands.Screen()
 		fmt.Printf("%s\n", green("Welcome,", usernameFromDir))
 		sd.IsAdmin = true
 		return usernameFromDir, true
@@ -63,6 +63,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 
 	for {
 		fmt.Print(magenta("enable secure[Y/N]: "))
+
 		var enable string
 		enable, _ = reader.ReadString('\n')
 		enable = strings.TrimSpace(enable)
@@ -98,10 +99,21 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		if errReading == nil {
 			dataRunning = string(sourceRunning)
 			lines := strings.Split(dataRunning, "\n")
+			exactMatchFound := false
+
 			for _, line := range lines {
 				if strings.TrimSpace(line) == strings.TrimSpace(username) {
 					fmt.Println(red("This user already exists!"))
 					return "", false
+				}
+			}
+
+			if !exactMatchFound {
+				for _, line := range lines {
+					if strings.Contains(strings.TrimSpace(line), strings.TrimSpace(username)) {
+						fmt.Println(red("Partial match found with: " + line))
+						return "", false
+					}
 				}
 			}
 		}
@@ -121,7 +133,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 
 		passwordsDir, err := getPasswordsDir()
 		if err != nil {
-			Clean.Screen()
+			commands.Screen()
 			fmt.Printf("%s\n", magenta("Ошибка при получении пути директории паролей"))
 			return "", false
 		}
@@ -129,12 +141,12 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		passwordDir := filepath.Join(passwordsDir, username)
 		filePath := filepath.Join(passwordDir, hashedPassword)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
-			Clean.Screen()
+			commands.Screen()
 			fmt.Printf("%s\n", red("User not found or password is incorrect!"))
 			return usernameFromDir, false
 		}
 
-		Clean.Screen()
+		commands.Screen()
 		fmt.Printf("%s\n", magenta("Welcome, ", username))
 
 		sd.IsAdmin = false

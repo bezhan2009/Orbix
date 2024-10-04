@@ -3,7 +3,7 @@ package wifiUtils
 import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
-	"goCmd/cmd/commands/commandsWithoutSignature/Clean"
+	commands2 "goCmd/cmd/commands"
 	"goCmd/internal/Network/wifiUtils/commands/NetworkScan"
 	darwin2 "goCmd/internal/Network/wifiUtils/commands/Send/darwin"
 	linux2 "goCmd/internal/Network/wifiUtils/commands/Send/linux"
@@ -28,7 +28,7 @@ func Start() {
 		case "help":
 			showHelp()
 		case "clean":
-			Clean.Screen()
+			commands2.Screen()
 		case "scanwifi":
 			nameOS := OS.CheckOS()
 

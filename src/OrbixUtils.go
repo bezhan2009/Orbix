@@ -31,7 +31,7 @@ func initializeRunningFile(username string) {
 						return
 					}
 				}()
-				if _, err := file.WriteString(username + "\n"); err != nil {
+				if _, err := file.WriteString("\n" + username + "\n"); err != nil {
 					fmt.Println("Error writing to running.txt:", err)
 				}
 			}

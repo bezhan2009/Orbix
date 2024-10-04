@@ -1,4 +1,4 @@
-package CF
+package commandsWithSignaiture
 
 import (
 	"fmt"

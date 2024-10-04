@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithoutSignature/CD"
+	"goCmd/cmd/commands"
 	"goCmd/system"
 	"os"
 )
@@ -15,7 +15,7 @@ func ChangeDirectoryUtil(commandArgs []string, session *system.Session) {
 		fmt.Println(dir)
 		return
 	}
-	if err := CD.ChangeDirectory(commandArgs[0]); err != nil {
+	if err := commands.ChangeDirectory(commandArgs[0]); err != nil {
 		fmt.Println(red(err))
 	}
 	dir, _ = os.Getwd()

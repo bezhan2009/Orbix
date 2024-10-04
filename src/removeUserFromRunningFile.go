@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func removeUserFromRunningFile(username string) {
+func RemoveUserFromRunningFile(username string) {
 	runningPath := filepath.Join(Absdir, "running.txt")
 
 	sourceRunning, err := os.ReadFile(runningPath)
@@ -19,7 +19,11 @@ func removeUserFromRunningFile(username string) {
 	lines := strings.Split(string(sourceRunning), "\n")
 	var updatedLines []string
 	for _, line := range lines {
-		if strings.TrimSpace(line) != username {
+		trimmedLine := strings.TrimSpace(line)
+		if strings.Contains(trimmedLine, username) {
+			updatedLine := strings.Replace(trimmedLine, username, "", -1)
+			updatedLines = append(updatedLines, strings.TrimSpace(updatedLine))
+		} else {
 			updatedLines = append(updatedLines, line)
 		}
 	}

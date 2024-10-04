@@ -1,9 +1,8 @@
-package AddOwnCommand
+package commandsWithSignaiture
 
 import (
 	"encoding/json"
 	"fmt"
-	"goCmd/cmd/commands/commandsWithSignaiture/AddOwnCommand/utils"
 	utils2 "goCmd/utils"
 	"os"
 	"os/exec"
@@ -22,7 +21,7 @@ func init() {
 }
 
 func Start() {
-	utils.PrintAddCommand()
+	PrintAddCommand()
 
 	var name string
 	fmt.Println("Command Name:")
@@ -33,7 +32,7 @@ func Start() {
 		return
 	}
 
-	if !utils2.ValidCommand(name, utils.Commands) {
+	if !utils2.ValidCommand(name, Commands) {
 		fmt.Println("Invalid Command")
 		return
 	}

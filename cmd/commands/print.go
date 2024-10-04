@@ -1,4 +1,4 @@
-package printCommand
+package commands
 
 import (
 	"fmt"

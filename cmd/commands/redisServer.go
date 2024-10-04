@@ -1,4 +1,4 @@
-package redis_server
+package commands
 
 import (
 	"fmt"

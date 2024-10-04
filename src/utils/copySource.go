@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/copySource"
+	"goCmd/cmd/commands/commandsWithSignaiture"
 )
 
 func CommandCopySourceUtil(commandArgs []string) {
@@ -18,7 +18,7 @@ func CommandCopySourceUtil(commandArgs []string) {
 		fmt.Println(yellow("copysource example.txt bufer"))
 		return
 	}
-	err := copySource.File(commandArgs[0], commandArgs[1])
+	err := commandsWithSignaiture.File(commandArgs[0], commandArgs[1])
 	if err != nil {
 		fmt.Println(red(err))
 	}

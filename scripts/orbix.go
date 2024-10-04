@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -58,18 +59,53 @@ func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *
 }
 
 func main() {
-	// Инициализация AppState
+
+	// Initialization AppState
 	appState := system.NewSystemData()
+
+	green := color.New(color.FgGreen).SprintFunc()
+	red := color.New(color.FgRed).SprintFunc()
+	magenta := color.New(color.FgMagenta).SprintFunc()
 
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/", indexHandler)
 	go func() {
-		URL := fmt.Sprintf("localhost:%s", system.Port)
-		err := http.ListenAndServe(URL, nil)
-		if err != nil {
-			log.Fatalf("Server failed to start: %v", err)
+		var err error
+		var portInt int
+		for {
+			URL := fmt.Sprintf("localhost:%s", system.Port)
+			err = http.ListenAndServe(URL, nil)
+			if err != nil {
+				fmt.Println()
+				fmt.Println(red(fmt.Sprintf("Server failed to start: %v", err)))
+				portInt, err = strconv.Atoi(system.Port)
+				if err != nil {
+					fmt.Println(red(fmt.Sprintf("PortError: %v", err)))
+					break
+				}
+
+				portInt += 1
+				port := fmt.Sprint(portInt)
+				system.Port = port
+
+				system.ErrorStartingServer = true
+
+				continue
+			}
+			break
+		}
+	}()
+
+	go func() {
+		for {
+			time.Sleep(retryDelay)
+			if system.ErrorStartingServer {
+				fmt.Println(green("The server was able to resolve the error, and now server is listening on port " + system.Port))
+				fmt.Print(magenta("enable secure[Y/N]: "))
+				break
+			}
 		}
 	}()
 
@@ -86,10 +122,6 @@ func main() {
 	}()
 
 	log.SetOutput(logFile)
-
-	green := color.New(color.FgGreen).SprintFunc()
-	red := color.New(color.FgRed).SprintFunc()
-	magenta := color.New(color.FgMagenta).SprintFunc()
 
 	panicChan := make(chan any)
 
@@ -124,4 +156,16 @@ func main() {
 			break
 		}
 	}
+
+	go func() {
+		time.Sleep(time.Second * 1)
+		if !system.OrbixWorking {
+			src.RemoveUserFromRunningFile(system.UserName)
+			os.Exit(1)
+		}
+	}()
+
+	defer func() {
+		src.RemoveUserFromRunningFile(system.UserName)
+	}()
 }

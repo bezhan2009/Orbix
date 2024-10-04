@@ -3,12 +3,12 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/DF"
+	"goCmd/cmd/commands"
 )
 
 func DFUtil(commandArgs []string) {
 	green := color.New(color.FgGreen).SprintFunc()
-	isSuccess, _ := DF.DeleteFolder(commandArgs)
+	isSuccess, _ := commands.DeleteFolder(commandArgs)
 
 	if isSuccess {
 		printSuccess := fmt.Sprintf("the folder has been deleted: %s\n", commandArgs[0])

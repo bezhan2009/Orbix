@@ -1,4 +1,4 @@
-package copySource
+package commandsWithSignaiture
 
 import (
 	"io"

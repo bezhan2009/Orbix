@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"goCmd/utils"
-	"log"
 	"os"
 )
 
@@ -12,14 +11,13 @@ import (
 func Init() {
 	red := color.New(color.FgRed).SprintFunc()
 
-	_, err := os.Create("running.txt")
-	if err != nil {
-		fmt.Println(red("Error creating running.txt: "), err)
-		os.Exit(1)
-	}
 	file, err := os.Open("running.txt")
 	if err != nil {
-		log.Fatal(err)
+		file, err = os.Create("running.txt")
+		if err != nil {
+			fmt.Println(red("Error creating running.txt: "), err)
+			os.Exit(1)
+		}
 	}
 	defer func() {
 		err = file.Close()

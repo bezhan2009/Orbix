@@ -1,4 +1,4 @@
-package ExtractZip
+package commands
 
 import (
 	"archive/zip"

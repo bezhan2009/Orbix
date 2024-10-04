@@ -2,7 +2,7 @@ package src
 
 import (
 	"fmt"
-	"goCmd/cmd/commands/commandsWithoutSignature/CD"
+	"goCmd/cmd/commands"
 	"goCmd/cmd/dirInfo"
 	"goCmd/structs"
 	"goCmd/system"
@@ -26,6 +26,7 @@ var (
 )
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
+	system.OrbixWorking = true
 	RestartAfterInit := false
 	if strings.TrimSpace(commandInput) == "restart" {
 		RestartAfterInit = true
@@ -36,7 +37,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		os.Exit(1)
 	}
 
-	if err := CD.ChangeDirectory(Absdir); err != nil {
+	if err := commands.ChangeDirectory(Absdir); err != nil {
 		fmt.Println(red(err))
 	}
 
@@ -182,6 +183,8 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	system.Path = dir
 
 	for isWorking {
+		system.OrbixWorking = true
+
 		if len(session.CommandHistory) < 10 {
 			Init(session)
 		}
@@ -318,9 +321,13 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	PreviousSessionPath = session.Path
 	session, _ = sessionData.GetSession(PreviousSessionPrefix)
 
-	if err = CD.ChangeDirectory(session.Path); err != nil {
+	if err = commands.ChangeDirectory(session.Path); err != nil {
 		fmt.Println(red(err))
 	}
 
+	system.UserName = session.User
+
 	sessionData.DeleteSession(prefix)
+
+	system.OrbixWorking = false
 }

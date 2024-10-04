@@ -1,9 +1,8 @@
-package Create
+package commands
 
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Create/utils"
 )
 
 func File(commandArgs []string) (string, error) {
@@ -23,13 +22,13 @@ func File(commandArgs []string) (string, error) {
 		return name, nil
 	}
 
-	errExisting := utils.IsExists(name)
+	errExisting := IsExists(name)
 
 	if errExisting == nil {
 		return name, errExisting
 	}
 
-	name, err := utils.CreateFile(name)
+	name, err := CreateFile(name)
 
 	if err != nil {
 		return name, err

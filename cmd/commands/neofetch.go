@@ -1,4 +1,4 @@
-package neofetch
+package commands
 
 import (
 	"fmt"
