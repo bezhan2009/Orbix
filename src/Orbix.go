@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/dirInfo"
+	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
@@ -311,6 +312,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 		if strings.TrimSpace(commandLower) == "orbix" {
 			PreviousSessionPrefix = prefix
+		}
+
+		if strings.TrimSpace(commandLower) == "neofetch" {
+			ExCommUtils.NeofetchUtil(execCommand, session, Commands)
+			continue
 		}
 
 		ExecuteCommand(execCommand)

@@ -8,5 +8,6 @@ func ValidCommand(command string, commands []structs.Command) bool {
 			return true
 		}
 	}
+
 	return false
 }
