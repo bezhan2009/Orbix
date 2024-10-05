@@ -43,6 +43,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"read":        func() { ExCommUtils.ReadFileUtil(executeCommand.CommandArgs) },
 		"remove":      func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"del":         func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
+		"delete":      func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"rem":         func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"rename":      func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, yellow) },
 		"cf":          func() { ExCommUtils.CFUtil(executeCommand.CommandArgs) },
@@ -93,6 +94,6 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 			handler()
 		}
 	} else {
-		HandleUnknownCommandUtil(executeCommand.CommandLower, executeCommand.CommandLine, executeCommand.Commands)
+		HandleUnknownCommandUtil(executeCommand.CommandLower, executeCommand.Commands)
 	}
 }

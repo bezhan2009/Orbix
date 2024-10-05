@@ -44,6 +44,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *system.AppState) {
 	defer func() {
 		if r := recover(); r != nil {
+			src.RemoveUserFromRunningFile(system.UserName)
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
 			log.Printf("Panic recovered: %v", r)

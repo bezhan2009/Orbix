@@ -83,7 +83,9 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 
 		username = nameUser
-		initializeRunningFile(username) // New helper function
+		if username != user {
+			initializeRunningFile(username)
+		}
 
 		if user == username {
 			sessionData.IsAdmin = true
@@ -93,6 +95,8 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			sessionData.User = username
 		}
 	}
+
+	system.UserName = username
 
 	location := os.Getenv("CITY")
 	if location == "" {
@@ -280,7 +284,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 				if err != nil {
 					isValid = utils.ValidCommand(commandLower, AdditionalCommands)
 					if !isValid {
-						HandleUnknownCommandUtil(commandLower, commandLine, Commands)
+						HandleUnknownCommandUtil(commandLower, Commands)
 						continue
 					}
 				}
@@ -330,8 +334,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	if err = commands.ChangeDirectory(session.Path); err != nil {
 		fmt.Println(red(err))
 	}
-
-	system.UserName = session.User
 
 	sessionData.DeleteSession(prefix)
 
