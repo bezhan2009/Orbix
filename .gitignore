@@ -35,3 +35,5 @@ scripts/dump.rdb
 scripts/dist
 go_build_goCmd.exe
 scripts/scripts.exe
+*.txt
+*.log

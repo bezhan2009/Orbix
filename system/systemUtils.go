@@ -16,4 +16,6 @@ var (
 	ErrorStartingServer = false
 	UserName            = ""
 	OrbixWorking        = false
+	Localhost           = ""
+	GitHubURL           = "https://github.com/bezhan2009/Orbix"
 )

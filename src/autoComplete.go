@@ -8,11 +8,11 @@ import (
 
 func autoComplete(d prompt.Document) []prompt.Suggest {
 	text := d.TextBeforeCursor()
+
+	// Если ничего не введено, не показывать подсказки
 	if len(text) == 0 {
 		return []prompt.Suggest{}
 	}
-
-	parts := strings.Split(text, " ")
 
 	lastChar := ""
 	if d.Text != "" {
@@ -36,30 +36,48 @@ func autoComplete(d prompt.Document) []prompt.Suggest {
 		}
 	}
 
-	// Подсказки для первого слова в команде (команды и файлы в текущем каталоге)
-	if len(parts) == 1 {
-		commandSuggestions := prompt.FilterHasPrefix(createUniqueCommandSuggestions(), text, true)
-		fileSuggestions := prompt.FilterHasPrefix(createFileSuggestions("."), text, true)
-		return append(commandSuggestions, fileSuggestions...)
+	// Разделяем строку на слова
+	words := strings.Fields(text)
+
+	// Если это первое слово, предлагать команды, файлы и историю команд
+	if len(words) == 1 {
+		commandSuggestions := createUniqueCommandSuggestions(words[0])
+		fileSuggestions := createFileSuggestions(".", words[0])
+		commandHistorySuggestions := createCommandHistorySuggestions(words[0])
+		return removeDuplicateSuggestions(append(append(commandSuggestions, fileSuggestions...), commandHistorySuggestions...))
 	}
 
-	// Подсказки для всех последующих слов (только файлы и ранее введенные команды)
-	dir := "."
-	if len(parts) > 2 {
-		dir = strings.Join(parts[:len(parts)-1], " ")
-	}
-	fileSuggestions := prompt.FilterHasPrefix(createFileSuggestions(dir), parts[len(parts)-1], true)
-	commandHistorySuggestions := prompt.FilterHasPrefix(createCommandHistorySuggestions(), parts[len(parts)-1], true)
-	return append(fileSuggestions, commandHistorySuggestions...)
+	// После первого пробела предлагать только файлы и историю команд
+	lastWord := words[len(words)-1]
+	fileSuggestions := createFileSuggestions(".", lastWord)
+	commandHistorySuggestions := createCommandHistorySuggestions(lastWord)
+
+	return removeDuplicateSuggestions(append(fileSuggestions, commandHistorySuggestions...))
 }
 
-func createUniqueCommandSuggestions() []prompt.Suggest {
+// Функция для удаления дубликатов из списка подсказок
+func removeDuplicateSuggestions(suggestions []prompt.Suggest) []prompt.Suggest {
+	unique := make(map[string]struct{})
+	var result []prompt.Suggest
+
+	for _, suggestion := range suggestions {
+		// Используем текст подсказки как ключ для проверки уникальности
+		if _, exists := unique[suggestion.Text]; !exists {
+			unique[suggestion.Text] = struct{}{}
+			result = append(result, suggestion)
+		}
+	}
+
+	return result
+}
+
+func createUniqueCommandSuggestions(prefix string) []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
 	var suggestions []prompt.Suggest
 
-	// Assuming AdditionalCommands is a predefined list of commands
+	// Предполагается, что AdditionalCommands - это список доступных команд
 	for _, cmd := range AdditionalCommands {
-		if _, exists := uniqueCommands[cmd.Name]; !exists {
+		if _, exists := uniqueCommands[cmd.Name]; !exists && strings.HasPrefix(cmd.Name, prefix) {
 			uniqueCommands[cmd.Name] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
 		}
@@ -68,13 +86,13 @@ func createUniqueCommandSuggestions() []prompt.Suggest {
 	return suggestions
 }
 
-func createCommandHistorySuggestions() []prompt.Suggest {
+func createCommandHistorySuggestions(prefix string) []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
 	var suggestions []prompt.Suggest
 
-	// Assuming CommandHistory is a predefined slice of strings (previous commands)
+	// Предполагается, что CommandHistory - это слайс строк с историей команд
 	for _, cmd := range GlobalSession.CommandHistory {
-		if _, exists := uniqueCommands[cmd]; !exists {
+		if _, exists := uniqueCommands[cmd]; !exists && strings.HasPrefix(cmd, prefix) {
 			uniqueCommands[cmd] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd})
 		}
@@ -83,7 +101,7 @@ func createCommandHistorySuggestions() []prompt.Suggest {
 	return suggestions
 }
 
-func createFileSuggestions(dir string) []prompt.Suggest {
+func createFileSuggestions(dir string, prefix string) []prompt.Suggest {
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		return []prompt.Suggest{}
@@ -91,7 +109,9 @@ func createFileSuggestions(dir string) []prompt.Suggest {
 
 	var suggestions []prompt.Suggest
 	for _, file := range files {
-		suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
+		if strings.HasPrefix(file.Name(), prefix) {
+			suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
+		}
 	}
 	return suggestions
 }

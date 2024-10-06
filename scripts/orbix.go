@@ -125,6 +125,8 @@ func main() {
 
 	panicChan := make(chan any)
 
+	system.Localhost = fmt.Sprintf("http://localhost:%s", system.Port)
+
 	for {
 		isPanic := false
 

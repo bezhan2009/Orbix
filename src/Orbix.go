@@ -267,14 +267,19 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			continue
 		}
 
-		session.CommandHistory = append(session.CommandHistory, commandLine)
-
 		session.Path = dir
-		GlobalSession.CommandHistory = session.CommandHistory
 
 		isValid := utils.ValidCommand(commandLower, Commands)
 
+		if len(strings.TrimSpace(commandLower)) != len(strings.TrimSpace(commandLine)) && isValid {
+			session.CommandHistory = append(session.CommandHistory, commandLine)
+			GlobalSession.CommandHistory = session.CommandHistory
+		}
+
 		if !isValid {
+			session.CommandHistory = append(session.CommandHistory, commandLine)
+			GlobalSession.CommandHistory = session.CommandHistory
+
 			fullCommand := append([]string{command}, commandArgs...)
 			err = utils.ExternalCommand(fullCommand)
 			if err != nil {

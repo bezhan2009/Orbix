@@ -134,7 +134,6 @@ var Commands = []structs.Command{
 	{"prompt", "Changes the command prompt in Orbix"},
 	{"systemorbix", "Displays system information about Orbix"},
 	{"rename", "Renames a file or directory"},
-	{"neofetch", "Displays information about the system"},
 	{"rem", "Deletes a file"},
 	{"del", "Deletes a file"},
 	{"delete", "Deletes a file"},
@@ -183,7 +182,6 @@ var AdditionalCommands = []structs.Command{
 	{"template", "Executes a specific command template"},
 	{"newuser", "Adds a new user to Orbix"},
 	{"prompt", "Changes the command prompt in Orbix"},
-	{"neofetch", "Displays information about the system"},
 	{"systemorbix", "Displays system information about Orbix"},
 	{"rename", "Renames a file or directory"},
 	{"rem", "Deletes a file"},
@@ -229,14 +227,12 @@ var AdditionalCommands = []structs.Command{
 	{"gcc", "Runs C compiled gcc"},
 	{"deploy", "Deploys the application"},
 	{"upgrade", "Upgrades installed packages"},
-	{"export", "Exports data to a file"},
 	{"import", "Imports data from a file"},
 	{"compress", "Compresses files into an archive"},
 	{"decompress", "Decompresses files from an archive"},
 	{"convert", "Converts files from one format to another"},
 	{"monitor", "Monitors system resources"},
 	{"network", "Displays network information and status"},
-	{"ubuntu", ""},
 }
 
 var CommandHistory []string
@@ -255,6 +251,7 @@ func Init(session *system.Session) {
 	session.CommandHistory = append(session.CommandHistory, "start")
 	session.CommandHistory = append(session.CommandHistory, ".")
 	session.CommandHistory = append(session.CommandHistory, "remote")
+	session.CommandHistory = append(session.CommandHistory, "neofetch")
 	session.CommandHistory = append(session.CommandHistory, "remote -v")
 	session.CommandHistory = append(session.CommandHistory, "add")
 	session.CommandHistory = append(session.CommandHistory, "add .")
@@ -268,8 +265,11 @@ func Init(session *system.Session) {
 	session.CommandHistory = append(session.CommandHistory, "-m")
 	session.CommandHistory = append(session.CommandHistory, "-am")
 	session.CommandHistory = append(session.CommandHistory, "--list")
-	session.CommandHistory = append(session.CommandHistory, "config --global user.name \"Your name\"")
-	session.CommandHistory = append(session.CommandHistory, "config --global user.email \"your_email@example.com\"")
+	session.CommandHistory = append(session.CommandHistory, "\"Your name\"")
+	session.CommandHistory = append(session.CommandHistory, "\"your_email@example.com\"")
+	session.CommandHistory = append(session.CommandHistory, "config")
+	session.CommandHistory = append(session.CommandHistory, "--global user.name")
+	session.CommandHistory = append(session.CommandHistory, "--global user.email")
 	session.CommandHistory = append(session.CommandHistory, "branch")
 	session.CommandHistory = append(session.CommandHistory, "checkout")
 	session.CommandHistory = append(session.CommandHistory, "status")
@@ -302,8 +302,8 @@ func Init(session *system.Session) {
 	session.CommandHistory = append(session.CommandHistory, "echo=off")
 	session.CommandHistory = append(session.CommandHistory, "changelog")
 	session.CommandHistory = append(session.CommandHistory, "beta")
-	session.CommandHistory = append(session.CommandHistory, "http://localhost:6060")
-	session.CommandHistory = append(session.CommandHistory, "https://github.com/bezhan2009/Orbix")
+	session.CommandHistory = append(session.CommandHistory, system.Localhost)
+	session.CommandHistory = append(session.CommandHistory, system.GitHubURL)
 	session.CommandHistory = append(session.CommandHistory, "upgrade")
 	session.CommandHistory = append(session.CommandHistory, "export")
 	session.CommandHistory = append(session.CommandHistory, "import")
