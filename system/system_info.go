@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	Version         = "1.3.71"
+	Version         = "1.4.9"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
@@ -18,6 +18,7 @@ const (
 
 var (
 	BetaVersion = SetBetaVersion(GetColorsMap())
+	Colors      = SetColorsMap()
 )
 
 func SetBetaVersion(colors map[string]func(...interface{}) string) bool {
@@ -40,7 +41,7 @@ func SetBetaVersion(colors map[string]func(...interface{}) string) bool {
 	}
 }
 
-func GetColorsMap() map[string]func(...interface{}) string {
+func SetColorsMap() map[string]func(...interface{}) string {
 	red := color.New(color.FgRed).SprintFunc()
 	yellow := color.New(color.FgYellow).SprintFunc()
 	cyan := color.New(color.FgCyan).SprintFunc()
@@ -58,4 +59,8 @@ func GetColorsMap() map[string]func(...interface{}) string {
 	}
 
 	return colors
+}
+
+func GetColorsMap() map[string]func(...interface{}) string {
+	return Colors
 }

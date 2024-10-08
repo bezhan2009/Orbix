@@ -15,14 +15,6 @@ import (
 
 func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	ExecutingCommand = true
-	//go func() {
-	//	time.Sleep(1 * time.Second)
-	//	if SignalReceived {
-	//		executeCommand.CommandArgs = []string{}
-	//		executeCommand.IsPermission = false
-	//		fmt.Println(executeCommand)
-	//	}
-	//}()
 	session, exists := executeCommand.SD.GetSession(executeCommand.SessionPrefix)
 	if !exists {
 		fmt.Println(red("Session Not Found!!!"))
