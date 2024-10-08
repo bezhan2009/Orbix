@@ -11,7 +11,7 @@ import (
 
 var customCommands map[string]string
 
-func init() {
+func initCustomCommands() {
 	customCommands = make(map[string]string)
 
 	err := loadCustomCommandsFromFile("custom_commands.json")

@@ -10,11 +10,19 @@ import (
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
-	"goCmd/utils"
 	"os"
 )
 
 func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
+	ExecutingCommand = true
+	//go func() {
+	//	time.Sleep(1 * time.Second)
+	//	if SignalReceived {
+	//		executeCommand.CommandArgs = []string{}
+	//		executeCommand.IsPermission = false
+	//		fmt.Println(executeCommand)
+	//	}
+	//}()
 	session, exists := executeCommand.SD.GetSession(executeCommand.SessionPrefix)
 	if !exists {
 		fmt.Println(red("Session Not Found!!!"))
@@ -49,17 +57,26 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"cf":          func() { ExCommUtils.CFUtil(executeCommand.CommandArgs) },
 		"df":          func() { ExCommUtils.DFUtil(executeCommand.CommandArgs) },
 		"ren":         func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, yellow) },
-		"cd":          func() { ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs, session) },
-		"edit":        func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
-		"open_link":   func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
-		"print":       func() { commands.Print(executeCommand.CommandArgs) },
+		"cd": func() {
+			ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs, session)
+			SetGitBranch(session)
+		},
+		"edit":      func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
+		"open_link": func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
+		"print":     func() { commands.Print(executeCommand.CommandArgs) },
+		"neofetch":  func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
 
-		"systemorbix":  utils.SystemInformation,
-		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
-		"clean":        commands.Screen,
-		"cls":          commands.Screen,
-		"clear":        commands.Screen,
-		"help":         displayHelp,
+		"systemorbix": SystemInformation,
+		"clean":       commands.Screen,
+		"cls":         commands.Screen,
+		"clear":       commands.Screen,
+		"help": func() {
+			if !system.BetaVersion {
+				displayHelp()
+			} else {
+				displayHelpBeta()
+			}
+		},
 		"ls":           commands.PrintLS,
 		"redis":        commands.StartRedisServer,
 		"redis-server": commands.StartRedisServer,

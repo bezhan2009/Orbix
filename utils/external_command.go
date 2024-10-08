@@ -34,7 +34,7 @@ func ExternalCommand(command []string) error {
 	}
 
 	// Special handling for Windows to ensure the correct executable is found
-	if runtime.GOOS == "windows" && !strings.HasSuffix(cmd.Path, ".exe") {
+	if runtime.GOOS == "windows" && !strings.HasSuffix(cmd.Path, ".exe") && !strings.HasSuffix(cmd.Path, ".") {
 		cmd.Path += ".exe"
 	}
 

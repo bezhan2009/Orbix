@@ -75,23 +75,20 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 	return commandLine, command[0], commandParts[1:], strings.ToLower(commandParts[0])
 }
 
-func processCommand(commandLower string, commandArgs []string, sd *system.Session) error {
-	if commandLower == "cd" {
-		SetGitBranch(sd)
-		return nil
+func processCommand(commandLower string) (bool, error) {
+	if strings.TrimSpace(commandLower) == "cd" {
+		return true, nil
 	}
 
-	if commandLower == "git" && len(commandArgs) > 2 {
-		if commandArgs[0] == "switch" {
-			SetGitBranch(sd)
-		}
+	if strings.TrimSpace(commandLower) == "git" {
+		return true, nil
 	}
 
 	if commandLower == "signout" {
-		return fmt.Errorf("signout")
+		return false, fmt.Errorf("signout")
 	}
 
-	return nil
+	return false, nil
 }
 
 // Функция обработки каждой команды

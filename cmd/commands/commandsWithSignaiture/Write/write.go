@@ -2,13 +2,15 @@ package Write
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"goCmd/cmd/commands/commandsWithSignaiture/Write/utils"
 	"strings"
 )
 
 func File(commandArgs []string) error {
+	yellow := color.New(color.FgYellow).SprintFunc()
 	if len(commandArgs) < 2 {
-		fmt.Println("Usage: write <file> <data>")
+		fmt.Println(yellow("Usage: write <file> <data>"))
 		return nil
 	}
 

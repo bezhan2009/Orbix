@@ -83,7 +83,9 @@ func main() {
 				portInt, err = strconv.Atoi(system.Port)
 				if err != nil {
 					fmt.Println(red(fmt.Sprintf("PortError: %v", err)))
-					break
+					system.Port = "6060"
+					system.ErrorStartingServer = true
+					continue
 				}
 
 				portInt += 1

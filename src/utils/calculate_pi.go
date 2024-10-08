@@ -12,5 +12,6 @@ func CalculatePiUtil(commandArgs []string) {
 			precision = p
 		}
 	}
+
 	PiCalculation.PiCalcCommand(precision)
 }

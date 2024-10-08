@@ -9,13 +9,15 @@ import (
 func autoComplete(d prompt.Document) []prompt.Suggest {
 	text := d.TextBeforeCursor()
 
+	text = strings.TrimSpace(text)
+
 	// Если ничего не введено, не показывать подсказки
 	if len(text) == 0 {
 		return []prompt.Suggest{}
 	}
 
 	lastChar := ""
-	if d.Text != "" {
+	if strings.TrimSpace(d.Text) != "" {
 		lastChar = string(d.Text[len(d.Text)-1])
 	}
 

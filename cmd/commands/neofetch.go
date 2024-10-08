@@ -78,4 +78,5 @@ func FetchNeofetch(GlobalSession *system.Session) {
 		cyan("       /0-/+oosssooyMMNyssds=   /0-/+oosssooyMMNyssss/"))
 
 	fmt.Println(neofetch)
+	fmt.Println()
 }

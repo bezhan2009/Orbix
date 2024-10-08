@@ -22,10 +22,10 @@ func handlePromptCommand(commandArgs []string, prompt *string) {
 	if namePrompt != "delete" {
 		namePrompt = strings.TrimSpace(namePrompt)
 		*prompt = namePrompt
-		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt))
+		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt), "green")
 	} else {
 		*prompt, _ = os.Getwd()
-		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt))
+		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt), "green")
 		*prompt = ""
 	}
 }

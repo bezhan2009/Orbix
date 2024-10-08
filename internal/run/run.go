@@ -48,6 +48,7 @@ func Init() {
 
 	if strings.TrimSpace(strings.ToLower(system.OperationSystem)) == "windows" {
 		src.Commands = append(src.Commands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
+	} else {
 		src.Commands = append(src.Commands, structs.Command{Name: "sudo", Description: ""})
 	}
 }

@@ -326,5 +326,4 @@ func InitColors() {
 	green = color.New(color.FgGreen).SprintFunc()
 	magenta = color.New(color.FgMagenta).SprintFunc()
 	blue = color.New(color.FgBlue).SprintFunc()
-
 }

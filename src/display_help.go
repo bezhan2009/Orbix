@@ -49,3 +49,11 @@ EXIT               exit
 `
 	fmt.Println(helpText)
 }
+
+func displayHelpBeta() {
+	for _, command := range Commands {
+		if command.Description != "" {
+			fmt.Printf("%s      %s\n", command.Name, command.Description)
+		}
+	}
+}
