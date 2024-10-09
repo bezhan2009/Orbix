@@ -320,10 +320,13 @@ func Init(session *system.Session) {
 }
 
 func InitColors() {
-	red = color.New(color.FgRed).SprintFunc()
-	yellow = color.New(color.FgYellow).SprintFunc()
-	cyan = color.New(color.FgCyan).SprintFunc()
-	green = color.New(color.FgGreen).SprintFunc()
-	magenta = color.New(color.FgMagenta).SprintFunc()
-	blue = color.New(color.FgBlue).SprintFunc()
+	colors := make(map[string]func(...interface{}) string)
+	colors = system.GetColorsMap()
+
+	red = colors["red"]
+	yellow = colors["yellow"]
+	cyan = colors["cyan"]
+	green = colors["green"]
+	magenta = colors["magenta"]
+	blue = colors["blue"]
 }

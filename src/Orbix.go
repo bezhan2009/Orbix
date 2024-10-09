@@ -303,6 +303,21 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			continue
 		}
 
+		var firstCharIs, lastCharIs bool
+		for index, commandLetter := range commandLine {
+			if (string(commandLetter) == string('"') || string(commandLetter) == string("'")) && index == 0 {
+				firstCharIs = true
+			} else if (string(commandLetter) == string('"') || string(commandLetter) == string("'")) && index == len(commandLine)-1 {
+				lastCharIs = true
+			}
+		}
+
+		if firstCharIs && lastCharIs {
+			commandLower = "print"
+			commandLine = fmt.Sprintf("print %s", commandLine)
+			commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
+		}
+
 		session.Path = dir
 
 		isValid := utils.ValidCommand(commandLower, Commands)

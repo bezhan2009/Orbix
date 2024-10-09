@@ -9,7 +9,6 @@ import (
 	"github.com/fatih/color"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/validators"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +26,6 @@ func NewUser(systemPath string) {
 	err := os.Chdir(systemPath)
 	if err != nil {
 		fmt.Println(red("Error when changing the path:", err))
-		log.Fatalf("Error when changing the path: %v", err)
 	}
 
 	reader := bufio.NewReader(os.Stdin)
@@ -69,7 +67,6 @@ func NewUser(systemPath string) {
 
 	fmt.Println(green("Your password (file):", passwordFilePath))
 	fmt.Println(green("Hashed password saved to file."))
-	os.Exit(1)
 }
 
 func hashPassword(password string) string {
