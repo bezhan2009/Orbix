@@ -145,7 +145,7 @@ func main() {
 		}
 
 		system.Attempts++
-		if system.Attempts >= maxRetryAttempts {
+		if system.Attempts > maxRetryAttempts {
 			fmt.Println(red("Max retry attempts reached. Exiting..."))
 			log.Println("Max retry attempts reached. Exiting...")
 			break

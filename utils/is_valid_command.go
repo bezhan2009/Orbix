@@ -11,3 +11,13 @@ func ValidCommand(command string, commands []structs.Command) bool {
 
 	return false
 }
+
+func IsValid(command string, commands []string) bool {
+	for _, cmd := range commands {
+		if command == cmd {
+			return true
+		}
+	}
+
+	return false
+}

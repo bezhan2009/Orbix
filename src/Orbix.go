@@ -28,6 +28,7 @@ var (
 	SignalReceived        = false
 	ExecutingCommand      = false
 	Prefix                = ""
+	RebootAttempts        = uint(0)
 )
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
@@ -35,6 +36,8 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		if r := recover(); r != nil {
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
+
+			RebootAttempts += 1
 
 			fmt.Println(yellow("Recovering from panic"))
 
@@ -49,6 +52,13 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			Orbix(commandInput, echo, reboot, SD)
 		}
 	}()
+
+	if RebootAttempts > 5 {
+		system.OrbixWorking = false
+		fmt.Println(red("Max retry attempts reached. Exiting..."))
+		log.Println("Max retry attempts reached. Exiting...")
+		return
+	}
 
 	system.OrbixWorking = true
 	RestartAfterInit := false
@@ -188,6 +198,10 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		prefix = sessionData.NewSessionData(sessionData.Path, sessionData.User, sessionData.GitBranch, sessionData.IsAdmin)
 	}
 
+	var colorsMap map[string]func(...interface{}) string
+
+	colorsMap = system.GetColorsMap()
+
 	session, exists := sessionData.GetSession(prefix)
 	if !exists {
 		fmt.Println(red("Session does not exist!"))
@@ -216,8 +230,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	system.Path = dir
 
 	for isWorking {
-		system.OrbixWorking = true
-
 		if len(session.CommandHistory) < 10 {
 			Init(session)
 		}
@@ -255,11 +267,16 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			}
 		}(&rebooted)
 
+		if RebootAttempts != 0 {
+			RebootAttempts = 0
+		}
+
 		if echo && session.IsAdmin {
 			if prompt == "" {
 				fmt.Printf("ORB %s>%s", dir, green(commandInput))
 			} else {
-				fmt.Print(green(prompt))
+				splitPrompt := strings.Split(prompt, ", ")
+				fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
 			}
 		}
 
