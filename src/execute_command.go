@@ -57,11 +57,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"open_link": func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
 		"print":     func() { commands.Print(executeCommand.CommandArgs) },
 		"neofetch":  func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
-
-		"systemorbix": SystemInformation,
-		"clean":       commands.Screen,
-		"cls":         commands.Screen,
-		"clear":       commands.Screen,
+		"setvar":    func() { SetVariableUtil(executeCommand.CommandArgs) },
 		"help": func() {
 			if !system.BetaVersion {
 				displayHelp()
@@ -69,6 +65,11 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 				displayHelpBeta()
 			}
 		},
+
+		"systemorbix":  SystemInformation,
+		"clean":        commands.Screen,
+		"cls":          commands.Screen,
+		"clear":        commands.Screen,
 		"ls":           commands.PrintLS,
 		"redis":        commands.StartRedisServer,
 		"redis-server": commands.StartRedisServer,

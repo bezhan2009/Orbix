@@ -29,6 +29,8 @@ var (
 	ExecutingCommand      = false
 	Prefix                = ""
 	RebootAttempts        = uint(0)
+	Location              = ""
+	Prompt                = "$"
 )
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
@@ -132,9 +134,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 	system.UserName = username
 
-	location := os.Getenv("CITY")
-	if location == "" {
-		location = "Unknown City"
+	if strings.TrimSpace(Location) == "" {
+		Location = os.Getenv("CITY")
+		if Location == "" {
+			Location = "Unknown City"
+		}
 	}
 
 	// Signal handling setup (outside the loop)
@@ -170,7 +174,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 					}
 					fmt.Println()
 					gitBranch, _ := GetCurrentGitBranch()
-					printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch}, commandInput)
+					printPromptInfo(Location, printUserDir, dirC, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch}, commandInput)
 				} else {
 					dir, _ := os.Getwd()
 					fmt.Println()
@@ -302,7 +306,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 			if echo {
 				if prompt == "" {
-					printPromptInfo(location, printUserDir, dirC, green, cyan, yellow, magenta, session, commandInput) // New helper function
+					printPromptInfo(Location, printUserDir, dirC, green, cyan, yellow, magenta, session, commandInput) // New helper function
 				} else {
 					fmt.Print(green(prompt))
 				}

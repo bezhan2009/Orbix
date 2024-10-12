@@ -162,6 +162,7 @@ var Commands = []structs.Command{
 	{"cd", "Changes the current directory"},
 	{"edit", "Opens a file for editing"},
 	{"ls", "Lists the contents of a directory"},
+	{"setvar", "Sets a new value for variable in code"},
 	{"scanport", "Scans open network ports"},
 	{"dnslookup", "Performs DNS queries"},
 	{"ipinfo", "Displays information about an IP address"},
@@ -205,6 +206,7 @@ var AdditionalCommands = []structs.Command{
 	{"cd", "Changes the current directory"},
 	{"edit", "Opens a file for editing"},
 	{"ls", "Lists the contents of a directory"},
+	{"setvar", "Sets a new value for variable in code"},
 	{"scanport", "Scans open network ports"},
 	{"dnslookup", "Performs DNS queries"},
 	{"ipinfo", "Displays information about an IP address"},
@@ -252,6 +254,9 @@ func Init(session *system.Session) {
 	session.CommandHistory = append(session.CommandHistory, ".")
 	session.CommandHistory = append(session.CommandHistory, "remote")
 	session.CommandHistory = append(session.CommandHistory, "neofetch")
+	session.CommandHistory = append(session.CommandHistory, "location")
+	session.CommandHistory = append(session.CommandHistory, "diruser")
+	session.CommandHistory = append(session.CommandHistory, "prompt")
 	session.CommandHistory = append(session.CommandHistory, "remote -v")
 	session.CommandHistory = append(session.CommandHistory, "add")
 	session.CommandHistory = append(session.CommandHistory, "add .")

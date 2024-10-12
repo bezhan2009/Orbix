@@ -54,7 +54,7 @@ func printPromptInfo(location, user, dirC string, green, cyan, yellow, magenta f
 		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
 		cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["), green(sd.GitBranch), green("]"))
 	fmt.Printf("%s%s%s %s",
-		yellow("└"), yellow("─"), green("$"), green(commandInput))
+		yellow("└"), yellow("─"), green(strings.TrimSpace(Prompt)), green(commandInput))
 }
 
 func readCommandLine(commandInput string) (string, string, []string, string) {
@@ -138,4 +138,11 @@ func restorePreviousSession(sessionData *system.AppState, prefix string) *system
 		return nil
 	}
 	return session
+}
+
+// Map, ограничивающий изменяемые переменные
+var editableVars = map[string]interface{}{
+	"diruser":  &DirUser,
+	"location": &Location,
+	"prompt":   &Prompt,
 }

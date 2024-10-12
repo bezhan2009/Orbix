@@ -18,7 +18,7 @@ const (
 
 var (
 	BetaVersion = SetBetaVersion(GetColorsMap())
-	Colors      = SetColorsMap()
+	colors      = SetColorsMap()
 )
 
 func SetBetaVersion(colors map[string]func(...interface{}) string) bool {
@@ -62,5 +62,5 @@ func SetColorsMap() map[string]func(...interface{}) string {
 }
 
 func GetColorsMap() map[string]func(...interface{}) string {
-	return Colors
+	return colors
 }
