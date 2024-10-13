@@ -163,6 +163,7 @@ var Commands = []structs.Command{
 	{"edit", "Opens a file for editing"},
 	{"ls", "Lists the contents of a directory"},
 	{"setvar", "Sets a new value for variable in code"},
+	{"getvar", "Gets value of variable in code"},
 	{"scanport", "Scans open network ports"},
 	{"dnslookup", "Performs DNS queries"},
 	{"ipinfo", "Displays information about an IP address"},
@@ -207,6 +208,7 @@ var AdditionalCommands = []structs.Command{
 	{"edit", "Opens a file for editing"},
 	{"ls", "Lists the contents of a directory"},
 	{"setvar", "Sets a new value for variable in code"},
+	{"getvar", "Gets value of variable in code"},
 	{"scanport", "Scans open network ports"},
 	{"dnslookup", "Performs DNS queries"},
 	{"ipinfo", "Displays information about an IP address"},
@@ -270,6 +272,7 @@ func Init(session *system.Session) {
 	session.CommandHistory = append(session.CommandHistory, "-m")
 	session.CommandHistory = append(session.CommandHistory, "-am")
 	session.CommandHistory = append(session.CommandHistory, "--list")
+	session.CommandHistory = append(session.CommandHistory, "getvar *")
 	session.CommandHistory = append(session.CommandHistory, "\"Your name\"")
 	session.CommandHistory = append(session.CommandHistory, "\"your_email@example.com\"")
 	session.CommandHistory = append(session.CommandHistory, "config")

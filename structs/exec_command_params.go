@@ -11,7 +11,7 @@ type ExecuteCommandFuncParams struct {
 	CommandArgs   []string
 	Username      string
 	IsWorking     *bool
-	IsPermission  bool
+	IsPermission  *bool
 	SD            *system.AppState
 	SessionPrefix string
 }

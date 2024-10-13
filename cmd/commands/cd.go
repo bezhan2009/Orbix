@@ -11,7 +11,7 @@ func ChangeDirectory(path string) error {
 	if path == "" {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			return fmt.Errorf("не удалось получить домашнюю директорию: %v", err)
+			return fmt.Errorf("couldn't get the home directory: %v", err)
 		}
 		path = homeDir
 	}
@@ -25,7 +25,7 @@ func ChangeDirectory(path string) error {
 	if path == ".." {
 		currentDir, err := os.Getwd()
 		if err != nil {
-			return fmt.Errorf("не удалось получить текущую директорию: %v", err)
+			return fmt.Errorf("couldn't get the current directory: %v", err)
 		}
 		parentDir := filepath.Dir(currentDir)
 		path = parentDir
@@ -34,13 +34,13 @@ func ChangeDirectory(path string) error {
 	// Attempt to change directory
 	err := os.Chdir(path)
 	if err != nil {
-		return fmt.Errorf("не удалось сменить директорию: %v", err)
+		return fmt.Errorf("failed to change directory: %v", err)
 	}
 
 	// Print the new current directory, similar to how Windows `cd` works
 	_, err = os.Getwd()
 	if err != nil {
-		return fmt.Errorf("не удалось получить текущую директорию после смены: %v", err)
+		return fmt.Errorf("couldn't get the current directory after the change: %v", err)
 	}
 
 	return nil

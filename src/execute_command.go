@@ -31,6 +31,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"dnslookup":   func() { ExCommUtils.DnsLookupUtil(executeCommand.CommandArgs) },
 		"ipinfo":      func() { ExCommUtils.IPInfoUtil(executeCommand.CommandArgs) },
 		"geoip":       func() { ExCommUtils.GeoIPUtil(executeCommand.CommandArgs) },
+		"getvar":      func() { GetVariableValueUtil(executeCommand) },
 		"matrixmul":   func() { MatrixMultiplication.MatrixMulCommand(executeCommand.CommandArgs) },
 		"primes":      func() { ExCommUtils.CalculatePrimesUtil(executeCommand.CommandArgs) },
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(executeCommand.CommandArgs) },
@@ -93,17 +94,20 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		},
 		"exit": func() {
 			*executeCommand.IsWorking = false
+			*executeCommand.IsPermission = false
 			RemoveUserFromRunningFile(executeCommand.Username)
 		},
 	}
 
-	if handler, exists := commandMap[executeCommand.CommandLower]; exists {
-		handler()
-	} else if handler, exists = permissionRequiredCommands[executeCommand.CommandLower]; exists {
-		if executeCommand.IsPermission {
+	if *executeCommand.IsWorking {
+		if handler, exists := commandMap[executeCommand.CommandLower]; exists {
 			handler()
+		} else if handler, exists = permissionRequiredCommands[executeCommand.CommandLower]; exists {
+			if *executeCommand.IsPermission {
+				handler()
+			}
+		} else {
+			HandleUnknownCommandUtil(executeCommand.CommandLower, executeCommand.Commands)
 		}
-	} else {
-		HandleUnknownCommandUtil(executeCommand.CommandLower, executeCommand.Commands)
 	}
 }

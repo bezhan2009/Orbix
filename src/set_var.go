@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"goCmd/src/utils"
+	"goCmd/structs"
 	"goCmd/system"
 	"reflect"
 	"strings"
@@ -71,4 +72,82 @@ func SetVariable(varName string, value interface{}) error {
 		return nil
 	}
 	return errors.New(fmt.Sprintf("The %s variable was not found or cannot be changed", varName))
+}
+
+func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
+	args := params.CommandArgs
+
+	if len(args) < 1 {
+		fmt.Println(yellow("Usage: getvar <variable_name>"))
+		fmt.Println(yellow("Or: getvar *"))
+		return
+	}
+
+	varName := args[0]
+
+	if strings.TrimSpace(varName) == "user" {
+		if strings.TrimSpace(User) == "" {
+			fmt.Println(green("user:"), green(params.Username))
+			return
+		} else {
+			fmt.Println(green("user:"), User)
+			return
+		}
+	}
+
+	if strings.TrimSpace(varName) == "current_user" {
+		fmt.Println(green("current_user:"), green(params.Username))
+		return
+	}
+
+	if strings.TrimSpace(varName) == "*" {
+		fmt.Println(green("current_user:"), green(params.Username))
+
+		for _, v := range availableEditableVars {
+			value, err := GetVariableValue(v)
+			if err != nil {
+				fmt.Println(red(err.Error()))
+			}
+
+			fmt.Println(green(fmt.Sprintf("%s: %s", v, value)))
+		}
+
+		return
+	}
+
+	value, err := GetVariableValue(varName)
+	if err != nil {
+		fmt.Println(red(err.Error()))
+	}
+
+	fmt.Println(green(fmt.Sprintf("%s: %s", varName, value)))
+}
+
+func GetVariableValue(varName string) (interface{}, error) {
+	variable, exists := editableVars[strings.TrimSpace(strings.ToLower(varName))]
+	if !exists {
+		return nil, errors.New(fmt.Sprintf("The %s variable was not found or cannot be changed", varName))
+	}
+
+	// Разыменование указателя на значение
+	switch v := variable.(type) {
+	case *int:
+		return *v, nil
+	case *[]int:
+		return *v, nil
+	case *string:
+		return *v, nil
+	case *[]string:
+		return *v, nil
+	case *bool:
+		return *v, nil
+	case *[]bool:
+		return *v, nil
+	case *float64:
+		return *v, nil
+	case *[]float64:
+		return *v, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("Unsupported variable type for %s", varName))
+	}
 }

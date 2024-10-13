@@ -3,8 +3,10 @@ package src
 import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
+	"github.com/fsnotify/fsnotify"
 	"goCmd/system"
 	"goCmd/utils"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,9 +50,17 @@ func checkUserInRunningFile(username string) bool {
 	return strings.Contains(string(sourceRunning), username)
 }
 
+func getUser(username string) string {
+	if strings.TrimSpace(User) != "" {
+		return User
+	} else {
+		return username
+	}
+}
+
 func printPromptInfo(location, user, dirC string, green, cyan, yellow, magenta func(...interface{}) string, sd *system.Session, commandInput string) {
 	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s%s%s\n",
-		yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+user), yellow(")"), yellow("─"), yellow("["),
+		yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
 		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
 		cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["), green(sd.GitBranch), green("]"))
 	fmt.Printf("%s%s%s %s",
@@ -142,7 +152,66 @@ func restorePreviousSession(sessionData *system.AppState, prefix string) *system
 
 // Map, ограничивающий изменяемые переменные
 var editableVars = map[string]interface{}{
-	"diruser":  &DirUser,
 	"location": &Location,
 	"prompt":   &Prompt,
+	"user":     &User,
+}
+
+var availableEditableVars = []string{"location", "prompt", "user"}
+
+func watchFile(runningPath string, username string, isWorking *bool, isPermission *bool) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		err = watcher.Close()
+		if err != nil {
+			return
+		}
+	}()
+
+	done := make(chan bool)
+
+	// Запускаем горутину для отслеживания событий
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				if event.Op&fsnotify.Write == fsnotify.Write && *isWorking {
+					if !checkUserInRunningFile(username) && *isWorking {
+						fmt.Print(red("\nUser not authorized. to continue, press Enter:"))
+						devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
+						func() {
+							err = devNull.Close()
+							if err != nil {
+								return
+							}
+						}()
+
+						os.Stdout, os.Stderr = devNull, devNull
+
+						*isWorking = false
+						*isPermission = false
+					}
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				fmt.Println("Error:", err)
+			}
+		}
+	}()
+
+	// Добавляем файл для наблюдения
+	err = watcher.Add(runningPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	<-done
 }

@@ -21,16 +21,17 @@ import (
 var (
 	Absdir, _             = filepath.Abs("")
 	DirUser, _            = filepath.Abs("")
-	UsernameFromDir       = dirInfo.CmdUser(DirUser)
+	ExecutingCommand      = false
 	GlobalSession         = system.Session{}
+	Location              = ""
+	User                  = ""
 	PreviousSessionPath   = ""
 	PreviousSessionPrefix = ""
-	SignalReceived        = false
-	ExecutingCommand      = false
-	Prefix                = ""
-	RebootAttempts        = uint(0)
-	Location              = ""
 	Prompt                = "$"
+	Prefix                = ""
+	RunningPath           = filepath.Join(Absdir, "running.txt")
+	RebootAttempts        = uint(0)
+	SignalReceived        = false
 )
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
@@ -132,6 +133,13 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 	}
 
+	var prompt string
+	var prefix string
+
+	var colorsMap map[string]func(...interface{}) string
+
+	colorsMap = system.GetColorsMap()
+
 	system.UserName = username
 
 	if strings.TrimSpace(Location) == "" {
@@ -166,19 +174,26 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 						user = dirInfo.CmdUser(dir)
 					}
 
-					var printUserDir string
-
 					if username != "" {
 						user = username
-						printUserDir = user
 					}
+
 					fmt.Println()
-					gitBranch, _ := GetCurrentGitBranch()
-					printPromptInfo(Location, printUserDir, dirC, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch}, commandInput)
+					if prompt == "" {
+						gitBranch, _ := GetCurrentGitBranch()
+						printPromptInfo(Location, user, dirC, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch}, commandInput)
+					} else {
+						splitPrompt := strings.Split(prompt, ", ")
+						fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+					}
 				} else {
 					dir, _ := os.Getwd()
-					fmt.Println()
-					fmt.Printf("\nORB %s>%s", dir, green(commandInput))
+					if prompt == "" {
+						fmt.Printf("ORB %s>%s", dir, green(commandInput))
+					} else {
+						splitPrompt := strings.Split(prompt, ", ")
+						fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+					}
 				}
 			}
 		}
@@ -193,18 +208,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 	}()
 
-	var prompt string
-	var prefix string
-
 	if rebooted.Prefix != "" {
 		prefix = rebooted.Prefix
 	} else {
 		prefix = sessionData.NewSessionData(sessionData.Path, sessionData.User, sessionData.GitBranch, sessionData.IsAdmin)
 	}
-
-	var colorsMap map[string]func(...interface{}) string
-
-	colorsMap = system.GetColorsMap()
 
 	session, exists := sessionData.GetSession(prefix)
 	if !exists {
@@ -253,7 +261,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 		// Directory and user context setup (execute only when necessary)
 		dir, _ = os.Getwd()
-		printUserDir := UsernameFromDir // Use cached username for printing
 
 		if RestartAfterInit {
 			SD.User = username
@@ -284,31 +291,28 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			}
 		}
 
-		if !session.IsAdmin {
-			dirC := dirInfo.CmdDir(dir)
-			user := session.User
-			if user == "" {
-				user = dirInfo.CmdUser(dir)
-			}
+		dirC := dirInfo.CmdDir(dir)
+		user := session.User
+		if user == "" {
+			user = dirInfo.CmdUser(dir)
+		}
 
-			if username != "" {
-				user = username
-				printUserDir = user
-			}
+		if username != "" {
+			user = username
+		}
 
+		if echo && !session.IsAdmin {
 			// Single user check outside repeated prompt formatting
-			if !checkUserInRunningFile(username) {
-				fmt.Println(red("User not authorized."))
-				isWorking = false
-				isPermission = false
-				continue
-			}
+			go func() {
+				watchFile(RunningPath, user, &isWorking, &isPermission)
+			}()
 
 			if echo {
 				if prompt == "" {
-					printPromptInfo(Location, printUserDir, dirC, green, cyan, yellow, magenta, session, commandInput) // New helper function
+					printPromptInfo(Location, user, dirC, green, cyan, yellow, magenta, session, commandInput) // New helper function
 				} else {
-					fmt.Print(green(prompt))
+					splitPrompt := strings.Split(prompt, ", ")
+					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
 				}
 			}
 		}
@@ -390,17 +394,17 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			CommandArgs:   commandArgs,
 			Dir:           dir,
 			IsWorking:     &isWorking,
-			IsPermission:  isPermission,
+			IsPermission:  &isPermission,
 			Username:      username,
 			SD:            sessionData,
 			SessionPrefix: prefix,
 		}
 
-		if strings.TrimSpace(commandLower) == "orbix" {
+		if strings.TrimSpace(commandLower) == "orbix" && isWorking {
 			PreviousSessionPrefix = prefix
 		}
 
-		if strings.TrimSpace(commandLower) == "neofetch" {
+		if strings.TrimSpace(commandLower) == "neofetch" && isWorking {
 			ExCommUtils.NeofetchUtil(execCommand, session, Commands)
 			continue
 		}
