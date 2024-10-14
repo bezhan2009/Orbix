@@ -59,12 +59,20 @@ func getUser(username string) string {
 }
 
 func printPromptInfo(location, user, dirC string, green, cyan, yellow, magenta func(...interface{}) string, sd *system.Session, commandInput string) {
+	if len(Prompt) > 1 {
+		Prompt = string(Prompt[0])
+	}
+
 	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s%s%s\n",
 		yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
 		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
 		cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["), green(sd.GitBranch), green("]"))
 	fmt.Printf("%s%s%s %s",
 		yellow("└"), yellow("─"), green(strings.TrimSpace(Prompt)), green(commandInput))
+
+	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
+		fmt.Println()
+	}
 }
 
 func readCommandLine(commandInput string) (string, string, []string, string) {

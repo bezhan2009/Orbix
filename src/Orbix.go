@@ -371,7 +371,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			SessionPrefix: prefix,
 		}
 
-		if strings.TrimSpace(commandLower) == "neofetch" && isWorking {
+		if strings.TrimSpace(commandLower) == "neofetch" && isWorking && system.OperationSystem == "windows" {
 			ExCommUtils.NeofetchUtil(execCommand, session, Commands)
 			continue
 		}
@@ -406,7 +406,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 				}
 			}
 
-			// Если переменная runOnNewThread — true, запускаем в новом потоке
 			if runOnNewThread {
 				go executeCommandOrbix()
 			} else {
@@ -445,10 +444,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 		if strings.TrimSpace(commandLower) == "orbix" && isWorking {
 			PreviousSessionPrefix = prefix
-		}
-
-		if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
-			fmt.Println()
 		}
 
 		if runOnNewThread {

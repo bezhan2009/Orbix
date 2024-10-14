@@ -17,5 +17,5 @@ func StartRedisServer() {
 	}
 
 	// Вывод результата команды в консоль
-	fmt.Printf("Вывод команды: %s\n", string(output))
+	fmt.Printf("Output command: %s\n", string(output))
 }
