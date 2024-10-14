@@ -11,6 +11,7 @@ import (
 	"goCmd/structs"
 	"goCmd/system"
 	"os"
+	"strings"
 )
 
 func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
@@ -100,6 +101,10 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	}
 
 	if *executeCommand.IsWorking {
+		if strings.TrimSpace(executeCommand.CommandInput) != "" {
+			*executeCommand.IsWorking = false
+		}
+
 		if handler, exists := commandMap[executeCommand.CommandLower]; exists {
 			handler()
 		} else if handler, exists = permissionRequiredCommands[executeCommand.CommandLower]; exists {

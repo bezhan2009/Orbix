@@ -20,7 +20,6 @@ import (
 
 var (
 	Absdir, _             = filepath.Abs("")
-	DirUser, _            = filepath.Abs("")
 	ExecutingCommand      = false
 	GlobalSession         = system.Session{}
 	Location              = ""
@@ -344,9 +343,9 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 		var firstCharIs, lastCharIs bool
 		for index, commandLetter := range commandLine {
-			if (string(commandLetter) == string('"') || string(commandLetter) == string("'")) && index == 0 {
+			if (string(commandLetter) == string('"') || string(commandLetter) == ("'")) && index == 0 {
 				firstCharIs = true
-			} else if (string(commandLetter) == string('"') || string(commandLetter) == string("'")) && index == len(commandLine)-1 {
+			} else if (string(commandLetter) == string('"') || string(commandLetter) == ("'")) && index == len(commandLine)-1 {
 				lastCharIs = true
 			}
 		}
@@ -373,6 +372,10 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 		if strings.TrimSpace(commandLower) == "neofetch" && isWorking && system.OperationSystem == "windows" {
 			ExCommUtils.NeofetchUtil(execCommand, session, Commands)
+			if strings.TrimSpace(commandInput) != "" {
+				isWorking = false
+			}
+
 			continue
 		}
 
@@ -434,6 +437,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			Command:       command,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
+			CommandInput:  commandInput,
 			Dir:           dir,
 			IsWorking:     &isWorking,
 			IsPermission:  &isPermission,
@@ -450,10 +454,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			go ExecuteCommand(execCommand)
 		} else {
 			ExecuteCommand(execCommand)
-		}
-
-		if strings.TrimSpace(commandInput) != "" {
-			isWorking = false
 		}
 	}
 

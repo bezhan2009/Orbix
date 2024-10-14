@@ -6,6 +6,7 @@ type ExecuteCommandFuncParams struct {
 	CommandLower  string
 	Command       string
 	CommandLine   string
+	CommandInput  string
 	Dir           string
 	Commands      []Command
 	CommandArgs   []string
