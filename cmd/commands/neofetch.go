@@ -42,6 +42,30 @@ func FetchNeofetch(GlobalSession *system.Session) {
 	info := color.New(color.FgWhite).SprintFunc()
 	value := color.New(color.FgYellow).SprintFunc()
 
+	// ASCII-иконка Windows
+	windows_10 := []string{
+		"                                ..,",
+		"                    ....,,:;+ccllll",
+		"      ...,,+:;  cllllllllllllllllll",
+		",cclllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"                                   ",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"llllllllllllll  lllllllllllllllllll",
+		"`'ccllllllllll  lllllllllllllllllll",
+		"       `' \\*::  :ccllllllllllllllll",
+		"                       ````''*::cll",
+		"                                 ``",
+	}
+
 	neofetch := fmt.Sprintf(`%s
 %s
 %s
@@ -58,24 +82,30 @@ func FetchNeofetch(GlobalSession *system.Session) {
 %s
 %s
 %s
+%s
+%s
+%s
 %s`,
-		cyan(fmt.Sprintf("       /0d/+00sssooyPONyssss/   /0-/+oosss0oyMMNyssssD           %s@%s", title(username), title("user"))),
-		cyan(fmt.Sprintf("       /ef/+oossso00ygSNySss/   /0-/+F0sssooyMMNyssssG           %s", info("-----------"))),
-		cyan(fmt.Sprintf("       /ef/+oossso00ygSNySss/   /0-/+F0sssooyMMNyssssG           OS: %s", value(osName))),
-		cyan(fmt.Sprintf("       /ef/+oossso00ygSNySss/   /0-/+F0sssooyMMNyssssG           Kernel: %s", value(hostStat.KernelVersion))),
-		cyan(fmt.Sprintf("       /9-/+oosss0yGGNyssss-+   /0-/+oo00sooyMMNyssss+           Terminal: %s", value(terminal))),
-		cyan(fmt.Sprintf("       /P=/+00sss0oySFNyssss/   /0-/+D0sssooyMMNyssss\\           Shell: %s", value(shell))),
-		cyan(fmt.Sprintf("       /6=/+oosso0oyADNyssgs/   /0-/+oSOssoayDFNyssss-           Uptime: %s", value(uptime))),
-		cyan(fmt.Sprintf("       /+Y/+oosssooyLDNyssss/   /0-/+ooFssooyMMNyssss/           CPU: %s", value(cpuModel))),
-		cyan(fmt.Sprintf("                                                                 Memory: %s", value(memory))),
-		cyan(fmt.Sprintf("       /0-/+ooss=aoyMMNyssasa   /0-/+oossso+yOOOyssss/           ")),
-		cyan(fmt.Sprintf("       /6=/+oosso0oyADNyssgs/   /0-/+oSOssoayDFNyssss-           ")),
-		cyan("       /0-/+oosssooyMMNyssa-+   /0-/+oosss(0yMMNyssss/   "),
-		cyan("       /0-/+ooss--oyMMNysfss/   /0-/+odsssfsyMMNyssss   "),
-		cyan("       /0-/+oosssooyMMNydsss+   /0-/+ofsss+-yMMNyssss/   "),
-		cyan("       /0-/+oosssooyMMNyssa-+   /0-/+oosss(0yMMNyssss/   "),
-		cyan("       /0-/+oosssooyMMNyssa-+   /0-/+oosss(0yMMNyssss/   "),
-		cyan("       /0-/+oosssooyMMNyssds=   /0-/+oosssooyMMNyssss/"))
+		cyan(fmt.Sprintf("       %s           %s@%s", title(windows_10[0]), title(username), title("user"))),
+		cyan(fmt.Sprintf("       %s           %s", title(windows_10[1]), info("-----------"))),
+		cyan(fmt.Sprintf("       %s           OS: %s", title(windows_10[2]), value(osName))),
+		cyan(fmt.Sprintf("       %s           Kernel: %s", title(windows_10[3]), value(hostStat.KernelVersion))),
+		cyan(fmt.Sprintf("       %s           Terminal: %s", title(windows_10[4]), value(terminal))),
+		cyan(fmt.Sprintf("       %s           Shell: %s", title(windows_10[5]), value(shell))),
+		cyan(fmt.Sprintf("       %s           Uptime: %s", title(windows_10[6]), value(uptime))),
+		cyan(fmt.Sprintf("       %s           CPU: %s", title(windows_10[7]), value(cpuModel))),
+		cyan(fmt.Sprintf("       %s           Memory: %s", title(windows_10[8]), value(memory))),
+		cyan(fmt.Sprintf("       %s           ", title(windows_10[9]))),
+		cyan(fmt.Sprintf("       %s           ", title(windows_10[10]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[11]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[12]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[13]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[14]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[15]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[16]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[17]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[18]))),
+		cyan(fmt.Sprintf("       %s   ", title(windows_10[19]))))
 
 	fmt.Println(neofetch)
 	fmt.Println()
