@@ -110,4 +110,6 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 			HandleUnknownCommandUtil(executeCommand.CommandLower, executeCommand.Commands)
 		}
 	}
+
+	ExecutingCommand = false
 }

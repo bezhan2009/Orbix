@@ -3,12 +3,8 @@ package run
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/src"
-	"goCmd/structs"
-	"goCmd/system"
 	"goCmd/utils"
 	"os"
-	"strings"
 )
 
 // Init initializes CMD
@@ -44,11 +40,5 @@ func Init() {
 			fmt.Println(red(printErr))
 			os.Exit(1)
 		}
-	}
-
-	if strings.TrimSpace(strings.ToLower(system.OperationSystem)) == "windows" {
-		src.Commands = append(src.Commands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
-	} else {
-		src.Commands = append(src.Commands, structs.Command{Name: "sudo", Description: ""})
 	}
 }

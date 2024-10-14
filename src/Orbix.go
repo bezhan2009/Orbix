@@ -56,6 +56,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 	}()
 
+	if strings.TrimSpace(strings.ToLower(system.OperationSystem)) == "windows" {
+		Commands = append(Commands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
+		AdditionalCommands = append(AdditionalCommands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
+	}
+
 	if RebootAttempts > 5 {
 		system.OrbixWorking = false
 		fmt.Println(red("Max retry attempts reached. Exiting..."))
@@ -323,6 +328,15 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			continue
 		}
 
+		runOnNewThread := false
+
+		if len(commandArgs) >= 1 {
+			if strings.ToLower(strings.TrimSpace(commandArgs[len(commandArgs)-1])) == "newthread" {
+				commandArgs = commandArgs[:len(commandArgs)-1]
+				runOnNewThread = true
+			}
+		}
+
 		if commandInt, err := strconv.Atoi(command); err == nil && len(commandArgs) == 0 {
 			fmt.Println(magenta(commandInt))
 			continue
@@ -345,6 +359,23 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 		session.Path = dir
 
+		execCommand := structs.ExecuteCommandFuncParams{
+			Command:       command,
+			CommandLower:  commandLower,
+			CommandArgs:   commandArgs,
+			Dir:           dir,
+			IsWorking:     &isWorking,
+			IsPermission:  &isPermission,
+			Username:      username,
+			SD:            sessionData,
+			SessionPrefix: prefix,
+		}
+
+		if strings.TrimSpace(commandLower) == "neofetch" && isWorking {
+			ExCommUtils.NeofetchUtil(execCommand, session, Commands)
+			continue
+		}
+
 		isValid := utils.ValidCommand(commandLower, Commands)
 
 		if len(strings.TrimSpace(commandLower)) != len(strings.TrimSpace(commandLine)) && isValid {
@@ -357,19 +388,31 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			GlobalSession.CommandHistory = session.CommandHistory
 
 			fullCommand := append([]string{command}, commandArgs...)
-			err = utils.ExternalCommand(fullCommand)
-			if err != nil {
-				fullPath := filepath.Join(dir, command)
-				fullCommand[0] = fullPath
+
+			// Логика выполнения команды, которую можно запускать в новом потоке
+			executeCommandOrbix := func() {
 				err = utils.ExternalCommand(fullCommand)
 				if err != nil {
-					isValid = utils.ValidCommand(commandLower, AdditionalCommands)
-					if !isValid {
-						HandleUnknownCommandUtil(commandLower, Commands)
-						continue
+					fullPath := filepath.Join(dir, command)
+					fullCommand[0] = fullPath
+					err = utils.ExternalCommand(fullCommand)
+					if err != nil {
+						isValid = utils.ValidCommand(commandLower, AdditionalCommands)
+						if !isValid {
+							HandleUnknownCommandUtil(commandLower, Commands)
+							return
+						}
 					}
 				}
 			}
+
+			// Если переменная runOnNewThread — true, запускаем в новом потоке
+			if runOnNewThread {
+				go executeCommandOrbix()
+			} else {
+				executeCommandOrbix()
+			}
+
 			continue
 		}
 
@@ -388,7 +431,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			SetGitBranch(session)
 		}
 
-		execCommand := structs.ExecuteCommandFuncParams{
+		execCommand = structs.ExecuteCommandFuncParams{
 			Command:       command,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
@@ -404,17 +447,15 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			PreviousSessionPrefix = prefix
 		}
 
-		if strings.TrimSpace(commandLower) == "neofetch" && isWorking {
-			ExCommUtils.NeofetchUtil(execCommand, session, Commands)
-			continue
-		}
-
 		if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
 			fmt.Println()
 		}
 
-		ExecuteCommand(execCommand)
-		ExecutingCommand = false
+		if runOnNewThread {
+			go ExecuteCommand(execCommand)
+		} else {
+			ExecuteCommand(execCommand)
+		}
 
 		if strings.TrimSpace(commandInput) != "" {
 			isWorking = false

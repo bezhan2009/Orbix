@@ -129,8 +129,8 @@ var Commands = []structs.Command{
 	{"copysource", "Copies source code from file"},
 	{"signout", "Signs out the current user"},
 	{"newtemplate", "Creates a new command template for execution"},
-	{"template", "Executes a specific command template"},
 	{"newuser", "Adds a new user to Orbix"},
+	{"template", "Executes a specific command template"},
 	{"prompt", "Changes the command prompt in Orbix"},
 	{"systemorbix", "Displays system information about Orbix"},
 	{"rename", "Renames a file or directory"},
@@ -217,7 +217,6 @@ var AdditionalCommands = []structs.Command{
 	{"git", "Runs git commands"},
 	{"calc", "Launches a calculator"},
 	{"cmd", "Launches the command prompt"},
-	{"neofetch", ""},
 	{"go", "Runs Go language commands"},
 	{"redis", "Starts redis server"},
 	{"redisserver", "Starts redis server"},
@@ -256,6 +255,7 @@ func Init(session *system.Session) {
 	session.CommandHistory = append(session.CommandHistory, "start")
 	session.CommandHistory = append(session.CommandHistory, ".")
 	session.CommandHistory = append(session.CommandHistory, "remote")
+	session.CommandHistory = append(session.CommandHistory, "newthread")
 	session.CommandHistory = append(session.CommandHistory, "neofetch")
 	session.CommandHistory = append(session.CommandHistory, "location")
 	session.CommandHistory = append(session.CommandHistory, "diruser")
