@@ -409,8 +409,16 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			continue
 		}
 
+		if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
+			fmt.Println()
+		}
+
 		ExecuteCommand(execCommand)
 		ExecutingCommand = false
+
+		if strings.TrimSpace(commandInput) != "" {
+			isWorking = false
+		}
 	}
 
 	// Restore original outputs

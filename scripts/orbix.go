@@ -67,6 +67,21 @@ func main() {
 	red := color.New(color.FgRed).SprintFunc()
 	magenta := color.New(color.FgMagenta).SprintFunc()
 
+	if len(os.Args) > 0 {
+		args := os.Args[1:]
+		command := ""
+		for i, arg := range args {
+			if i == len(args)-1 && arg == "beta" {
+				continue
+			}
+
+			command += arg + " "
+		}
+
+		src.Orbix(command, true, structs.RebootedData{}, appState)
+		return
+	}
+
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 

@@ -135,6 +135,7 @@ var Commands = []structs.Command{
 	{"systemorbix", "Displays system information about Orbix"},
 	{"rename", "Renames a file or directory"},
 	{"rem", "Deletes a file"},
+	{"neofetch", ""},
 	{"del", "Deletes a file"},
 	{"delete", "Deletes a file"},
 	{"cf", "Creates a new folder"},

@@ -22,6 +22,14 @@ var (
 )
 
 func SetBetaVersion(colors map[string]func(...interface{}) string) bool {
+	if len(os.Args) > 0 {
+		if os.Args[len(os.Args)-1] == "beta" {
+			return true
+		}
+
+		return false
+	}
+
 	for {
 		var beta string
 		reader := bufio.NewReader(os.Stdin)
