@@ -17,12 +17,23 @@ const (
 )
 
 var (
-	BetaVersion = SetBetaVersion(GetColorsMap())
+	Beta        = false
+	BetaVersion = ""
 	colors      = SetColorsMap()
 )
 
+func Init() {
+	BetaVersion = string(strings.TrimSpace(strings.ToLower(os.Getenv("BETA"))))
+
+	Beta = SetBetaVersion(colors)
+}
+
 func SetBetaVersion(colors map[string]func(...interface{}) string) bool {
-	if len(os.Args) > 0 {
+	if BetaVersion == "no" {
+		return false
+	}
+
+	if len(os.Args) > 1 {
 		if os.Args[len(os.Args)-1] == "beta" {
 			return true
 		}
@@ -34,7 +45,7 @@ func SetBetaVersion(colors map[string]func(...interface{}) string) bool {
 		var beta string
 		reader := bufio.NewReader(os.Stdin)
 
-		fmt.Print(colors["magenta"]("Use Beta Version[Y/N]:"))
+		fmt.Print(colors["magenta"](fmt.Sprintf("Use Beta Version %s [Y/N]:", BetaVersion)))
 		beta, _ = reader.ReadString('\n')
 
 		if beta == "" {

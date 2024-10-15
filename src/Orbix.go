@@ -26,7 +26,7 @@ var (
 	User                  = ""
 	PreviousSessionPath   = ""
 	PreviousSessionPrefix = ""
-	Prompt                = "$"
+	Prompt                = ""
 	Prefix                = ""
 	RunningPath           = filepath.Join(Absdir, "running.txt")
 	RebootAttempts        = uint(0)
@@ -53,6 +53,9 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 			Orbix(commandInput, echo, reboot, SD)
 		}
+	}()
+	func() {
+		Prompt = string(strings.TrimSpace(os.Getenv("PROMPT")))
 	}()
 
 	if strings.TrimSpace(strings.ToLower(system.OperationSystem)) == "windows" {
@@ -148,14 +151,14 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 	if strings.TrimSpace(Location) == "" {
 		Location = os.Getenv("CITY")
-		if Location == "" {
-			Location = "Unknown City"
+		if strings.TrimSpace(Location) == "" {
+			Location = string(strings.TrimSpace(os.Getenv("USERS_LOCATION")))
 		}
 	}
 
 	// Signal handling setup (outside the loop)
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
 	var signalReceived bool
 
@@ -163,12 +166,17 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	wg.Add(1)
 	go func() {
 		for {
-			<-signalChan
+			sig := <-signalChan
 			signalReceived = true
 			SignalReceived = signalReceived
 
+			if sig == syscall.SIGHUP {
+				RemoveUserFromRunningFile(system.UserName)
+				os.Exit(1)
+			}
+
 			if !ExecutingCommand {
-				fmt.Print(red("^C"))
+				fmt.Println(red("^C"))
 				if !sessionData.IsAdmin {
 					dir, _ := os.Getwd()
 
@@ -232,7 +240,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	Prefix = fmt.Sprintf(prefix)
 
 	// Initialize Global Vars
-	Init(session)
+	go Init(session)
 
 	session.PreviousPath = PreviousSessionPath
 	fmt.Println(green(session.PreviousPath))
@@ -247,7 +255,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 	for isWorking {
 		if len(session.CommandHistory) < 10 {
-			Init(session)
+			go Init(session)
 		}
 
 		// Check if signal was received and reset flag after handling it
@@ -451,8 +459,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 
 		if runOnNewThread {
+			// Запускаем команду в новом окне и в новом потоке
+			//go openNewWindowForCommand(execCommand)
 			go ExecuteCommand(execCommand)
 		} else {
+			// Выполняем команду в текущем потоке
 			ExecuteCommand(execCommand)
 		}
 	}

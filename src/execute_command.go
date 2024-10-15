@@ -61,7 +61,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"neofetch":  func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
 		"setvar":    func() { SetVariableUtil(executeCommand.CommandArgs) },
 		"help": func() {
-			if !system.BetaVersion {
+			if !system.Beta {
 				displayHelp()
 			} else {
 				displayHelpBeta()

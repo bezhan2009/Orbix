@@ -3,12 +3,20 @@ package run
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/joho/godotenv"
 	"goCmd/utils"
+	"log"
 	"os"
 )
 
 // Init initializes CMD
 func Init() {
+	fmt.Println("Initializing run.go")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file:", err)
+	}
+
 	red := color.New(color.FgRed).SprintFunc()
 
 	file, err := os.Open("running.txt")
@@ -41,4 +49,5 @@ func Init() {
 			os.Exit(1)
 		}
 	}
+	fmt.Println("Finished")
 }

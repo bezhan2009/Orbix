@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/fsnotify/fsnotify"
+	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
@@ -80,6 +82,7 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 	if commandInput != "" {
 		commandLine = strings.TrimSpace(commandInput)
 	} else {
+		// Чтение ввода
 		commandLine = strings.TrimSpace(prompt.Input("", autoComplete))
 	}
 
@@ -222,4 +225,34 @@ func watchFile(runningPath string, username string, isWorking *bool, isPermissio
 	}
 
 	<-done
+}
+
+func openNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
+	var cmd *exec.Cmd
+
+	// Преобразуем команду в формат для запуска в новом окне
+	commandToExecute := strings.Join(executeCommand.CommandArgs, " ")
+
+	// Определяем ОС и выбираем способ запуска нового окна
+	switch system.OperationSystem {
+	case "windows":
+		// Для Windows запускаем новое окно с помощью cmd
+		cmd = exec.Command("cmd", "/c", "start", "cmd", "/k", commandToExecute)
+	case "linux":
+		// Для Linux используем gnome-terminal, xterm или другой эмулятор терминала
+		cmd = exec.Command("gnome-terminal", "--", "bash", "-c", commandToExecute)
+	case "darwin":
+		// Для MacOS запускаем новое окно в приложении Terminal
+		cmd = exec.Command("osascript", "-e", fmt.Sprintf(`tell application "Terminal" to do script "%s"`, commandToExecute))
+	default:
+		// Если ОС неизвестна, выводим ошибку
+		fmt.Println("Unsupported OS")
+		return
+	}
+
+	// Запускаем команду
+	err := cmd.Start()
+	if err != nil {
+		fmt.Println("Error starting command in new window:", err)
+	}
 }

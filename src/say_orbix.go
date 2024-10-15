@@ -9,8 +9,8 @@ import (
 func SayOrbix() {
 	// Creating a shape with the text "Orbix" in an accessible style
 	var say string
-	if system.BetaVersion {
-		say = fmt.Sprintf("%s Beta", system.SystemName)
+	if system.Beta {
+		say = fmt.Sprintf("%s Beta %s", system.SystemName, system.BetaVersion)
 	} else {
 		say = fmt.Sprintf("%s %s", system.SystemName, system.Version)
 	}

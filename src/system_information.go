@@ -9,8 +9,8 @@ func SystemInformation() {
 	SayOrbix()
 
 	var systemData string
-	if system.BetaVersion {
-		systemData = fmt.Sprintf("%s [Version %s Beta]", system.SystemName, system.Version)
+	if system.Beta {
+		systemData = fmt.Sprintf("%s [Version Beta %s]", system.SystemName, system.BetaVersion)
 	} else {
 		systemData = fmt.Sprintf("%s [Version %s]", system.SystemName, system.Version)
 	}

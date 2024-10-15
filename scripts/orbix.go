@@ -40,7 +40,6 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// OrbixLoop runs the basic Orbix logic with panic handling.
 func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *system.AppState) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -54,12 +53,17 @@ func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *
 		}
 	}()
 
-	run.Init()
 	src.Orbix("", true, structs.RebootedData{}, appState)
 	panicChan <- nil
 }
 
 func main() {
+	// Initialization CMD
+	run.Init()
+
+	// Initialization system vars
+	system.Init()
+
 	// Initialization AppState
 	appState := system.NewSystemData()
 
@@ -186,5 +190,6 @@ func main() {
 
 	defer func() {
 		src.RemoveUserFromRunningFile(system.UserName)
+		os.Exit(1)
 	}()
 }
