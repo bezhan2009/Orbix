@@ -3,8 +3,8 @@ package src
 import (
 	"fmt"
 	"goCmd/cmd/commands"
-	"goCmd/cmd/commands/commandsWithSignaiture/template"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
+	"goCmd/cmd/commands/template"
 	"goCmd/internal/Network"
 	"goCmd/internal/Network/wifiUtils"
 	ExCommUtils "goCmd/src/utils"
@@ -55,19 +55,15 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 			ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs, session)
 			SetGitBranch(session)
 		},
-		"edit":      func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
-		"open_link": func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
-		"print":     func() { commands.Print(executeCommand.CommandArgs) },
-		"neofetch":  func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
-		"setvar":    func() { SetVariableUtil(executeCommand.CommandArgs) },
-		"help": func() {
-			if !system.Beta {
-				displayHelp()
-			} else {
-				displayHelpBeta()
-			}
-		},
+		"edit":         func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
+		"open_link":    func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
+		"print":        func() { commands.Print(executeCommand.CommandArgs) },
+		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, session, Commands) },
+		"setvar":       func() { SetVariableUtil(executeCommand.CommandArgs) },
+		"stusenv":      func() { commands.SetUserFromENV(system.Path) },
+		"set_user_env": func() { commands.SetUserFromENV(system.Path) },
 
+		"help":         displayHelp,
 		"systemorbix":  SystemInformation,
 		"clean":        commands.Screen,
 		"cls":          commands.Screen,

@@ -26,7 +26,6 @@ Read in [Русский](README.ru.md)
 ```bash
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
-cd scripts
 go run .
 ```
 ![image](https://github.com/user-attachments/assets/acab7584-39ef-43ae-82a9-d022bbfc9359)

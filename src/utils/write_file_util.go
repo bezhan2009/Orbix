@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Write"
+	"goCmd/cmd/commands/Write"
 )
 
 func WriteFileUtil(commandArgs []string) {

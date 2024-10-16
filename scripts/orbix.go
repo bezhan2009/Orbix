@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/fatih/color"
 	"goCmd/internal/run"
 	"goCmd/src"
 	"goCmd/structs"
@@ -64,12 +63,14 @@ func main() {
 	// Initialization system vars
 	system.Init()
 
+	colors := system.GetColorsMap()
+
 	// Initialization AppState
 	appState := system.NewSystemData()
 
-	green := color.New(color.FgGreen).SprintFunc()
-	red := color.New(color.FgRed).SprintFunc()
-	magenta := color.New(color.FgMagenta).SprintFunc()
+	green := colors["green"]
+	red := colors["red"]
+	magenta := colors["magenta"]
 
 	if len(os.Args) > 0 {
 		args := os.Args[1:]

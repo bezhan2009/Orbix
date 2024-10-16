@@ -2,12 +2,11 @@ package src
 
 import (
 	"bufio"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"goCmd/cmd/commands"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
+	"goCmd/utils"
 	"golang.org/x/term"
 	"os"
 	"path/filepath"
@@ -129,7 +128,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		password = strings.TrimSpace(password)
 
 		password = PasswordAlgoritm.Usage(password, true)
-		hashedPassword := hashPasswordFromUser(password)
+		hashedPassword := utils.HashPasswordFromUser(password)
 
 		passwordsDir, err := getPasswordsDir()
 		if err != nil {
@@ -153,11 +152,4 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		sd.User = username
 		return username, true
 	}
-}
-
-// hashPasswordFromUser hashes the user's password.
-func hashPasswordFromUser(password string) string {
-	hash := sha256.New()
-	hash.Write([]byte(password))
-	return hex.EncodeToString(hash.Sum(nil))
 }

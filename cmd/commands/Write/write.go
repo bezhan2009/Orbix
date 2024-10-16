@@ -3,7 +3,7 @@ package Write
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Write/utils"
+	"goCmd/cmd/commands/Write/utils"
 	"strings"
 )
 

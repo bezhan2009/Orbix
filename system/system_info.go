@@ -29,7 +29,7 @@ func Init() {
 }
 
 func SetBetaVersion(colors map[string]func(...interface{}) string) bool {
-	if BetaVersion == "no" {
+	if BetaVersion == "n" {
 		return false
 	}
 

@@ -11,7 +11,6 @@ import (
 
 // Init initializes CMD
 func Init() {
-	fmt.Println("Initializing run.go")
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file:", err)
@@ -49,5 +48,4 @@ func Init() {
 			os.Exit(1)
 		}
 	}
-	fmt.Println("Finished")
 }

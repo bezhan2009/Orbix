@@ -1,15 +1,16 @@
-package commands
+package fcommands
 
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"goCmd/cmd/commands"
 )
 
-func File(commandArgs []string) (string, error) {
+func CFile(commandArgs []string) (string, error) {
 	yellow := color.New(color.FgYellow).SprintFunc()
 	red := color.New(color.FgRed).SprintFunc()
 	if len(commandArgs) < 1 {
-		fmt.Println(yellow("Usage: create <файл>"))
+		fmt.Println(yellow("Usage: create <file>"))
 		return "", nil
 	}
 
@@ -22,7 +23,7 @@ func File(commandArgs []string) (string, error) {
 		return name, nil
 	}
 
-	errExisting := IsExists(name)
+	errExisting := commands.IsExists(name)
 
 	if errExisting == nil {
 		return name, errExisting

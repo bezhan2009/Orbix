@@ -1,4 +1,4 @@
-package commandsWithSignaiture
+package commands
 
 import (
 	"fmt"

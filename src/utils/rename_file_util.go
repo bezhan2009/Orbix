@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Rename"
+	"goCmd/cmd/commands/Rename"
 )
 
 func RenameFileUtil(commandArgs []string, command string, yellow func(a ...interface{}) string) {

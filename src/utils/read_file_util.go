@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Read"
+	"goCmd/cmd/commands/Read"
 )
 
 func ReadFileUtil(commandArgs []string) {

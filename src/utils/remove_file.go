@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"goCmd/cmd/commands/commandsWithSignaiture/Remove"
+	"goCmd/cmd/commands/Remove"
 )
 
 func RemoveFileUtil(commandArgs []string, command string) {

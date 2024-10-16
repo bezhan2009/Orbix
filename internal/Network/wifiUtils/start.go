@@ -17,7 +17,7 @@ import (
 )
 
 func Start() {
-	fmt.Println("Добро пожаловать в утилиту для сетевого взаимодействия!")
+	fmt.Println("Welcome to the networking utility!")
 	for {
 		t := prompt.Input("> ", autoComplete)
 		args := strings.Fields(t)
@@ -43,7 +43,7 @@ func Start() {
 			}
 		case "connectwifi":
 			if len(args) < 3 {
-				fmt.Println("Использование: connectwifi <SSID> <password>")
+				fmt.Println("usage: connectwifi <SSID> <password>")
 				continue
 			}
 			nameOS := OS.CheckOS()
@@ -58,7 +58,7 @@ func Start() {
 			}
 		case "hackwifi":
 			if len(args) < 3 {
-				fmt.Println("Использования: hackwifi <SSID> <attempts>")
+				fmt.Println("usage: hackwifi <SSID> <attempts>")
 				continue
 			}
 			WiFi.AttemptConnectWithGeneratedPasswords(args[1], args[2])
@@ -66,7 +66,7 @@ func Start() {
 			NetworkScan.WiFi()
 		case "sendMSG":
 			if len(args) < 3 {
-				fmt.Println("Использование: sendMSG <пользователь> <сообщение>")
+				fmt.Println("usage: sendMSG <пользователь> <сообщение>")
 				continue
 			}
 
@@ -81,10 +81,9 @@ func Start() {
 				fmt.Println("Unresolved OS")
 			}
 		case "exit":
-			fmt.Println("Выход из программы.")
 			return
 		default:
-			fmt.Println("Неизвестная команда:", args[0])
+			fmt.Println("Unknown command:", args[0])
 		}
 	}
 }

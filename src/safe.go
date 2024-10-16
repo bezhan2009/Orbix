@@ -2,12 +2,11 @@ package src
 
 import (
 	"bufio"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/fatih/color"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
+	"goCmd/utils"
 	"goCmd/validators"
 	"os"
 	"path/filepath"
@@ -30,9 +29,11 @@ func NewUser(systemPath string) {
 
 	reader := bufio.NewReader(os.Stdin)
 	PrintNewUser()
+
 	fmt.Printf("%s", magenta("Enter username: "))
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
+
 	fmt.Printf("%s", magenta("Enter password: "))
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
@@ -55,7 +56,7 @@ func NewUser(systemPath string) {
 
 	// Encrypt and hash the password
 	encryptedPassword := PasswordAlgoritm.Usage(password, true)
-	hashedPassword := hashPassword(encryptedPassword)
+	hashedPassword := utils.HashPasswordFromUser(encryptedPassword)
 
 	// Use the hash of the password as the filename
 	passwordFilePath := filepath.Join(passwordDir, hashedPassword)
@@ -67,10 +68,4 @@ func NewUser(systemPath string) {
 
 	fmt.Println(green("Your password (file):", passwordFilePath))
 	fmt.Println(green("Hashed password saved to file."))
-}
-
-func hashPassword(password string) string {
-	hash := sha256.New()
-	hash.Write([]byte(password))
-	return hex.EncodeToString(hash.Sum(nil))
 }
