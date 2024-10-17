@@ -171,6 +171,7 @@ var Commands = []structs.Command{
 	{"ipinfo", "Displays information about an IP address"},
 	{"open_link", "Opens a URL in the default web browser"},
 	{"geoip", "Displays geolocation information for an IP address"},
+	{"new_prompt", ""},
 }
 
 // AdditionalCommands additional commands
@@ -241,6 +242,7 @@ var AdditionalCommands = []structs.Command{
 	{"convert", "Converts files from one format to another"},
 	{"monitor", "Monitors system resources"},
 	{"network", "Displays network information and status"},
+	{"new_prompt", ""},
 }
 
 var CommandHistory []string

@@ -62,6 +62,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"setvar":       func() { SetVariableUtil(executeCommand.CommandArgs) },
 		"stusenv":      func() { commands.SetUserFromENV(system.Path) },
 		"set_user_env": func() { commands.SetUserFromENV(system.Path) },
+		"new_prompt":   func() { session.IsAdmin = false },
 
 		"help":         displayHelp,
 		"systemorbix":  SystemInformation,
