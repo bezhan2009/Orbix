@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 )
 
-func NeofetchUtil(executeCommand structs.ExecuteCommandFuncParams, session *system.Session, Commands []structs.Command) {
+func NeofetchUtil(executeCommand structs.ExecuteCommandFuncParams, user string, Commands []structs.Command) {
 	if system.OperationSystem == "windows" {
-		commands.FetchNeofetch(session)
+		commands.FetchNeofetch(user)
 	} else {
 		isValid := utils.ValidCommand(executeCommand.CommandLower, Commands)
 

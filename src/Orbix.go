@@ -379,10 +379,16 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 
 		if strings.TrimSpace(commandLower) == "neofetch" && isWorking && system.OperationSystem == "windows" {
+			neofetchUser := User
+
+			if User == "" {
+				neofetchUser = session.User
+			}
+
 			if runOnNewThread {
-				go ExCommUtils.NeofetchUtil(execCommand, session, Commands)
+				go ExCommUtils.NeofetchUtil(execCommand, neofetchUser, Commands)
 			} else {
-				ExCommUtils.NeofetchUtil(execCommand, session, Commands)
+				ExCommUtils.NeofetchUtil(execCommand, neofetchUser, Commands)
 			}
 
 			if strings.TrimSpace(commandInput) != "" {

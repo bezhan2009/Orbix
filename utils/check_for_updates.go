@@ -89,6 +89,12 @@ func CheckForUpdates() error {
 			if err != nil {
 				return err
 			}
+
+			commandRestart := []string{"restart.exe"}
+			err = ExternalCommand(commandRestart)
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		fmt.Println(colors["green"]("There are no updates."))

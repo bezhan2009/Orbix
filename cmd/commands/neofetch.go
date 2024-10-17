@@ -12,9 +12,9 @@ import (
 	"time"
 )
 
-func FetchNeofetch(GlobalSession *system.Session) {
+func FetchNeofetch(user string) {
 	// Получаем информацию о пользователе
-	username := GlobalSession.User
+	username := user
 
 	cyan := color.New(color.FgCyan, color.Bold).SprintFunc()
 

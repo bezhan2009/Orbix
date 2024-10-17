@@ -42,7 +42,7 @@ func main() {
 		return
 	}
 
-	fmt.Print(colors["cyan"]("preparing for launch"))
+	fmt.Print(colors["cyan"]("Preparing for launch"))
 	utils.AnimatedPrintLong("...", "cyan")
 
 	fmt.Println()
