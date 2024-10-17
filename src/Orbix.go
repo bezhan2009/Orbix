@@ -376,6 +376,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			Username:      username,
 			SD:            sessionData,
 			SessionPrefix: prefix,
+			Session:       session,
 		}
 
 		if strings.TrimSpace(commandLower) == "neofetch" && isWorking && system.OperationSystem == "windows" {
@@ -463,6 +464,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			Username:      username,
 			SD:            sessionData,
 			SessionPrefix: prefix,
+			Session:       session,
 		}
 
 		if strings.TrimSpace(commandLower) == "orbix" && isWorking {

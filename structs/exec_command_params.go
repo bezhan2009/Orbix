@@ -15,4 +15,5 @@ type ExecuteCommandFuncParams struct {
 	IsPermission  *bool
 	SD            *system.AppState
 	SessionPrefix string
+	Session       *system.Session
 }

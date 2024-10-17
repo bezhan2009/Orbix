@@ -1,7 +1,6 @@
 package src
 
 import (
-	"fmt"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
 	"goCmd/cmd/commands/template"
@@ -16,11 +15,7 @@ import (
 
 func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	ExecutingCommand = true
-	session, exists := executeCommand.SD.GetSession(executeCommand.SessionPrefix)
-	if !exists {
-		fmt.Println(red("Session Not Found!!!"))
-		*executeCommand.IsWorking = false
-	}
+	session := executeCommand.Session
 
 	commandMap := map[string]func(){
 		"wifiutils":   wifiUtils.Start,
