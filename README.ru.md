@@ -22,7 +22,7 @@
 ```bash
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
-go run .
+go run main.go
 ```
 ![image](https://github.com/user-attachments/assets/2b540539-45d5-4aee-acfe-236682cbb3ea)
 ![image](https://github.com/user-attachments/assets/c2a23ac9-e6d3-45a6-bde7-d9301202f637)
