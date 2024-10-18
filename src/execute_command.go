@@ -52,6 +52,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		},
 		"edit":         func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
 		"open_link":    func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
+		"api_request":  func() { commands.ApiRequest() },
 		"print":        func() { commands.Print(executeCommand.CommandArgs) },
 		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, User, Commands) },
 		"setvar":       func() { SetVariableUtil(executeCommand.CommandArgs) },
