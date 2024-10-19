@@ -3,6 +3,10 @@ package dirInfo
 import (
 	"goCmd/system"
 	"os"
+	"path/filepath"
+	"strings"
+	_ "strings"
+	_ "unicode/utf8"
 )
 
 func CmdDir(dir string) string {
@@ -10,60 +14,31 @@ func CmdDir(dir string) string {
 		return dir
 	}
 
-	var count uint16
-	var dirC string
-
-	for i := 0; i < len(dir); i++ {
-
-		if dir[i] == '\\' {
-			count += 1
-		}
-
-		if count > 2 {
-			dirC += string(dir[i])
-		}
+	// Считаем количество слэшей и обрезаем путь
+	parts := strings.SplitN(dir, "\\", 4)
+	if len(parts) >= 4 {
+		return parts[3]
 	}
 
-	return dirC
+	return dir
+}
+
+// Пример функции декодирования пути для Windows
+func decodeWindowsPath(dir string) string {
+	// Преобразуем путь в нормализованный
+	return filepath.ToSlash(dir)
 }
 
 func CmdUser(dir string) string {
 	if system.OperationSystem == "linux" {
-		// В Linux просто возвращаем текущего пользователя
 		return os.Getenv("USER")
 	} else {
-		var count uint16
-		var user string
-
-		for i := 0; i < len(dir); i++ {
-			if dir[i] == '\\' {
-				count++
-				continue
-			}
-
-			if count > 1 && count < 3 {
-				user += string(dir[i])
-			}
+		// Считаем количество слэшей и получаем имя пользователя между 1 и 2 слэшом
+		parts := strings.SplitN(dir, "\\", 3)
+		if len(parts) >= 2 {
+			return parts[1]
 		}
 
-		return user
+		return "Unknown"
 	}
-}
-
-func CMDGetDirWithOutApp(dir string) string {
-	var count uint16
-	var dirC string
-
-	for i := 0; i < len(dir); i++ {
-
-		if dir[i] == '\\' {
-			count += 1
-		}
-
-		if count > 2 {
-			dirC += string(dir[i])
-		}
-	}
-
-	return dirC
 }

@@ -193,7 +193,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 					fmt.Println()
 					if prompt == "" {
 						gitBranch, _ := GetCurrentGitBranch()
-						printPromptInfo(Location, user, dirC, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch}, commandInput)
+						printPromptInfo(Location, user, dirC, commandInput, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch})
 					} else {
 						splitPrompt := strings.Split(prompt, ", ")
 						fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
@@ -321,7 +321,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 			if echo {
 				if prompt == "" {
-					printPromptInfo(Location, user, dirC, green, cyan, yellow, magenta, session, commandInput) // New helper function
+					printPromptInfo(Location, user, dirC, commandInput, green, cyan, yellow, magenta, session) // New helper function
 				} else {
 					splitPrompt := strings.Split(prompt, ", ")
 					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))

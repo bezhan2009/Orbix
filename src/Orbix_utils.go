@@ -61,7 +61,7 @@ func getUser(username string) string {
 	}
 }
 
-func printPromptInfo(location, user, dirC string, green, cyan, yellow, magenta func(...interface{}) string, sd *system.Session, commandInput string) {
+func printPromptInfo(location, user, dirC, commandInput string, green, cyan, yellow, magenta func(...interface{}) string, sd *system.Session) {
 	if len(Prompt) > 1 {
 		Prompt = string(Prompt[0])
 	}

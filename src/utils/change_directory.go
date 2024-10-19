@@ -6,6 +6,7 @@ import (
 	"goCmd/cmd/commands"
 	"goCmd/system"
 	"os"
+	"strings"
 )
 
 func ChangeDirectoryUtil(commandArgs []string, session *system.Session) {
@@ -15,9 +16,13 @@ func ChangeDirectoryUtil(commandArgs []string, session *system.Session) {
 		fmt.Println(dir)
 		return
 	}
-	if err := commands.ChangeDirectory(commandArgs[0]); err != nil {
+
+	changeDir := strings.Join(commandArgs, " ")
+
+	if err := commands.ChangeDirectory(changeDir); err != nil {
 		fmt.Println(red(err))
 	}
+
 	dir, _ = os.Getwd()
 	session.Path = dir
 }
