@@ -2,24 +2,18 @@ package commands
 
 import (
 	"fmt"
+	"goCmd/system"
+	"regexp"
 	"strings"
 
 	"github.com/common-nighthawk/go-figure"
-	"github.com/fatih/color"
 )
 
 // Print Функция для печати текста с поддержкой шрифтов и цветов
 func Print(commandArgs []string) {
 	var (
 		font       string
-		colorFuncs = map[string]func(a ...interface{}) string{
-			"red":     color.New(color.FgRed).SprintFunc(),
-			"yellow":  color.New(color.FgYellow).SprintFunc(),
-			"cyan":    color.New(color.FgCyan).SprintFunc(),
-			"green":   color.New(color.FgGreen).SprintFunc(),
-			"magenta": color.New(color.FgMagenta).SprintFunc(),
-			"blue":    color.New(color.FgBlue).SprintFunc(),
-		}
+		colorFuncs = system.GetColorsMap()
 	)
 
 	// Поиск параметра font
@@ -59,6 +53,19 @@ func Print(commandArgs []string) {
 
 // Вспомогательная функция для вывода текста со шрифтом и цветом
 func printWithFont(text, font string, colorFunc func(a ...interface{}) string) {
+	// Проверка текста, если используется 2D или 3D шрифт
+	if font == "2d" || font == "3d" {
+		// Регулярное выражение для фильтрации: только английские буквы и цифры
+		re := regexp.MustCompile(`[^a-zA-Z0-9 !@#+$%^&*()_]`)
+		text = re.ReplaceAllString(text, "")
+
+		// Если текст пустой после фильтрации
+		if text == "" {
+			fmt.Println("Недопустимые символы для выбранного шрифта.")
+			return
+		}
+	}
+
 	if font == "3d" {
 		myFigure := figure.NewFigure(text, "larry3d", true)
 		fmt.Println(colorFunc(myFigure.String())) // Выводим текст в 3D с цветом

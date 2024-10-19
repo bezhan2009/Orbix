@@ -23,8 +23,12 @@ func handlePromptCommand(commandArgs []string, prompt *string) {
 	namePrompt := commandArgs[0]
 
 	var namePromptWithColor string
-	validColors := []string{"yellow", "green", "blue", "magenta", "cyan", "red"}
-	isValid := utils.IsValid(commandArgs[1], validColors)
+	var isValid bool
+
+	if len(commandArgs) > 1 {
+		validColors := []string{"yellow", "green", "blue", "magenta", "cyan", "red"}
+		isValid = utils.IsValid(commandArgs[1], validColors)
+	}
 
 	if len(commandArgs) > 1 && isValid {
 		namePromptWithColor = fmt.Sprintf("%s, %s", namePrompt, commandArgs[1])
@@ -42,7 +46,7 @@ func handlePromptCommand(commandArgs []string, prompt *string) {
 		}
 	} else {
 		*prompt, _ = os.Getwd()
-		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt), "red")
+		animatedPrint(fmt.Sprintf("Prompt set to: %s\n", *prompt), "green")
 		*prompt = ""
 	}
 }
