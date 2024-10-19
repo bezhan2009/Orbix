@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"goCmd/cmd/commands"
-	"goCmd/utils"
 	"os"
 	"path/filepath"
 )
@@ -12,24 +11,6 @@ import (
 // EditFileUtil - функция для редактирования файла или запуска beta версии
 func EditFileUtil(commandArgs []string) {
 	yellow := color.New(color.FgYellow).SprintFunc()
-
-	if len(commandArgs) > 0 && commandArgs[0] == "beta" {
-		// Попробуем найти и запустить "editBeta.exe"
-		//executablePath, err := findExecutable("editBeta.exe")
-		//if err != nil {
-		//	fmt.Println(yellow("editBeta.exe not found in the current directory or path"))
-		//	return
-		//}
-
-		// Запускаем editBeta.exe
-		//err = exec.Command(executablePath).Run()
-		fullCommand := []string{"py", "editBeta.py"}
-		err := utils.ExternalCommand(fullCommand)
-		if err != nil {
-			fmt.Printf("Error running editBeta.exe: %v\n", err)
-		}
-		return
-	}
 
 	// Стандартная работа команды edit
 	fmt.Println(yellow("to use beta version of command edit:"))
