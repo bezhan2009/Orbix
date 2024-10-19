@@ -17,9 +17,10 @@ int runCommand(const std::string& command) {
 int main() {
     std::cout << "Restarting Orbix..." << std::endl;
     std::cout << "WARNING: ctrl+C is no longer tracked, so the program will immediately terminate after it" << std::endl;
-    // Проверка на наличие файла main.go
-    if (!fileExists("main.go")) {
-        std::cerr << "Error: 'main.go' not found in the current directory." << std::endl;
+
+    // Проверка на наличие файла orbix.go в папке scripts
+    if (!fileExists("scripts/orbix.go")) {
+        std::cerr << "Error: 'orbix.go' not found in the 'scripts' directory." << std::endl;
         return 1;
     }
 
@@ -28,8 +29,10 @@ int main() {
     int retries = 0;
 
     while (retries < maxRetries) {
-        std::cout << "Attempting to run 'go run main.go' (attempt " << retries + 1 << ")..." << std::endl;
-        int result = runCommand("go run main.go");
+        std::cout << "Attempting to run 'go run orbix.go' in 'scripts' directory (attempt " << retries + 1 << ")..." << std::endl;
+
+        // Смена директории на 'scripts' и выполнение команды
+        int result = runCommand("cd scripts && go run orbix.go");
 
         if (result == 0) {
             return 0;
