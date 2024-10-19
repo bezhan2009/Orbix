@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/fsnotify/fsnotify"
+	"goCmd/cmd/commands"
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
@@ -232,16 +233,30 @@ func openNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
 
 	// Преобразуем команду в формат для запуска в новом окне
 	commandToExecute := strings.Join(executeCommand.CommandArgs, " ")
+	dir, _ := os.Getwd()
+	newOrbix := func() {
+		if len(executeCommand.CommandArgs) < 1 {
+			err := commands.ChangeDirectory(Absdir)
+			if err != nil {
+				fmt.Println("Error changing directory:", err)
+			}
+
+			commandToExecute = "go run orbix.go"
+		}
+	}
 
 	// Определяем ОС и выбираем способ запуска нового окна
 	switch system.OperationSystem {
 	case "windows":
+		newOrbix()
 		// Для Windows запускаем новое окно с помощью cmd
 		cmd = exec.Command("cmd", "/c", "start", "cmd", "/k", commandToExecute)
 	case "linux":
+		newOrbix()
 		// Для Linux используем gnome-terminal, xterm или другой эмулятор терминала
 		cmd = exec.Command("gnome-terminal", "--", "bash", "-c", commandToExecute)
 	case "darwin":
+		newOrbix()
 		// Для MacOS запускаем новое окно в приложении Terminal
 		cmd = exec.Command("osascript", "-e", fmt.Sprintf(`tell application "Terminal" to do script "%s"`, commandToExecute))
 	default:
@@ -254,5 +269,10 @@ func openNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	err := cmd.Start()
 	if err != nil {
 		fmt.Println("Error starting command in new window:", err)
+	}
+
+	err = commands.ChangeDirectory(dir)
+	if err != nil {
+		fmt.Println("Error changing directory:", err)
 	}
 }

@@ -177,7 +177,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 			if !ExecutingCommand {
 				fmt.Println(red("^C"))
-				if !sessionData.IsAdmin {
+				if !GlobalSession.IsAdmin {
 					dir, _ := os.Getwd()
 
 					dirC := dirInfo.CmdDir(dir)
@@ -377,6 +377,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			SD:            sessionData,
 			SessionPrefix: prefix,
 			Session:       session,
+			GlobalSession: &GlobalSession,
 		}
 
 		if strings.TrimSpace(commandLower) == "neofetch" && isWorking && system.OperationSystem == "windows" {
@@ -465,6 +466,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			SD:            sessionData,
 			SessionPrefix: prefix,
 			Session:       session,
+			GlobalSession: &GlobalSession,
 		}
 
 		if strings.TrimSpace(commandLower) == "orbix" && isWorking {

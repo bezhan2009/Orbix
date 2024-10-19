@@ -16,4 +16,5 @@ type ExecuteCommandFuncParams struct {
 	SD            *system.AppState
 	SessionPrefix string
 	Session       *system.Session
+	GlobalSession *system.Session
 }

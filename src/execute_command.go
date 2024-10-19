@@ -59,6 +59,8 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"stusenv":      func() { commands.SetUserFromENV(system.Path) },
 		"set_user_env": func() { commands.SetUserFromENV(system.Path) },
 		"new_prompt":   func() { session.IsAdmin = false },
+		"old_prompt":   func() { session.IsAdmin = true },
+		"new_window":   func() { openNewWindowForCommand(executeCommand) },
 
 		"help":         displayHelp,
 		"systemorbix":  SystemInformation,
@@ -109,5 +111,6 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		}
 	}
 
+	executeCommand.GlobalSession = executeCommand.Session
 	ExecutingCommand = false
 }

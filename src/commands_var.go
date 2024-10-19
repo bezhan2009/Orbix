@@ -173,6 +173,8 @@ var Commands = []structs.Command{
 	{"geoip", "Displays geolocation information for an IP address"},
 	{"api_request", "Sends an api request"},
 	{"new_prompt", "Sets new prompt"},
+	{"old_prompt", "Sets old prompt"},
+	{"new_window", "Opens a new window"},
 }
 
 // AdditionalCommands additional commands
@@ -245,6 +247,8 @@ var AdditionalCommands = []structs.Command{
 	{"network", "Displays network information and status"},
 	{"api_request", "Sends an api request"},
 	{"new_prompt", "Sets new prompt"},
+	{"old_prompt", "Sets old prompt"},
+	{"new_window", "Opens a new window"},
 }
 
 var CommandHistory []string
