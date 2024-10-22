@@ -61,7 +61,7 @@ func getUser(username string) string {
 	}
 }
 
-func printPromptInfo(location, user, dirC, commandInput string, green, cyan, yellow, magenta func(...interface{}) string, sd *system.Session) {
+func printPromptInfo(location, user, dirC, commandInput string, sd *system.Session) {
 	if len(Prompt) > 1 {
 		Prompt = string(Prompt[0])
 	}
@@ -70,6 +70,23 @@ func printPromptInfo(location, user, dirC, commandInput string, green, cyan, yel
 		yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
 		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
 		cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["), green(sd.GitBranch), green("]"))
+	fmt.Printf("%s%s%s %s",
+		yellow("└"), yellow("─"), green(strings.TrimSpace(Prompt)), green(commandInput))
+
+	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
+		fmt.Println()
+	}
+}
+
+func printPromptInfoWithoutGit(location, user, dirC, commandInput string) {
+	if len(Prompt) > 1 {
+		Prompt = string(Prompt[0])
+	}
+
+	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
+		yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
+		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
+		cyan("~"), cyan(dirC), yellow("]"))
 	fmt.Printf("%s%s%s %s",
 		yellow("└"), yellow("─"), green(strings.TrimSpace(Prompt)), green(commandInput))
 
@@ -98,11 +115,11 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 }
 
 func processCommand(commandLower string) (bool, error) {
-	if strings.TrimSpace(commandLower) == "cd" {
+	if strings.TrimSpace(commandLower) == "cd" && CheckGit() {
 		return true, nil
 	}
 
-	if strings.TrimSpace(commandLower) == "git" {
+	if strings.TrimSpace(commandLower) == "git" && CheckGit() {
 		return true, nil
 	}
 

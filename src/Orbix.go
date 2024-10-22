@@ -31,6 +31,7 @@ var (
 	RunningPath           = filepath.Join(Absdir, "running.txt")
 	RebootAttempts        = uint(0)
 	SignalReceived        = false
+	GitCheck              = CheckGit()
 )
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
@@ -192,8 +193,12 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 					fmt.Println()
 					if prompt == "" {
-						gitBranch, _ := GetCurrentGitBranch()
-						printPromptInfo(Location, user, dirC, commandInput, green, cyan, yellow, magenta, &system.Session{Path: dir, GitBranch: gitBranch})
+						if GitCheck {
+							gitBranch, _ := GetCurrentGitBranch()
+							printPromptInfo(Location, user, dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
+						} else {
+							printPromptInfoWithoutGit(Location, user, dirC, commandInput)
+						}
 					} else {
 						splitPrompt := strings.Split(prompt, ", ")
 						fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
@@ -321,7 +326,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 			if echo {
 				if prompt == "" {
-					printPromptInfo(Location, user, dirC, commandInput, green, cyan, yellow, magenta, session) // New helper function
+					if GitCheck {
+						printPromptInfo(Location, user, dirC, commandInput, session) // New helper function
+					} else {
+						printPromptInfoWithoutGit(Location, user, dirC, commandInput) // New helper function
+					}
 				} else {
 					splitPrompt := strings.Split(prompt, ", ")
 					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
@@ -450,10 +459,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			fmt.Println(red(err.Error()))
 		}
 
-		if gitBranchUpdate {
-			SetGitBranch(session)
-		}
-
 		execCommand = structs.ExecuteCommandFuncParams{
 			Command:       command,
 			CommandLower:  commandLower,
@@ -474,12 +479,16 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 
 		if runOnNewThread {
-			// Запускаем команду в новом окне и в новом потоке
-			//go openNewWindowForCommand(execCommand)
 			go ExecuteCommand(execCommand)
 		} else {
-			// Выполняем команду в текущем потоке
 			ExecuteCommand(execCommand)
+		}
+
+		if gitBranchUpdate {
+			session.GitBranch, err = GetCurrentGitBranch()
+			if err != nil {
+				fmt.Println("Error Updating Git Branch", red(err.Error()))
+			}
 		}
 	}
 

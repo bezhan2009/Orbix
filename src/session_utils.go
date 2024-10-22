@@ -2,13 +2,31 @@ package src
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
 )
 
+// CheckGit checks if Git is installed on the system
+func CheckGit() bool {
+	// Попробуем выполнить команду "git --version"
+	_, err := exec.LookPath("git")
+	if err != nil {
+		log.Println("Git is not installed.")
+		return false
+	}
+	return true
+}
+
 func GetCurrentGitBranch() (string, error) {
+	if !GitCheck {
+		ErrGitNotInstalled := errors.New("ErrGitNotInstalled")
+		return "", ErrGitNotInstalled
+	}
+
 	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
 
 	var out bytes.Buffer
