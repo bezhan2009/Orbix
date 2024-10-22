@@ -115,11 +115,11 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 }
 
 func processCommand(commandLower string) (bool, error) {
-	if strings.TrimSpace(commandLower) == "cd" && CheckGit() {
+	if strings.TrimSpace(commandLower) == "cd" && GitCheck {
 		return true, nil
 	}
 
-	if strings.TrimSpace(commandLower) == "git" && CheckGit() {
+	if strings.TrimSpace(commandLower) == "git" && GitCheck {
 		return true, nil
 	}
 
