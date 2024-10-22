@@ -26,6 +26,26 @@ func main() {
 		}
 	}()
 
+	if len(os.Args) > 1 {
+		err := commands.ChangeDirectory("scripts")
+		if err != nil {
+			fmt.Println("Error changing directory:", err)
+			return
+		}
+
+		args := os.Args[1:]
+
+		command := []string{"go", "run", "orbix.go"}
+		command = append(command, args...)
+
+		err = utils.ExternalCommand(command)
+		if err != nil {
+			fmt.Println("Error executing external command:", err)
+		}
+
+		return
+	}
+
 	// Основная логика программы
 	colors := system.GetColorsMap()
 
