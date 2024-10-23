@@ -5,6 +5,7 @@ import (
 	"github.com/c-bata/go-prompt"
 	"github.com/fsnotify/fsnotify"
 	"goCmd/cmd/commands"
+	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -292,4 +294,111 @@ func openNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	if err != nil {
 		fmt.Println("Error changing directory:", err)
 	}
+}
+
+func processCommandArgs(processCommandParams structs.ProcessCommandParams) (continueLoop bool) {
+	if len(processCommandParams.CommandArgs) > 0 {
+		for _, commandLetter := range processCommandParams.CommandLine {
+			if commandLetter == '-' {
+				*processCommandParams.IsComHasFlag = true
+				break // Прерываем цикл, если флаг найден
+			}
+		}
+
+		if *processCommandParams.IsComHasFlag {
+			// Проходим по всем аргументам
+			for i := len(processCommandParams.CommandArgs) - 1; i >= 0; i-- {
+				arg := strings.ToLower(strings.TrimSpace(processCommandParams.CommandArgs[i]))
+
+				switch arg {
+				case "--run-in-new-thread":
+					*processCommandParams.RunOnNewThread = true
+					// Удаляем аргумент из списка
+					processCommandParams.CommandArgs = append(processCommandParams.CommandArgs[:i], processCommandParams.CommandArgs[i+1:]...)
+				case "--timing", "-t":
+					*processCommandParams.EchoTime = true
+					// Удаляем аргумент из списка
+					processCommandParams.CommandArgs = append(processCommandParams.CommandArgs[:i], processCommandParams.CommandArgs[i+1:]...)
+				}
+			}
+		}
+	}
+
+	for index, commandLetter := range processCommandParams.CommandLine {
+		if (string(commandLetter) == string('"') || string(commandLetter) == "'") && index == 0 {
+			*processCommandParams.FirstCharIs = true
+		} else if (string(commandLetter) == string('"') || string(commandLetter) == "'") && index == len(processCommandParams.CommandLine)-1 {
+			*processCommandParams.LastCharIs = true
+		}
+	}
+
+	if commandInt, err := strconv.Atoi(processCommandParams.Command); err == nil && len(processCommandParams.CommandArgs) == 0 {
+		fmt.Println(magenta(commandInt))
+		return true
+	}
+
+	if strings.TrimSpace(processCommandParams.CommandLower) == "neofetch" && *processCommandParams.IsWorking && system.OperationSystem == "windows" {
+		neofetchUser := User
+
+		if User == "" {
+			neofetchUser = processCommandParams.Session.User
+		}
+
+		if *processCommandParams.RunOnNewThread {
+			go ExCommUtils.NeofetchUtil(processCommandParams.ExecCommand, neofetchUser, Commands)
+		} else {
+			ExCommUtils.NeofetchUtil(processCommandParams.ExecCommand, neofetchUser, Commands)
+		}
+
+		if strings.TrimSpace(processCommandParams.CommandInput) != "" {
+			*processCommandParams.IsWorking = false
+		}
+
+		return true
+	}
+
+	return false
+}
+
+func catchSyntaxErrs(execCommandCatchErrs structs.ExecuteCommandCatchErrs) (findErr bool) {
+	if *execCommandCatchErrs.EchoTime && *execCommandCatchErrs.RunOnNewThread {
+		fmt.Println(red("You cannot take timing and running on new thread at the same time"))
+		return true
+	}
+
+	return false
+}
+
+// removeFlags удаляет части строки, начинающиеся с - или --
+func removeFlags(input string) string {
+	// Разделяем строку на части
+	parts := strings.Fields(input)
+	var result []string
+
+	// Проходим по всем частям и добавляем в результат только те, которые не начинаются с - или --
+	for _, part := range parts {
+		if !strings.HasPrefix(part, "-") && !strings.HasPrefix(part, "--") {
+			result = append(result, part)
+		}
+	}
+
+	// Соединяем оставшиеся части в строку и возвращаем
+	return strings.Join(result, " ")
+}
+
+// removeFlags удаляет части строки, начинающиеся с - или --
+func removeFlagsFromSlice(input []string) []string {
+	// Разделяем строку на части
+	parts := input
+	var result []string
+
+	// Проходим по всем частям и добавляем в результат только те, которые не начинаются с - или --
+	for _, part := range parts {
+		if !strings.HasPrefix(part, "-") && !strings.HasPrefix(part, "--") {
+			result = append(result, part)
+		}
+	}
+
+	// Соединяем оставшиеся части в строку и возвращаем
+	return result
 }

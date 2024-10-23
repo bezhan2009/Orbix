@@ -13,7 +13,31 @@ import (
 func Init() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file:", err)
+		log.Println("Error loading .env file, creating a new one:", err)
+		// Открываем или создаем .env файл
+		file, err := os.Create(".env")
+		if err != nil {
+			log.Fatal("Error creating .env file:", err)
+		}
+		defer file.Close()
+
+		// Записываем содержимое в .env файл
+		content := `BETA: N
+DEFAULT_USER: orbix
+USERS_DEFAULT_PASSWORD: 12345678
+USE_NEW_PROMPT: Y
+USERS_LOCATION: USA
+PROMPT: $`
+		_, err = file.WriteString(content)
+		if err != nil {
+			log.Fatal("Error writing to .env file:", err)
+		}
+
+		fmt.Println(".env file created successfully")
+		err = godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file:", err)
+		}
 	}
 
 	red := color.New(color.FgRed).SprintFunc()

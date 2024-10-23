@@ -31,14 +31,17 @@ func Print(commandArgs []string) {
 			part = strings.TrimSpace(part)
 			if strings.Contains(part, ":") {
 				colorText := strings.SplitN(part, ":", 2)
-				colorName := strings.TrimSpace(colorText[0])
-				text := strings.TrimSpace(colorText[1])
+				if len(colorText) == 2 {
+					colorName := strings.TrimSpace(colorText[0])
+					text := strings.TrimSpace(colorText[1])
 
-				if colorFunc, ok := colorFuncs[colorName]; ok {
-					printWithFont(text, font, colorFunc)
+					if colorFunc, ok := colorFuncs[colorName]; ok {
+						printWithFont(text, font, colorFunc)
+					} else {
+						printWithFont(text, font, fmt.Sprint)
+					}
 				} else {
-					// Если цвет не найден, вывести обычный текст
-					printWithFont(text, font, fmt.Sprint)
+					fmt.Println("Ошибка: Неправильный формат для цвета и текста.")
 				}
 			} else {
 				// Вывести текст без цвета

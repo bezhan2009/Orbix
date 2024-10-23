@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/dirInfo"
-	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
@@ -12,10 +11,10 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 )
 
 var (
@@ -344,36 +343,13 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			continue
 		}
 
-		runOnNewThread := false
-
-		if len(commandArgs) >= 1 {
-			if strings.ToLower(strings.TrimSpace(commandArgs[len(commandArgs)-1])) == "newthread" {
-				commandArgs = commandArgs[:len(commandArgs)-1]
-				runOnNewThread = true
-			}
-		}
-
-		if commandInt, err := strconv.Atoi(command); err == nil && len(commandArgs) == 0 {
-			fmt.Println(magenta(commandInt))
-			continue
-		}
-
-		var firstCharIs, lastCharIs bool
-		for index, commandLetter := range commandLine {
-			if (string(commandLetter) == string('"') || string(commandLetter) == ("'")) && index == 0 {
-				firstCharIs = true
-			} else if (string(commandLetter) == string('"') || string(commandLetter) == ("'")) && index == len(commandLine)-1 {
-				lastCharIs = true
-			}
-		}
-
-		if firstCharIs && lastCharIs {
-			commandLower = "print"
-			commandLine = fmt.Sprintf("print %s", commandLine)
-			commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
-		}
-
-		session.Path = dir
+		var (
+			runOnNewThread bool
+			echoTime       bool
+			firstCharIs    bool
+			lastCharIs     bool
+			isComHasFlag   bool
+		)
 
 		execCommand := structs.ExecuteCommandFuncParams{
 			Command:       command,
@@ -389,25 +365,47 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			GlobalSession: &GlobalSession,
 		}
 
-		if strings.TrimSpace(commandLower) == "neofetch" && isWorking && system.OperationSystem == "windows" {
-			neofetchUser := User
+		processCommandParams := structs.ProcessCommandParams{
+			Command:        command,
+			CommandInput:   commandInput,
+			CommandLower:   commandLower,
+			CommandLine:    commandLine,
+			CommandArgs:    commandArgs,
+			RunOnNewThread: &runOnNewThread,
+			EchoTime:       &echoTime,
+			FirstCharIs:    &firstCharIs,
+			LastCharIs:     &lastCharIs,
+			IsWorking:      &isWorking,
+			IsComHasFlag:   &isComHasFlag,
+			Session:        session,
+			ExecCommand:    execCommand,
+		}
 
-			if User == "" {
-				neofetchUser = session.User
+		startTimePRCOMARGS := time.Now()
+		continueLoop := processCommandArgs(processCommandParams)
+
+		if continueLoop {
+			if echoTime {
+				TEXCOMARGS := fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
+				fmt.Println(green(TEXCOMARGS))
+				continue
 			}
-
-			if runOnNewThread {
-				go ExCommUtils.NeofetchUtil(execCommand, neofetchUser, Commands)
-			} else {
-				ExCommUtils.NeofetchUtil(execCommand, neofetchUser, Commands)
-			}
-
-			if strings.TrimSpace(commandInput) != "" {
-				isWorking = false
-			}
-
 			continue
 		}
+
+		if isComHasFlag {
+			commandLine = removeFlags(commandLine)
+			commandInput = removeFlags(commandInput)
+			commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
+		}
+
+		if firstCharIs && lastCharIs {
+			commandLower = "print"
+			commandLine = fmt.Sprintf("print %s", commandLine)
+			commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
+		}
+
+		session.Path = dir
 
 		isValid := utils.ValidCommand(commandLower, Commands)
 
@@ -442,9 +440,17 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			if runOnNewThread {
 				go executeCommandOrbix()
 			} else {
-				executeCommandOrbix()
+				if echoTime {
+					// Запоминаем время начала
+					startTime := time.Now()
+					executeCommandOrbix()
+					// Выводим время выполнения
+					TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+					fmt.Println(green(TEXCOM))
+				} else {
+					executeCommandOrbix()
+				}
 			}
-
 			continue
 		}
 
@@ -474,14 +480,32 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			GlobalSession: &GlobalSession,
 		}
 
+		execCommandCatchErrs := structs.ExecuteCommandCatchErrs{
+			EchoTime:       &echoTime,
+			RunOnNewThread: &runOnNewThread,
+		}
+
 		if strings.TrimSpace(commandLower) == "orbix" && isWorking {
 			PreviousSessionPrefix = prefix
+		}
+
+		if catchSyntaxErrs(execCommandCatchErrs) {
+			continue
 		}
 
 		if runOnNewThread {
 			go ExecuteCommand(execCommand)
 		} else {
-			ExecuteCommand(execCommand)
+			if echoTime {
+				// Запоминаем время начала
+				startTime := time.Now()
+				ExecuteCommand(execCommand)
+				// Выводим время выполнения
+				TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+				fmt.Println(green(TEXCOM))
+			} else {
+				ExecuteCommand(execCommand)
+			}
 		}
 
 		if gitBranchUpdate {
@@ -499,7 +523,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	session, _ = sessionData.GetSession(PreviousSessionPrefix)
 
 	if err = commands.ChangeDirectory(session.Path); err != nil {
-		fmt.Println(red(err))
+		fmt.Println(red("Error changing directory:", err))
 	}
 
 	sessionData.DeleteSession(prefix)
