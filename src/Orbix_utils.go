@@ -369,15 +369,17 @@ func catchSyntaxErrs(execCommandCatchErrs structs.ExecuteCommandCatchErrs) (find
 	return false
 }
 
-// removeFlags удаляет части строки, начинающиеся с - или --
+// removeFlags удаляет части строки, если они содержатся в OrbixFlags
 func removeFlags(input string) string {
 	// Разделяем строку на части
 	parts := strings.Fields(input)
 	var result []string
 
-	// Проходим по всем частям и добавляем в результат только те, которые не начинаются с - или --
+	// Проходим по всем частям
 	for _, part := range parts {
-		if !strings.HasPrefix(part, "-") && !strings.HasPrefix(part, "--") {
+		// Проверяем, есть ли текущая часть в OrbixFlags
+		if !contains(OrbixFlags, part) {
+			// Если часть не является флагом, добавляем её в результат
 			result = append(result, part)
 		}
 	}
@@ -386,19 +388,12 @@ func removeFlags(input string) string {
 	return strings.Join(result, " ")
 }
 
-// removeFlags удаляет части строки, начинающиеся с - или --
-func removeFlagsFromSlice(input []string) []string {
-	// Разделяем строку на части
-	parts := input
-	var result []string
-
-	// Проходим по всем частям и добавляем в результат только те, которые не начинаются с - или --
-	for _, part := range parts {
-		if !strings.HasPrefix(part, "-") && !strings.HasPrefix(part, "--") {
-			result = append(result, part)
+// contains проверяет, находится ли элемент в списке
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
 		}
 	}
-
-	// Соединяем оставшиеся части в строку и возвращаем
-	return result
+	return false
 }

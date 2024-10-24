@@ -31,6 +31,7 @@ var (
 	RebootAttempts        = uint(0)
 	SignalReceived        = false
 	GitCheck              = CheckGit()
+	Unauthorized          = true
 )
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
@@ -125,7 +126,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		if !isSuccess {
 			return
 		}
-
+		Unauthorized = false
 		username = nameUser
 		if username != user {
 			initializeRunningFile(username)
@@ -319,9 +320,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 		if echo && !session.IsAdmin {
 			// Single user check outside repeated prompt formatting
-			go func() {
-				watchFile(RunningPath, user, &isWorking, &isPermission)
-			}()
+			if !Unauthorized {
+				go func() {
+					watchFile(RunningPath, user, &isWorking, &isPermission)
+				}()
+			}
 
 			if echo {
 				if prompt == "" {
@@ -393,7 +396,7 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			continue
 		}
 
-		if isComHasFlag {
+		if isComHasFlag && (echoTime || runOnNewThread) {
 			commandLine = removeFlags(commandLine)
 			commandInput = removeFlags(commandInput)
 			commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling

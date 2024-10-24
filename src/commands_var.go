@@ -354,3 +354,6 @@ func InitColors() {
 	magenta = colors["magenta"]
 	blue = colors["blue"]
 }
+
+// OrbixFlags — список флагов, которые нужно удалить
+var OrbixFlags = []string{"--timing", "-t", "--run-in-new-thread"}
