@@ -463,10 +463,21 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 
 		// Process command
-		gitBranchUpdate, err := processCommand(commandLower)
-		if err != nil {
-			fmt.Println(red(err.Error()))
-		}
+		go func() {
+			gitBranchUpdate, err := processCommand(commandLower)
+			if err != nil {
+				fmt.Println(red(err.Error()))
+				RemoveUserFromRunningFile(username)
+				return
+			}
+
+			if gitBranchUpdate {
+				session.GitBranch, err = GetCurrentGitBranch()
+				if err != nil {
+					fmt.Println("Error Updating Git Branch", red(err.Error()))
+				}
+			}
+		}()
 
 		execCommand = structs.ExecuteCommandFuncParams{
 			Command:       command,
@@ -508,13 +519,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 				fmt.Println(green(TEXCOM))
 			} else {
 				ExecuteCommand(execCommand)
-			}
-		}
-
-		if gitBranchUpdate {
-			session.GitBranch, err = GetCurrentGitBranch()
-			if err != nil {
-				fmt.Println("Error Updating Git Branch", red(err.Error()))
 			}
 		}
 	}
