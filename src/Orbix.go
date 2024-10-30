@@ -421,6 +421,10 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			session.CommandHistory = append(session.CommandHistory, commandLine)
 			GlobalSession.CommandHistory = session.CommandHistory
 
+			if commandFile(strings.TrimSpace(commandLower)) {
+				fullFileName(&commandArgs)
+			}
+
 			fullCommand := append([]string{command}, commandArgs...)
 
 			// Логика выполнения команды, которую можно запускать в новом потоке

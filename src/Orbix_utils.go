@@ -397,3 +397,43 @@ func contains(slice []string, item string) bool {
 	}
 	return false
 }
+
+func commandFile(command string) bool {
+	return command == "py" ||
+		command == "read" ||
+		command == "edit" ||
+		command == "create" ||
+		command == "rem" ||
+		command == "rename" ||
+		command == "del" ||
+		command == "delete" ||
+		command == "cf" ||
+		command == "df" ||
+		command == "rustc" ||
+		command == "cl"
+}
+
+func fullFileName(commandArgs *[]string) {
+	if len(*commandArgs) == 0 {
+		return
+	}
+
+	if len(*commandArgs) == 1 {
+		return
+	}
+
+	var fileName string
+
+	if len(*commandArgs) > 1 {
+		for _, arg := range *commandArgs {
+			fileName += arg + " "
+		}
+
+		fileName = strings.TrimSpace(fileName)
+
+		resultSlice := []string{fileName}
+		*commandArgs = resultSlice
+	} else {
+		return
+	}
+}

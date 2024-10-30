@@ -17,6 +17,10 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	ExecutingCommand = true
 	session := executeCommand.Session
 
+	if commandFile(strings.TrimSpace(executeCommand.CommandLower)) {
+		fullFileName(&executeCommand.CommandArgs)
+	}
+
 	commandMap := map[string]func(){
 		"wifiutils":   wifiUtils.Start,
 		"pingview":    func() { Network.Ping(executeCommand.CommandArgs) },
