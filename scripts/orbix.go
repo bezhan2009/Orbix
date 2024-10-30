@@ -72,7 +72,7 @@ func main() {
 	red := colors["red"]
 	magenta := colors["magenta"]
 
-	if len(os.Args) > 0 {
+	if len(os.Args) > 1 {
 		args := os.Args[1:]
 		command := ""
 		for i, arg := range args {
@@ -113,7 +113,6 @@ func main() {
 				system.Port = port
 
 				system.ErrorStartingServer = true
-
 				continue
 			}
 			break

@@ -446,6 +446,10 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 			if runOnNewThread {
 				go executeCommandOrbix()
+
+				if strings.TrimSpace(commandInput) != "" {
+					return
+				}
 			} else {
 				if echoTime {
 					// Запоминаем время начала
@@ -454,9 +458,21 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 					// Выводим время выполнения
 					TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
 					fmt.Println(green(TEXCOM))
+
+					if strings.TrimSpace(commandInput) != "" {
+						return
+					}
 				} else {
 					executeCommandOrbix()
+
+					if strings.TrimSpace(commandInput) != "" {
+						return
+					}
 				}
+			}
+
+			if strings.TrimSpace(commandInput) != "" {
+				return
 			}
 			continue
 		}
