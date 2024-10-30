@@ -38,3 +38,6 @@ scripts/scripts.exe
 *.txt
 *.log
 *.json
+
+# Other Scripts
+*.py
