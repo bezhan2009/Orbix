@@ -19,7 +19,7 @@ import (
 
 var (
 	Absdir, _             = filepath.Abs("")
-	ExecutingCommand      = false
+	RunningPath           = filepath.Join(Absdir, "running.txt")
 	GlobalSession         = system.Session{}
 	Location              = ""
 	User                  = ""
@@ -27,11 +27,11 @@ var (
 	PreviousSessionPrefix = ""
 	Prompt                = ""
 	Prefix                = ""
-	RunningPath           = filepath.Join(Absdir, "running.txt")
-	RebootAttempts        = uint(0)
+	ExecutingCommand      = false
 	SignalReceived        = false
 	GitCheck              = CheckGit()
 	Unauthorized          = true
+	RebootAttempts        = uint(0)
 )
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
@@ -283,7 +283,11 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			SD.User = username
 			SD.IsAdmin = sessionData.IsAdmin
 			rebooted.Prefix = prefix
-			Orbix(commandInput, echo, rebooted, SD)
+			if len(os.Args) > 1 {
+				return
+			}
+
+			Orbix("", echo, rebooted, SD)
 			return
 		}
 

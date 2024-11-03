@@ -1,9 +1,14 @@
 package OS
 
-import "runtime"
+import (
+	"os"
+	"runtime"
+	"strconv"
+	"strings"
+)
 
 func CheckOS() string {
-	switch os := runtime.GOOS; os {
+	switch goos := runtime.GOOS; goos {
 	case "windows":
 		return "windows"
 	case "darwin":
@@ -13,4 +18,23 @@ func CheckOS() string {
 	default:
 		return ""
 	}
+}
+
+func KillProcess(pidStr string) error {
+	pid, err := strconv.Atoi(strings.TrimSpace(pidStr))
+	if err != nil {
+		return err
+	}
+
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return err
+	}
+
+	err = process.Kill()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -175,6 +175,7 @@ var Commands = []structs.Command{
 	{"new_prompt", "Sets new prompt"},
 	{"old_prompt", "Sets old prompt"},
 	{"new_window", "Opens a new window"},
+	{"kill", "kills process by PID"},
 }
 
 // AdditionalCommands additional commands
@@ -249,6 +250,7 @@ var AdditionalCommands = []structs.Command{
 	{"new_prompt", "Sets new prompt"},
 	{"old_prompt", "Sets old prompt"},
 	{"new_window", "Opens a new window"},
+	{"kill", "kills process by PID"},
 }
 
 var CommandHistory []string

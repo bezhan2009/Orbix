@@ -65,7 +65,7 @@ func main() {
 	fmt.Print(colors["cyan"]("Preparing for launch"))
 	utils.AnimatedPrintLong("...", "cyan")
 
-	fmt.Println()
+	fmt.Println(colors["cyan"](""))
 
 	command := []string{"go", "run", "orbix.go"}
 	err = utils.ExternalCommand(command)

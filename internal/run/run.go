@@ -27,7 +27,7 @@ DEFAULT_USER: orbix
 USERS_DEFAULT_PASSWORD: 12345678
 USE_NEW_PROMPT: Y
 USERS_LOCATION: USA
-PROMPT: $`
+PROMPT: _>`
 		_, err = file.WriteString(content)
 		if err != nil {
 			log.Fatal("Error writing to .env file:", err)

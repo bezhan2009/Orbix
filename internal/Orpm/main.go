@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,7 +24,10 @@ func showHelp() {
 }
 
 func doExit(db *sql.DB) {
-	db.Close()
+	err := db.Close()
+	if err != nil {
+		fmt.Println("Error closing db:", err)
+	}
 	os.Exit(1)
 }
 
@@ -45,7 +49,7 @@ func downloadFile(url string, filename string) error {
 }
 
 func installPackage(packageName string) {
-	connStr := "user=youruser password=yourpassword dbname=yourdbname host=yourhostaddr port=yourport sslmode=disable"
+	connStr := "user=postgres password=bezhan2009 dbname=050854c3e9ceb6f18b5978e90b0ff5dcd68517a6d2c48fcc6ece85f63842e6bc host=localhost port=5432 sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Connection to database failed: %v\n", err)
@@ -57,7 +61,7 @@ func installPackage(packageName string) {
 	query := fmt.Sprintf("SELECT url FROM Packages WHERE name='%s'", packageName)
 	err = db.QueryRow(query).Scan(&url)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			fmt.Printf("Package '%s' not found.\n", packageName)
 		} else {
 			fmt.Fprintf(os.Stderr, "Query failed: %v\n", err)

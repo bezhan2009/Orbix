@@ -65,15 +65,15 @@ func getUser(username string) string {
 
 func printPromptInfo(location, user, dirC, commandInput string, sd *system.Session) {
 	if len(Prompt) > 2 {
-		Prompt = Prompt[0:2]
+		Prompt = string(Prompt[0:2])
 	}
 
 	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s%s%s\n",
 		yellow("╭"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
 		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
 		cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["), green(sd.GitBranch), green("]"))
-	fmt.Printf("%s%s%s %s",
-		yellow("╰"), yellow("─"), green(strings.TrimSpace(Prompt)), green(commandInput))
+	fmt.Printf("%s%s %s",
+		yellow("╰"), green(strings.TrimSpace(Prompt)), green(commandInput))
 
 	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
 		fmt.Println()
@@ -81,16 +81,16 @@ func printPromptInfo(location, user, dirC, commandInput string, sd *system.Sessi
 }
 
 func printPromptInfoWithoutGit(location, user, dirC, commandInput string) {
-	if len(Prompt) > 1 {
+	if len(Prompt) > 2 {
 		Prompt = string(Prompt[0])
 	}
 
 	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
-		yellow("┌"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
+		yellow("╭"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
 		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
 		cyan("~"), cyan(dirC), yellow("]"))
-	fmt.Printf("%s%s%s %s",
-		yellow("└"), yellow("─"), green(strings.TrimSpace(Prompt)), green(commandInput))
+	fmt.Printf("%s%s %s",
+		yellow("╰"), green(strings.TrimSpace(Prompt)), green(commandInput))
 
 	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
 		fmt.Println()
