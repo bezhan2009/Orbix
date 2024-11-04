@@ -59,6 +59,214 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		Prompt = string(strings.TrimSpace(os.Getenv("PROMPT")))
 	}()
 
+	// Initialize colors
+	InitColors()
+
+	usingForLT := func() bool {
+		if strings.TrimSpace(commandInput) != "" && strings.TrimSpace(commandInput) != "restart" {
+			return false
+		}
+
+		return true
+	}
+
+	if !usingForLT() {
+		user := "OneCom"
+
+		if strings.TrimSpace(Location) == "" {
+			Location = os.Getenv("CITY")
+			if strings.TrimSpace(Location) == "" {
+				Location = string(strings.TrimSpace(os.Getenv("USERS_LOCATION")))
+			}
+		}
+
+		dir, _ := os.Getwd()
+		dirC := dirInfo.CmdDir(dir)
+
+		printPromptInfoWithoutGit(Location, user, dirC, commandInput)
+
+		commandLine, command, commandArgs, commandLower := readCommandLine(commandInput) // Refactored input handling
+		if commandLine == "" {
+			return
+		}
+
+		var (
+			runOnNewThread bool
+			echoTime       bool
+			firstCharIs    bool
+			lastCharIs     bool
+			isComHasFlag   bool
+		)
+
+		isWorking := true
+		isPermission := false
+		sessionData := system.AppState{}
+		session := system.Session{Path: dir, PreviousPath: dir, User: user, IsAdmin: false, GitBranch: "main", CommandHistory: []string{}}
+		GlobalSession = session
+
+		execCommand := structs.ExecuteCommandFuncParams{
+			Command:       command,
+			CommandLower:  commandLower,
+			CommandArgs:   commandArgs,
+			Dir:           dir,
+			IsWorking:     &isWorking,
+			IsPermission:  &isPermission,
+			Username:      user,
+			SD:            &sessionData,
+			SessionPrefix: "",
+			Session:       &session,
+			GlobalSession: &GlobalSession,
+		}
+
+		processCommandParams := structs.ProcessCommandParams{
+			Command:        command,
+			CommandInput:   commandInput,
+			CommandLower:   commandLower,
+			CommandLine:    commandLine,
+			CommandArgs:    commandArgs,
+			RunOnNewThread: &runOnNewThread,
+			EchoTime:       &echoTime,
+			FirstCharIs:    &firstCharIs,
+			LastCharIs:     &lastCharIs,
+			IsWorking:      &isWorking,
+			IsComHasFlag:   &isComHasFlag,
+			Session:        &session,
+			ExecCommand:    execCommand,
+		}
+
+		startTimePRCOMARGS := time.Now()
+		continueLoop := processCommandArgs(processCommandParams)
+
+		if continueLoop {
+			if echoTime {
+				TEXCOMARGS := fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
+				fmt.Println(green(TEXCOMARGS))
+				return
+			}
+			return
+		}
+
+		if isComHasFlag && (echoTime || runOnNewThread) {
+			commandLine = removeFlags(commandLine)
+			commandInput = removeFlags(commandInput)
+			commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
+		}
+
+		if firstCharIs && lastCharIs {
+			commandLower = "print"
+			commandLine = fmt.Sprintf("print %s", commandLine)
+			commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
+		}
+
+		isValid := utils.ValidCommand(commandLower, Commands)
+
+		if len(strings.TrimSpace(commandLower)) != len(strings.TrimSpace(commandLine)) && isValid {
+			session.CommandHistory = append(session.CommandHistory, commandLine)
+			GlobalSession.CommandHistory = session.CommandHistory
+		}
+
+		if !isValid {
+			session.CommandHistory = append(session.CommandHistory, commandLine)
+			GlobalSession.CommandHistory = session.CommandHistory
+
+			if commandFile(strings.TrimSpace(commandLower)) {
+				fullFileName(&commandArgs)
+			}
+
+			fullCommand := append([]string{command}, commandArgs...)
+
+			// Логика выполнения команды, которую можно запускать в новом потоке
+			executeCommandOrbix := func() {
+				err := utils.ExternalCommand(fullCommand)
+				if err != nil {
+					fullPath := filepath.Join(dir, command)
+					fullCommand[0] = fullPath
+					err = utils.ExternalCommand(fullCommand)
+					if err != nil {
+						isValid = utils.ValidCommand(commandLower, AdditionalCommands)
+						if !isValid {
+							HandleUnknownCommandUtil(commandLower, Commands)
+							return
+						}
+					}
+				}
+			}
+
+			if runOnNewThread {
+				go executeCommandOrbix()
+
+				if strings.TrimSpace(commandInput) != "" {
+					return
+				}
+			} else {
+				if echoTime {
+					// Запоминаем время начала
+					startTime := time.Now()
+					executeCommandOrbix()
+					// Выводим время выполнения
+					TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+					fmt.Println(green(TEXCOM))
+
+					if strings.TrimSpace(commandInput) != "" {
+						return
+					}
+				} else {
+					executeCommandOrbix()
+
+					if strings.TrimSpace(commandInput) != "" {
+						return
+					}
+				}
+			}
+
+			if strings.TrimSpace(commandInput) != "" {
+				return
+			}
+			return
+		}
+
+		execCommand = structs.ExecuteCommandFuncParams{
+			Command:       command,
+			CommandLower:  commandLower,
+			CommandArgs:   commandArgs,
+			CommandInput:  commandInput,
+			Dir:           dir,
+			IsWorking:     &isWorking,
+			IsPermission:  &isPermission,
+			Username:      "OneCom",
+			SD:            &sessionData,
+			SessionPrefix: "",
+			Session:       &session,
+			GlobalSession: &GlobalSession,
+		}
+
+		execCommandCatchErrs := structs.ExecuteCommandCatchErrs{
+			EchoTime:       &echoTime,
+			RunOnNewThread: &runOnNewThread,
+		}
+
+		if catchSyntaxErrs(execCommandCatchErrs) {
+			return
+		}
+
+		if runOnNewThread {
+			go ExecuteCommand(execCommand)
+		} else {
+			if echoTime {
+				// Запоминаем время начала
+				startTime := time.Now()
+				ExecuteCommand(execCommand)
+				// Выводим время выполнения
+				TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+				fmt.Println(green(TEXCOM))
+			} else {
+				ExecuteCommand(execCommand)
+			}
+		}
+
+		return
+	}
+
 	if strings.TrimSpace(strings.ToLower(system.OperationSystem)) == "windows" {
 		Commands = append(Commands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
 		AdditionalCommands = append(AdditionalCommands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
@@ -88,9 +296,6 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 	}
 
 	sessionData := SD
-
-	// Initialize colors
-	InitColors()
 
 	if !echo && commandInput == "" {
 		fmt.Println(red("You cannot enable echo with an empty Input command!"))
