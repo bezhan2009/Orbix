@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	Version         = "1.9.1"
+	Version         = "1.9.2"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
@@ -22,10 +22,13 @@ var (
 	colors      = SetColorsMap()
 )
 
-func Init() {
+func Init() *AppState {
 	BetaVersion = string(strings.TrimSpace(strings.ToLower(os.Getenv("BETA"))))
 
 	Beta = SetBetaVersion(colors)
+
+	// Initialization AppState
+	return NewSystemData()
 }
 
 func SetBetaVersion(colors map[string]func(...interface{}) string) bool {

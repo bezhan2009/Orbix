@@ -61,12 +61,9 @@ func main() {
 	run.Init()
 
 	// Initialization system vars
-	system.Init()
+	appState := system.Init()
 
 	colors := system.GetColorsMap()
-
-	// Initialization AppState
-	appState := system.NewSystemData()
 
 	green := colors["green"]
 	red := colors["red"]
