@@ -1,10 +1,12 @@
 package src
 
 import (
+	"errors"
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/fsnotify/fsnotify"
 	"goCmd/cmd/commands"
+	"goCmd/cmd/dirInfo"
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
@@ -15,6 +17,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -361,7 +364,7 @@ func processCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 }
 
 func catchSyntaxErrs(execCommandCatchErrs structs.ExecuteCommandCatchErrs) (findErr bool) {
-	if *execCommandCatchErrs.EchoTime && *execCommandCatchErrs.RunOnNewThread {
+	if *execCommandCatchErrs.EchoTime && *execCommandCatchErrs.RunOnNewThread && !(execCommandCatchErrs.CommandLower == "orbix") {
 		fmt.Println(red("You cannot take timing and running on new thread at the same time"))
 		return true
 	}
@@ -436,4 +439,563 @@ func fullFileName(commandArgs *[]string) {
 	} else {
 		return
 	}
+}
+
+func EndOfSessions(originalStdout, originalStderr *os.File,
+	session *system.Session,
+	sessionData *system.AppState,
+	prefix string) {
+	// Restore original outputs
+	os.Stdout, os.Stderr = originalStdout, originalStderr
+
+	PreviousSessionPath = session.Path
+	session, _ = sessionData.GetSession(PreviousSessionPrefix)
+
+	if err := commands.ChangeDirectory(session.Path); err != nil {
+		fmt.Println(red("Error changing directory:", err))
+	}
+
+	sessionData.DeleteSession(prefix)
+
+	system.OrbixWorking = false
+}
+
+func ExecLoopCommand(commandLower,
+	prefix string,
+	echoTime, runOnNewThread bool,
+	execCommand structs.ExecuteCommandFuncParams) error {
+	execCommandCatchErrs := structs.ExecuteCommandCatchErrs{
+		CommandLower:   commandLower,
+		EchoTime:       &echoTime,
+		RunOnNewThread: &runOnNewThread,
+	}
+
+	if strings.TrimSpace(commandLower) == "orbix" && *execCommand.IsWorking {
+		PreviousSessionPrefix = prefix
+	}
+
+	if catchSyntaxErrs(execCommandCatchErrs) {
+		return errors.New("continue loop")
+	}
+
+	if runOnNewThread {
+		go ExecuteCommand(execCommand)
+	} else {
+		if echoTime {
+			// Запоминаем время начала
+			startTime := time.Now()
+			ExecuteCommand(execCommand)
+			// Выводим время выполнения
+			TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+			fmt.Println(green(TEXCOM))
+		} else {
+			ExecuteCommand(execCommand)
+		}
+	}
+
+	return nil
+}
+
+func ExecExternalLoopCommand(session *system.Session,
+	dir, command, commandInput, commandLine, commandLower string,
+	commandArgs []string,
+	echoTime, runOnNewThread bool) error {
+	errLtCommand := errors.New("LtCommand")
+	session.CommandHistory = append(session.CommandHistory, commandLine)
+	GlobalSession.CommandHistory = session.CommandHistory
+
+	if commandFile(strings.TrimSpace(commandLower)) {
+		fullFileName(&commandArgs)
+	}
+
+	fullCommand := append([]string{command}, commandArgs...)
+
+	if runOnNewThread {
+		go executeCommandOrbix(fullCommand, command, commandLower, dir)
+
+		if strings.TrimSpace(commandInput) != "" {
+			return errLtCommand
+		}
+	} else {
+		if echoTime {
+			// Запоминаем время начала
+			startTime := time.Now()
+			executeCommandOrbix(fullCommand, command, commandLower, dir)
+			// Выводим время выполнения
+			TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+			fmt.Println(green(TEXCOM))
+
+			if strings.TrimSpace(commandInput) != "" {
+				return errLtCommand
+			}
+		} else {
+			executeCommandOrbix(fullCommand, command, commandLower, dir)
+
+			if strings.TrimSpace(commandInput) != "" {
+				return errLtCommand
+			}
+		}
+	}
+
+	return nil
+}
+
+func ExecCommandPromptLogic(
+	firstCharIs,
+	lastCharIs,
+	isComHasFlag,
+	echoTime,
+	runOnNewThread bool,
+	dir string,
+	commandArgs *[]string,
+	prompt, command, commandLine, commandInput, commandLower *string,
+	session *system.Session) bool {
+	if isComHasFlag && (echoTime || runOnNewThread) {
+		*commandLine = removeFlags(*commandLine)
+		*commandInput = removeFlags(*commandInput)
+		*commandLine, *command, *commandArgs, *commandLower = readCommandLine(*commandLine) // Refactored input handling
+	}
+
+	if firstCharIs && lastCharIs {
+		*commandLower = "print"
+		*commandLine = fmt.Sprintf("print %s", commandLine)
+		*commandLine, *command, *commandArgs, *commandLower = readCommandLine(*commandLine) // Refactored input handling
+	}
+
+	session.Path = dir
+
+	isValid := utils.ValidCommand(*commandLower, Commands)
+
+	if len(strings.TrimSpace(*commandLower)) != len(strings.TrimSpace(*commandLine)) && isValid {
+		session.CommandHistory = append(session.CommandHistory, *commandLine)
+		GlobalSession.CommandHistory = session.CommandHistory
+	}
+
+	if !isValid {
+		err := ExecExternalLoopCommand(
+			session,
+			dir,
+			*command,
+			*commandInput,
+			*commandLine,
+			*commandLower,
+			*commandArgs,
+			echoTime,
+			runOnNewThread,
+		)
+
+		if err != nil {
+			return true
+		}
+
+		if strings.TrimSpace(*commandInput) != "" {
+			return true
+		}
+
+		return true
+	}
+
+	if strings.TrimSpace(*commandLower) == "prompt" {
+		handlePromptCommand(*commandArgs, prompt)
+		return true
+	}
+
+	return false
+}
+
+func RecoverAndRestore(rebooted *structs.RebootedData) {
+	if rebooted.Recover != nil {
+		RecoverText := fmt.Sprintf("Successfully recovered from the panic: %v", rebooted.Recover)
+		fmt.Printf("\n%s\n", green(RecoverText))
+		rebooted.Recover = nil
+	}
+}
+
+// Command execution logic that can be run in a new thread
+func executeCommandOrbix(fullCommandEx []string, commandEx, commandLowerEx, dirEx string) {
+	err := utils.ExternalCommand(fullCommandEx)
+	if err != nil {
+		fullPath := filepath.Join(dirEx, commandEx)
+		fullCommandEx[0] = fullPath
+
+		// Проверяем расширение файла и выбираем подходящий интерпретатор
+		extension := strings.ToLower(filepath.Ext(fullPath))
+		var cmd *exec.Cmd
+		switch extension {
+		case ".bat":
+			cmd = exec.Command("cmd.exe", "/C", fullPath)
+		case ".ps1":
+			cmd = exec.Command("powershell", "-File", fullPath)
+		case ".py":
+			cmd = exec.Command("python", fullPath)
+		default:
+			cmd = exec.Command(fullPath)
+		}
+
+		// Запускаем команду и обрабатываем ошибки
+		err = cmd.Run()
+		if err != nil {
+			isValid := utils.ValidCommand(commandLowerEx, AdditionalCommands)
+			if !isValid {
+				return
+			}
+		}
+	}
+}
+
+func usingForLT(commandInput string) bool {
+	if strings.TrimSpace(commandInput) != "" && strings.TrimSpace(commandInput) != "restart" {
+		return false
+	}
+
+	return true
+}
+
+func execLtCommand(commandInput string) {
+	user := "OneCom"
+
+	if strings.TrimSpace(Location) == "" {
+		Location = os.Getenv("CITY")
+		if strings.TrimSpace(Location) == "" {
+			Location = string(strings.TrimSpace(os.Getenv("USERS_LOCATION")))
+		}
+	}
+
+	dir, _ := os.Getwd()
+	dirC := dirInfo.CmdDir(dir)
+
+	printPromptInfoWithoutGit(Location, user, dirC, commandInput)
+
+	commandLine, command, commandArgs, commandLower := readCommandLine(commandInput) // Refactored input handling
+	if commandLine == "" {
+		return
+	}
+
+	var (
+		runOnNewThread bool
+		echoTime       bool
+		firstCharIs    bool
+		lastCharIs     bool
+		isComHasFlag   bool
+	)
+
+	isWorking := true
+	PermissionDenied := false
+	sessionData := system.AppState{}
+	session := system.Session{Path: dir, PreviousPath: dir, User: user, IsAdmin: false, GitBranch: "main", CommandHistory: []string{}}
+	GlobalSession = session
+
+	execCommand := structs.ExecuteCommandFuncParams{
+		Command:       command,
+		CommandLower:  commandLower,
+		CommandArgs:   commandArgs,
+		Dir:           dir,
+		IsWorking:     &isWorking,
+		IsPermission:  &PermissionDenied,
+		Username:      user,
+		SD:            &sessionData,
+		SessionPrefix: "",
+		Session:       &session,
+		GlobalSession: &GlobalSession,
+	}
+
+	processCommandParams := structs.ProcessCommandParams{
+		Command:        command,
+		CommandInput:   commandInput,
+		CommandLower:   commandLower,
+		CommandLine:    commandLine,
+		CommandArgs:    commandArgs,
+		RunOnNewThread: &runOnNewThread,
+		EchoTime:       &echoTime,
+		FirstCharIs:    &firstCharIs,
+		LastCharIs:     &lastCharIs,
+		IsWorking:      &isWorking,
+		IsComHasFlag:   &isComHasFlag,
+		Session:        &session,
+		ExecCommand:    execCommand,
+	}
+
+	startTimePRCOMARGS := time.Now()
+	continueLoop := processCommandArgs(processCommandParams)
+
+	if continueLoop {
+		if echoTime {
+			TEXCOMARGS := fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
+			fmt.Println(green(TEXCOMARGS))
+			return
+		}
+		return
+	}
+
+	if isComHasFlag && (echoTime || runOnNewThread) {
+		commandLine = removeFlags(commandLine)
+		commandInput = removeFlags(commandInput)
+		commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
+	}
+
+	if firstCharIs && lastCharIs {
+		commandLower = "print"
+		commandLine = fmt.Sprintf("print %s", commandLine)
+		commandLine, command, commandArgs, commandLower = readCommandLine(commandLine) // Refactored input handling
+	}
+
+	isValid := utils.ValidCommand(commandLower, Commands)
+
+	if len(strings.TrimSpace(commandLower)) != len(strings.TrimSpace(commandLine)) && isValid {
+		session.CommandHistory = append(session.CommandHistory, commandLine)
+		GlobalSession.CommandHistory = session.CommandHistory
+	}
+
+	if !isValid {
+		session.CommandHistory = append(session.CommandHistory, commandLine)
+		GlobalSession.CommandHistory = session.CommandHistory
+
+		if commandFile(strings.TrimSpace(commandLower)) {
+			fullFileName(&commandArgs)
+		}
+
+		fullCommand := append([]string{command}, commandArgs...)
+
+		if runOnNewThread {
+			go executeCommandOrbix(fullCommand, command, commandLower, dir)
+
+			if strings.TrimSpace(commandInput) != "" {
+				return
+			}
+		} else {
+			if echoTime {
+				// Запоминаем время начала
+				startTime := time.Now()
+				executeCommandOrbix(fullCommand, command, commandLower, dir)
+				// Выводим время выполнения
+				TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+				fmt.Println(green(TEXCOM))
+
+				if strings.TrimSpace(commandInput) != "" {
+					return
+				}
+			} else {
+				executeCommandOrbix(fullCommand, command, commandLower, dir)
+
+				if strings.TrimSpace(commandInput) != "" {
+					return
+				}
+			}
+		}
+
+		if strings.TrimSpace(commandInput) != "" {
+			return
+		}
+		return
+	}
+
+	execCommand = structs.ExecuteCommandFuncParams{
+		Command:       command,
+		CommandLower:  commandLower,
+		CommandArgs:   commandArgs,
+		CommandInput:  commandInput,
+		Dir:           dir,
+		IsWorking:     &isWorking,
+		IsPermission:  &PermissionDenied,
+		Username:      "OneCom",
+		SD:            &sessionData,
+		SessionPrefix: "",
+		Session:       &session,
+		GlobalSession: &GlobalSession,
+	}
+
+	execCommandCatchErrs := structs.ExecuteCommandCatchErrs{
+		EchoTime:       &echoTime,
+		RunOnNewThread: &runOnNewThread,
+	}
+
+	if catchSyntaxErrs(execCommandCatchErrs) {
+		return
+	}
+
+	if runOnNewThread {
+		go ExecuteCommand(execCommand)
+	} else {
+		if echoTime {
+			// Запоминаем время начала
+			startTime := time.Now()
+			ExecuteCommand(execCommand)
+			// Выводим время выполнения
+			TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+			fmt.Println(green(TEXCOM))
+		} else {
+			ExecuteCommand(execCommand)
+		}
+	}
+}
+
+func defineUser(commandInput string, rebooted structs.RebootedData, sessionData *system.AppState) (string, error) {
+	var username string
+
+	// Check if password directory is empty once and handle errors here
+	isEmpty, err := isPasswordDirectoryEmpty()
+	if err != nil {
+		animatedPrint(fmt.Sprintf("Error checking password directory: %s\n", err.Error()), "red")
+		return "", errors.New("ErrCheckPasswordDirectory")
+	}
+
+	if strings.TrimSpace(rebooted.Username) != "" {
+		username = strings.TrimSpace(rebooted.Username)
+	} else if !isEmpty && commandInput == "" {
+		dir, _ := os.Getwd()
+		user := dirInfo.CmdUser(dir)
+
+		nameUser, isSuccess := CheckUser(user, sessionData)
+		if !isSuccess {
+			return "", errors.New("ErrSuccess")
+		}
+		Unauthorized = false
+		username = nameUser
+		if username != user {
+			initializeRunningFile(username)
+		}
+
+		if user == username {
+			sessionData.IsAdmin = true
+			sessionData.User = user
+		} else {
+			sessionData.IsAdmin = false
+			sessionData.User = username
+		}
+	}
+
+	return username, nil
+}
+
+func ignoreSI(signalChan chan os.Signal, signalReceived *bool, sessionData *system.AppState, prompt, commandInput, username string) bool {
+	colorsMap := system.GetColorsMap()
+	if SessionsStarted > 1 {
+		return true
+	}
+
+	for {
+		sig := <-signalChan
+		*signalReceived = true
+		SignalReceived = *signalReceived
+
+		if sig == syscall.SIGHUP {
+			RemoveUserFromRunningFile(system.UserName)
+			os.Exit(1)
+		}
+
+		if !ExecutingCommand {
+			fmt.Println(red("^C"))
+			if !GlobalSession.IsAdmin {
+				dir, _ := os.Getwd()
+
+				dirC := dirInfo.CmdDir(dir)
+				user := sessionData.User
+				if user == "" {
+					user = dirInfo.CmdUser(dir)
+				}
+
+				if username != "" {
+					user = username
+				}
+
+				fmt.Println()
+				if prompt == "" {
+					if GitCheck {
+						gitBranch, _ := GetCurrentGitBranch()
+						printPromptInfo(Location, user, dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
+					} else {
+						printPromptInfoWithoutGit(Location, user, dirC, commandInput)
+					}
+				} else {
+					splitPrompt := strings.Split(prompt, ", ")
+					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+				}
+			} else {
+				dir, _ := os.Getwd()
+				if prompt == "" {
+					fmt.Printf("ORB %s>%s", dir, green(commandInput))
+				} else {
+					splitPrompt := strings.Split(prompt, ", ")
+					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+				}
+			}
+		}
+	}
+
+	return false
+}
+
+func setLocation() {
+	if strings.TrimSpace(Location) == "" {
+		Location = os.Getenv("CITY")
+		if strings.TrimSpace(Location) == "" {
+			Location = string(strings.TrimSpace(os.Getenv("USERS_LOCATION")))
+		}
+	}
+}
+
+func initOrbixFn(RestartAfterInit *bool, echo bool, commandInput string, rebooted structs.RebootedData, SD *system.AppState) *system.AppState {
+	func() {
+		Prompt = string(strings.TrimSpace(os.Getenv("PROMPT")))
+		SessionsStarted = SessionsStarted + 1
+	}()
+
+	// Initialize colors
+	InitColors()
+
+	if strings.TrimSpace(strings.ToLower(system.OperationSystem)) == "windows" {
+		Commands = append(Commands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
+		AdditionalCommands = append(AdditionalCommands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
+	}
+
+	if RebootAttempts > 5 {
+		system.OrbixWorking = false
+		fmt.Println(red("Max retry attempts reached. Exiting..."))
+		log.Println("Max retry attempts reached. Exiting...")
+		return nil
+	}
+
+	system.OrbixWorking = true
+
+	if strings.TrimSpace(commandInput) == "restart" {
+		*RestartAfterInit = true
+	}
+
+	if SD == nil {
+		fmt.Println(red("Fatal: App State is nil!"))
+		os.Exit(1)
+	}
+
+	if err := commands.ChangeDirectory(Absdir); err != nil {
+		fmt.Println(red(err))
+	}
+
+	sessionData := SD
+
+	if !echo && commandInput == "" {
+		fmt.Println(red("You cannot enable echo with an empty Input command!"))
+		return nil
+	}
+
+	if echo && rebooted.Username == "" && commandInput == "" {
+		SystemInformation()
+	}
+
+	return sessionData
+}
+
+func restartAfterInit(SD *system.AppState,
+	sessionData *system.AppState,
+	rebooted structs.RebootedData,
+	prefix,
+	username string,
+	echo bool) {
+	SD.User = username
+	SD.IsAdmin = sessionData.IsAdmin
+	rebooted.Prefix = prefix
+	if len(os.Args) > 1 {
+		return
+	}
+
+	Orbix("", echo, rebooted, SD)
 }

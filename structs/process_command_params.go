@@ -19,6 +19,7 @@ type ProcessCommandParams struct {
 }
 
 type ExecuteCommandCatchErrs struct {
+	CommandLower   string
 	RunOnNewThread *bool
 	EchoTime       *bool
 }
