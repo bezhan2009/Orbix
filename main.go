@@ -56,12 +56,6 @@ func main() {
 		fmt.Println("Error checking for updates:", err)
 	}
 
-	err = commands.ChangeDirectory("..")
-	if err != nil {
-		fmt.Println("Error changing directory:", err)
-		return
-	}
-
 	err = commands.ChangeDirectory("scripts")
 	if err != nil {
 		fmt.Println("Error changing directory:", err)
