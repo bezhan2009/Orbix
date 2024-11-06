@@ -1,8 +1,8 @@
 #include <iostream>
-#include <cstdlib>  // Для функции system
-#include <fstream>  // Для проверки наличия файла
-#include <chrono>   // Для тайм-аутов
-#include <thread>   // Для реализации задержек
+#include <cstdlib>   // Для функции system
+#include <fstream>   // Для проверки наличия файла
+#include <chrono>    // Для тайм-аутов
+#include <thread>    // Для реализации задержек
 
 bool fileExists(const std::string& filename) {
     std::ifstream file(filename);
@@ -18,24 +18,42 @@ int main() {
     std::cout << "Restarting Orbix..." << std::endl;
     std::cout << "WARNING: ctrl+C is no longer tracked, so the program will immediately terminate after it" << std::endl;
 
+    bool orbixExists = true;
+    bool mainExists = true;
+
     // Проверка на наличие файла orbix.go в папке scripts
     if (!fileExists("scripts/orbix.go")) {
-        std::cerr << "Error: 'orbix.go' not found in the 'scripts' directory." << std::endl;
+        orbixExists = false;
+        if (!fileExists("orbix.go")) {
+            std::cout << "Error: 'orbix.go' not found in the 'scripts' directory or current directory." << std::endl;
+            if (!fileExists("main.go")) {
+                std::cout << "Error: 'main.go' not found in the current directory." << std::endl;
+                mainExists = false;
+            }
+        }
+    }
+
+    if (!orbixExists && !mainExists) {
         return 1;
     }
 
     const int maxRetries = 3;
     const int retryDelay = 3000; // Задержка между попытками в миллисекундах
     int retries = 0;
+    int result = -1;
 
     while (retries < maxRetries) {
         std::cout << "Attempting to run 'go run orbix.go' in 'scripts' directory (attempt " << retries + 1 << ")..." << std::endl;
 
-        // Смена директории на 'scripts' и выполнение команды
-        int result = runCommand("cd scripts && go run orbix.go");
+        if (orbixExists) {
+            // Смена директории на 'scripts' и выполнение команды
+            result = runCommand("cd .. && cd scripts && go run orbix.go");
+        } else if (mainExists) {
+            result = runCommand("cd .. && go run main.go");
+        }
 
         if (result == 0) {
-            return 0;
+            return 0;  // Команда выполнена успешно
         } else {
             std::cerr << "Error executing command. Return code: " << result << std::endl;
             retries++;

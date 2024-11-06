@@ -38,6 +38,7 @@ scripts/scripts.exe
 *.txt
 *.log
 *.json
+!CMakeLists.txt
 
 # Other Scripts
 *.py

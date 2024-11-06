@@ -52,7 +52,7 @@ func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *
 		}
 	}()
 
-	src.Orbix("restart", true, structs.RebootedData{}, appState)
+	src.Orbix("", true, structs.RebootedData{}, appState)
 	panicChan <- nil
 }
 
