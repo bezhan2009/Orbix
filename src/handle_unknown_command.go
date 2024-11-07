@@ -7,7 +7,7 @@ import (
 )
 
 func HandleUnknownCommandUtil(commandLower string, commands []structs.Command) {
-	if !utils.ValidCommand(commandLower, commands) {
+	if !utils.ValidCommand(commandLower, commands) && UnknownCommandsCounter == 0 {
 		printUnknown := fmt.Sprintf("'%s' is not recognized as an internal or external command,\noperable program or batch file.\n", commandLower)
 		fmt.Printf(red(printUnknown))
 		if suggestedCommand := suggestCommand(commandLower); suggestedCommand != "" {
@@ -15,4 +15,6 @@ func HandleUnknownCommandUtil(commandLower string, commands []structs.Command) {
 			fmt.Printf(yellow(printSuggest))
 		}
 	}
+
+	UnknownCommandsCounter = UnknownCommandsCounter + 1
 }

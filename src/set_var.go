@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+var (
+	ErrNotFoundAndCreated = fmt.Errorf("variable not found, created new one with this name")
+)
+
 func SetVariableUtil(args []string) {
 	colors := make(map[string]func(...interface{}) string)
 	colors = system.GetColorsMap()
@@ -19,8 +23,22 @@ func SetVariableUtil(args []string) {
 		return
 	}
 
-	varName := args[0]
-	value := args[1]
+	var (
+		varName string
+		value   string
+	)
+
+	for iArg, arg := range args {
+		if iArg == 0 {
+			varName = args[0]
+			continue
+		}
+
+		value += arg + " "
+	}
+
+	value = strings.TrimSpace(value)
+
 	err := SetVariable(strings.ToLower(strings.TrimSpace(varName)), value)
 	if err != nil {
 		fmt.Printf(colors["red"](fmt.Sprintf("Error: %s\n", err.Error())))
@@ -30,7 +48,7 @@ func SetVariableUtil(args []string) {
 }
 
 // SetVariable изменяет значение переменной по её имени с преобразованием типов
-func SetVariable(varName string, value interface{}) error {
+func SetVariable(varName string, value string) error {
 	// Проверяем, есть ли такая переменная в нашем списке
 	if variable, exists := editableVars[varName]; exists {
 		v := reflect.ValueOf(variable).Elem()
@@ -71,7 +89,11 @@ func SetVariable(varName string, value interface{}) error {
 		}
 		return nil
 	}
-	return errors.New(fmt.Sprintf("The %s variable was not found or cannot be changed", varName))
+
+	// Если переменная не найдена, добавляем её в список с переданным значением
+	availableEditableVars = append(availableEditableVars, varName)
+	editableVars[varName] = &value
+	return ErrNotFoundAndCreated
 }
 
 func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
@@ -148,6 +170,6 @@ func GetVariableValue(varName string) (interface{}, error) {
 	case *[]float64:
 		return *v, nil
 	default:
-		return nil, errors.New(fmt.Sprintf("Unsupported variable type for %s", varName))
+		return v, errors.New(fmt.Sprintf("Unsupported variable type for %s", varName))
 	}
 }

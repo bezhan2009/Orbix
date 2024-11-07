@@ -15,7 +15,7 @@ func CreateFileUtil(commandArgs []string, dir string) {
 	if err != nil {
 		fmt.Println(red(err))
 	} else if name != "" {
-		fmt.Printf(green(fmt.Sprintf("CFile %s successfully created!\n", name)))
+		fmt.Printf(green(fmt.Sprintf("File %s successfully created!\n", name)))
 		fmt.Println(green(fmt.Sprintf("Directory of the new file: %s\n", filepath.Join(dir, name))))
 	}
 }

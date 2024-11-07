@@ -33,6 +33,5 @@ func Rename(commandArgs []string, command string) error {
 		return err
 	}
 
-	fmt.Printf("File '%s' successfully renamed to '%s'.\n", oldName, newName)
 	return nil
 }

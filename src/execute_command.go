@@ -9,6 +9,7 @@ import (
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
+	"goCmd/utils"
 	"os"
 	"strings"
 )
@@ -112,7 +113,10 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 				handler()
 			}
 		} else {
-			HandleUnknownCommandUtil(executeCommand.CommandLower, executeCommand.Commands)
+			isValid := utils.ValidCommand(executeCommand.CommandLower, AdditionalCommands)
+			if !isValid {
+				HandleUnknownCommandUtil(executeCommand.Command, Commands)
+			}
 		}
 	}
 

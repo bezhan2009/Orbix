@@ -35,7 +35,6 @@ var (
 
 func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
 	defer func() {
-		SessionsStarted -= 1
 		if r := recover(); r != nil {
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
@@ -340,6 +339,9 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 			runOnNewThread,
 			execCommand,
 		)
+
+		UnknownCommandsCounter = 0
+
 		if err != nil {
 			continue
 		}
