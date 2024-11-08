@@ -1,6 +1,7 @@
 package fcommands
 
 import (
+	"errors"
 	"fmt"
 	"github.com/fatih/color"
 	"goCmd/cmd/commands"
@@ -20,7 +21,7 @@ func CFile(commandArgs []string) (string, error) {
 
 	if name == "debug.txt" {
 		fmt.Println(red("PermissionDenied: You cannot write, delete or create a debug.txt file"))
-		return name, nil
+		return name, errors.New("PermissionDenied")
 	}
 
 	errExisting := commands.IsExists(name)

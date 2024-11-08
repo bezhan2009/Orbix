@@ -15,5 +15,8 @@ func SignOutUtil(username string, systemPath string, sd *system.AppState, sessio
 	}
 
 	RemoveUserFromRunningFile(username)
-	Orbix("", true, structs.RebootedData{}, sd)
+	Orbix("",
+		true,
+		structs.RebootedData{},
+		sd)
 }

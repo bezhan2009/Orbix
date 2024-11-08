@@ -18,6 +18,7 @@ func CommandCopySourceUtil(commandArgs []string) {
 		fmt.Println(yellow("copysource example.txt bufer"))
 		return
 	}
+
 	err := commands.File(commandArgs[0], commandArgs[1])
 	if err != nil {
 		fmt.Println(red(err))

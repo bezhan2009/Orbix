@@ -33,6 +33,7 @@ scripts/GUI_test.py
 # Build Files
 scripts/dump.rdb
 scripts/dist
+user.env
 go_build_goCmd.exe
 scripts/scripts.exe
 *.txt

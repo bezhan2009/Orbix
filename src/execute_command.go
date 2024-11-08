@@ -66,10 +66,12 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"set_user_env": func() { commands.SetUserFromENV(system.Path) },
 		"new_prompt":   func() { session.IsAdmin = false },
 		"old_prompt":   func() { session.IsAdmin = true },
+		"del_var":      func() { DeleteVariable(executeCommand.CommandArgs) },
 		"new_window":   func() { openNewWindowForCommand(executeCommand) },
 
 		"help":         displayHelp,
 		"systemorbix":  SystemInformation,
+		"save":         SaveVars,
 		"clean":        commands.Screen,
 		"cls":          commands.Screen,
 		"clear":        commands.Screen,
@@ -87,7 +89,10 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 			dir, _ := os.Getwd()
 
 			session.Path = dir
-			Orbix("", true, structs.RebootedData{}, executeCommand.SD)
+			Orbix("",
+				true,
+				structs.RebootedData{},
+				executeCommand.SD)
 			PreviousSessionPrefix = executeCommand.SessionPrefix
 		},
 		"newuser": func() { NewUser(system.Path) },

@@ -10,7 +10,7 @@ import (
 func PrintLS() {
 	currentDir, err := os.Getwd()
 	if err != nil {
-		utils.AnimatedPrint(fmt.Sprint("Error getting current directory:", err))
+		utils.AnimatedPrint(fmt.Sprint("Error getting current directory:", err), "red")
 		return
 	}
 
@@ -19,7 +19,7 @@ func PrintLS() {
 
 	files, err := ioutil.ReadDir(".")
 	if err != nil {
-		utils.AnimatedPrint(fmt.Sprint("Error reading directory:", err))
+		utils.AnimatedPrint(fmt.Sprint("Error reading directory:", err), "red")
 		return
 	}
 

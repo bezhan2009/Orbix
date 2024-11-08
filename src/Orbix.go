@@ -5,6 +5,7 @@ import (
 	"goCmd/cmd/dirInfo"
 	"goCmd/structs"
 	"goCmd/system"
+	"goCmd/utils"
 	"log"
 	"os"
 	"os/signal"
@@ -33,8 +34,12 @@ var (
 	SessionsStarted       = uint(0)
 )
 
-func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *system.AppState) {
+func Orbix(commandInput string,
+	echo bool,
+	rebooted structs.RebootedData,
+	SD *system.AppState) {
 	defer func() {
+		SaveVars()
 		if r := recover(); r != nil {
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
@@ -51,11 +56,15 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 				Prefix:   Prefix,
 			}
 
-			Orbix(commandInput, echo, reboot, SD)
+			Orbix(commandInput,
+				echo,
+				reboot,
+				SD)
 		}
 	}()
 
 	if !usingForLT(commandInput) {
+		Prompt = "_>"
 		execLtCommand(commandInput)
 
 		return
@@ -131,6 +140,17 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 
 	// Initialize Global Vars
 	go Init(session)
+
+	// Load User Configs
+	fmt.Print(cyan("Loading configs"))
+	utils.AnimatedPrint("...\n", "cyan")
+
+	err = LoadUserConfigs()
+	if err != nil {
+		fmt.Println(red("Error Loading configs:", err))
+	} else {
+		fmt.Println(green("Successfully Loaded configs"))
+	}
 
 	session.PreviousPath = PreviousSessionPath
 	fmt.Println(green(session.PreviousPath))
@@ -347,5 +367,8 @@ func Orbix(commandInput string, echo bool, rebooted structs.RebootedData, SD *sy
 		}
 	}
 
-	EndOfSessions(originalStdout, originalStderr, session, sessionData, prefix)
+	EndOfSessions(originalStdout, originalStderr,
+		session,
+		sessionData,
+		prefix)
 }

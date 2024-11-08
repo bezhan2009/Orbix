@@ -176,6 +176,8 @@ var Commands = []structs.Command{
 	{"old_prompt", "Sets old prompt"},
 	{"new_window", "Opens a new window"},
 	{"kill", "kills process by PID"},
+	{"save", "Saves your custom vars to .env file"},
+	{"del_var", "deletes your custom variable"},
 }
 
 // AdditionalCommands additional commands
@@ -251,6 +253,8 @@ var AdditionalCommands = []structs.Command{
 	{"old_prompt", "Sets old prompt"},
 	{"new_window", "Opens a new window"},
 	{"kill", "kills process by PID"},
+	{"save", "Saves your custom vars to .env file"},
+	{"del_var", "deletes your custom variable"},
 }
 
 var CommandHistory []string

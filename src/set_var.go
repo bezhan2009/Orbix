@@ -6,7 +6,9 @@ import (
 	"goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
+	utils2 "goCmd/utils"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -90,10 +92,44 @@ func SetVariable(varName string, value string) error {
 		return nil
 	}
 
+	if strings.TrimSpace(varName) == "*" {
+		fmt.Println(red(fmt.Sprintf("the variable %s is nil\n", varName)))
+		return nil
+	}
+
+	_, err := strconv.Atoi(string(varName[0]))
+	if err == nil {
+		return errors.New(fmt.Sprintf("Variable cannot starts with number: %s", varName))
+	}
+
 	// Если переменная не найдена, добавляем её в список с переданным значением
 	availableEditableVars = append(availableEditableVars, varName)
+	customEditableVars = append(customEditableVars, varName)
 	editableVars[varName] = &value
 	return ErrNotFoundAndCreated
+}
+
+func DeleteVariable(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println(yellow("Usage: del_var <varname>"))
+		return
+	}
+
+	varname := commandArgs[0]
+	if strings.TrimSpace(varname) == "*" {
+		for i := 0; i < len(customEditableVars); i++ {
+			delete(editableVars, customEditableVars[i])
+		}
+
+		return
+	}
+
+	if !utils2.IsValid(varname, customEditableVars) {
+		fmt.Println(red(fmt.Sprintf("the variable %s is invalid\n", varname)))
+		return
+	}
+
+	delete(editableVars, varname)
 }
 
 func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {

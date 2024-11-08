@@ -10,16 +10,22 @@ import (
 )
 
 const (
-	Version         = "1.10.0"
+	Version         = "1.10.1"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
 )
 
 var (
-	Beta        = false
-	BetaVersion = ""
-	colors      = SetColorsMap()
+	Beta           = false
+	BetaVersion    = ""
+	colors         = SetColorsMap()
+	OrbixFileNames = map[string]uint{
+		"running.txt":   1,
+		"user.env":      1,
+		".env":          1,
+		"commands.json": 1,
+	}
 )
 
 func Init() *AppState {

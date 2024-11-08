@@ -199,6 +199,7 @@ var editableVars = map[string]interface{}{
 }
 
 var availableEditableVars = []string{"location", "prompt", "user"}
+var customEditableVars []string
 
 func watchFile(runningPath string, username string, isWorking *bool, isPermission *bool) {
 	watcher, err := fsnotify.NewWatcher()
@@ -350,6 +351,7 @@ func commandFile(command string) bool {
 		command == "edit" ||
 		command == "create" ||
 		command == "rem" ||
+		command == "del_var" ||
 		command == "del" ||
 		command == "delete" ||
 		command == "cf" ||
@@ -560,5 +562,8 @@ func restartAfterInit(SD *system.AppState,
 		return
 	}
 
-	Orbix("", echo, rebooted, SD)
+	Orbix("",
+		echo,
+		rebooted,
+		SD)
 }

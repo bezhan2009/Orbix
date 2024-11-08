@@ -312,6 +312,9 @@ func usingForLT(commandInput string) bool {
 func execLtCommand(commandInput string) {
 	user := "OneCom"
 
+	// Initialize colors
+	InitColors()
+
 	if strings.TrimSpace(Location) == "" {
 		Location = os.Getenv("CITY")
 		if strings.TrimSpace(Location) == "" {

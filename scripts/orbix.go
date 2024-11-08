@@ -52,7 +52,11 @@ func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *
 		}
 	}()
 
-	src.Orbix("", true, structs.RebootedData{}, appState)
+	src.Orbix("",
+		true,
+		structs.RebootedData{},
+		appState)
+
 	panicChan <- nil
 }
 
@@ -80,7 +84,10 @@ func main() {
 			command += arg + " "
 		}
 
-		src.Orbix(command, true, structs.RebootedData{}, appState)
+		src.Orbix(command,
+			true,
+			structs.RebootedData{},
+			appState)
 		return
 	}
 

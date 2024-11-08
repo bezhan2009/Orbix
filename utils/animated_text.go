@@ -6,9 +6,10 @@ import (
 	"time"
 )
 
-func AnimatedPrint(text string) {
+func AnimatedPrint(text string, color string) {
+	colors := system.GetColorsMap()
 	for _, char := range text {
-		fmt.Print(string(char))
+		fmt.Print(colors[color](string(char)))
 		time.Sleep(1 * time.Millisecond)
 	}
 }

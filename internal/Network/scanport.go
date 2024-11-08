@@ -13,10 +13,10 @@ func ScanPort(host string, ports []int) {
 		address := host + ":" + strconv.Itoa(port)
 		conn, err := net.DialTimeout("tcp", address, 1*time.Second)
 		if err != nil {
-			utils.AnimatedPrint(fmt.Sprintf("Port %d: Closed\n", port))
+			utils.AnimatedPrint(fmt.Sprintf("Port %d: Closed\n", port), "red")
 			continue
 		}
 		conn.Close()
-		utils.AnimatedPrint(fmt.Sprintf("Port %d: Open\n", port))
+		utils.AnimatedPrint(fmt.Sprintf("Port %d: Open\n", port), "red")
 	}
 }
