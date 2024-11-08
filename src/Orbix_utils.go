@@ -24,17 +24,17 @@ var UnknownCommandsCounter uint
 // New helper functions
 func initializeRunningFile(username string) {
 	// Check and initialize running.txt if not exists
-	if _, err := os.Stat("running.txt"); os.IsNotExist(err) {
-		if _, err = os.Create("running.txt"); err != nil {
+	if _, err := os.Stat(system.OrbixRunningUsersFileName); os.IsNotExist(err) {
+		if _, err = os.Create(system.OrbixRunningUsersFileName); err != nil {
 			panic(err)
 		}
 	}
 
 	// Check for username in running.txt and add if missing
-	runningPath := filepath.Join(Absdir, "running.txt")
+	runningPath := filepath.Join(Absdir, system.OrbixRunningUsersFileName)
 	if sourceRunning, err := os.ReadFile(runningPath); err == nil {
 		if !strings.Contains(string(sourceRunning), username) {
-			if file, err := os.OpenFile("running.txt", os.O_APPEND|os.O_WRONLY, 0644); err == nil {
+			if file, err := os.OpenFile(system.OrbixRunningUsersFileName, os.O_APPEND|os.O_WRONLY, 0644); err == nil {
 				defer func() {
 					err = file.Close()
 					if err != nil {
@@ -42,7 +42,7 @@ func initializeRunningFile(username string) {
 					}
 				}()
 				if _, err := file.WriteString("\n" + username + "\n"); err != nil {
-					fmt.Println("Error writing to running.txt:", err)
+					fmt.Println(fmt.Sprintf("Error writing to %s: %s", system.OrbixRunningUsersFileName, err))
 				}
 			}
 		}
@@ -50,7 +50,7 @@ func initializeRunningFile(username string) {
 }
 
 func checkUserInRunningFile(username string) bool {
-	runningPath := filepath.Join(Absdir, "running.txt")
+	runningPath := filepath.Join(Absdir, system.OrbixRunningUsersFileName)
 	sourceRunning, err := os.ReadFile(runningPath)
 	if err != nil {
 		return false
@@ -110,7 +110,7 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 	}
 
 	commandLineSplit := strings.Split(commandLine, " ")
-	if commandLineSplit[0] == "setvar" {
+	if commandLineSplit[0] == "setvar" || commandLineSplit[0] == "delvar" || commandLineSplit[0] == "getvar" {
 		command := commandLineSplit[:1]
 
 		return commandLine, command[0], commandLineSplit[1:], strings.ToLower(commandLineSplit[0])
@@ -440,7 +440,7 @@ func ignoreSI(signalChan chan os.Signal,
 		SignalReceived = *signalReceived
 
 		if sig == syscall.SIGHUP {
-			RemoveUserFromRunningFile(system.UserName)
+			DeleteUserFromRunningFile(system.UserName)
 			os.Exit(1)
 		}
 

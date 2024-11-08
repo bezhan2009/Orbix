@@ -14,7 +14,7 @@ func SignOutUtil(username string, systemPath string, sd *system.AppState, sessio
 		fmt.Println(red(fmt.Sprintf("Error when changing the path: %v", err)))
 	}
 
-	RemoveUserFromRunningFile(username)
+	DeleteUserFromRunningFile(username)
 	Orbix("",
 		true,
 		structs.RebootedData{},

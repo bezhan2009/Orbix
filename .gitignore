@@ -34,6 +34,7 @@ scripts/GUI_test.py
 scripts/dump.rdb
 scripts/dist
 user.env
+running.env
 go_build_goCmd.exe
 scripts/scripts.exe
 *.txt

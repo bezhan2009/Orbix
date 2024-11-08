@@ -66,7 +66,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"set_user_env": func() { commands.SetUserFromENV(system.Path) },
 		"new_prompt":   func() { session.IsAdmin = false },
 		"old_prompt":   func() { session.IsAdmin = true },
-		"del_var":      func() { DeleteVariable(executeCommand.CommandArgs) },
+		"delvar":       func() { DeleteVariable(executeCommand.CommandArgs) },
 		"new_window":   func() { openNewWindowForCommand(executeCommand) },
 
 		"help":         displayHelp,
@@ -102,7 +102,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"exit": func() {
 			*executeCommand.IsWorking = false
 			*executeCommand.IsPermission = false
-			RemoveUserFromRunningFile(executeCommand.Username)
+			DeleteUserFromRunningFile(executeCommand.Username)
 		},
 	}
 

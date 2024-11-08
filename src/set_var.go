@@ -111,7 +111,7 @@ func SetVariable(varName string, value string) error {
 
 func DeleteVariable(commandArgs []string) {
 	if len(commandArgs) < 1 {
-		fmt.Println(yellow("Usage: del_var <varname>"))
+		fmt.Println(yellow("Usage: delvar <variable_name>"))
 		return
 	}
 

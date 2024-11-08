@@ -2,17 +2,18 @@ package src
 
 import (
 	"fmt"
+	"goCmd/system"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func RemoveUserFromRunningFile(username string) {
-	runningPath := filepath.Join(Absdir, "running.txt")
+func DeleteUserFromRunningFile(username string) {
+	runningPath := filepath.Join(Absdir, system.OrbixRunningUsersFileName)
 
 	sourceRunning, err := os.ReadFile(runningPath)
 	if err != nil {
-		fmt.Printf("File reading error running.txt: %v\n", err)
+		fmt.Printf("File reading error %s: %v\n", system.OrbixRunningUsersFileName, err)
 		return
 	}
 
@@ -31,7 +32,7 @@ func RemoveUserFromRunningFile(username string) {
 	newContent := strings.Join(updatedLines, "\n")
 	err = os.WriteFile(runningPath, []byte(newContent), 0644)
 	if err != nil {
-		fmt.Printf("Error writing to the file running.txt: %v\n", err)
+		fmt.Printf("Error writing to the file %s: %v\n", system.OrbixRunningUsersFileName, err)
 		return
 	}
 }

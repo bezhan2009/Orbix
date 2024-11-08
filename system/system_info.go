@@ -26,6 +26,7 @@ var (
 		".env":          1,
 		"commands.json": 1,
 	}
+	OrbixRunningUsersFileName = "running.env"
 )
 
 func Init() *AppState {

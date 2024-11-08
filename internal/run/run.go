@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
+	"goCmd/system"
 	"goCmd/utils"
 	"log"
 	"os"
@@ -42,13 +43,12 @@ PROMPT: _>`
 
 	red := color.New(color.FgRed).SprintFunc()
 
-	file, err := os.Open("running.txt")
+	name := system.OrbixRunningUsersFileName
+
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR, 0600)
 	if err != nil {
-		file, err = os.Create("running.txt")
-		if err != nil {
-			fmt.Println(red("Error creating running.txt: "), err)
-			os.Exit(1)
-		}
+		fmt.Println(fmt.Sprintf("Error creating %s file: %s", name, err))
+		log.Fatal(fmt.Sprintf("Error creating %s file: %s", name, err))
 	}
 	defer func() {
 		err = file.Close()
@@ -65,7 +65,7 @@ PROMPT: _>`
 	passwordsDir := "passwords"
 
 	if _, err = os.Stat(passwordsDir); os.IsNotExist(err) {
-		err = os.Mkdir(passwordsDir, 0755)
+		err = os.Mkdir(passwordsDir, 0600)
 		if err != nil {
 			printErr := fmt.Sprintf("Error creating folder %s: %v\n", passwordsDir, err)
 			fmt.Println(red(printErr))

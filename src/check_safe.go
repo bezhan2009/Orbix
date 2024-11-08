@@ -90,7 +90,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		}
 
 		runningPath := AbsDirRun
-		runningPath += "\\running.txt"
+		runningPath += fmt.Sprintf("\\%s", system.OrbixRunningUsersFileName)
 		sourceRunning, errReading := os.ReadFile(runningPath)
 
 		var dataRunning string

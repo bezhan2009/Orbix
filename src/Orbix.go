@@ -18,7 +18,7 @@ import (
 
 var (
 	Absdir, _             = filepath.Abs("")
-	RunningPath           = filepath.Join(Absdir, "running.txt")
+	RunningPath           = filepath.Join(Absdir, system.OrbixRunningUsersFileName)
 	GlobalSession         = system.Session{}
 	Location              = ""
 	User                  = ""
@@ -39,7 +39,10 @@ func Orbix(commandInput string,
 	rebooted structs.RebootedData,
 	SD *system.AppState) {
 	defer func() {
-		SaveVars()
+		if strings.TrimSpace(commandInput) == "" {
+			SaveVars()
+		}
+
 		if r := recover(); r != nil {
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
@@ -72,7 +75,11 @@ func Orbix(commandInput string,
 
 	RestartAfterInit := false
 
-	sessionData := initOrbixFn(&RestartAfterInit, echo, commandInput, rebooted, SD)
+	sessionData := initOrbixFn(&RestartAfterInit,
+		echo,
+		commandInput,
+		rebooted,
+		SD)
 
 	isWorking := true
 	isPermission := true
@@ -80,7 +87,9 @@ func Orbix(commandInput string,
 		isPermission = false
 	}
 
-	username, err := defineUser(commandInput, rebooted, sessionData)
+	username, err := defineUser(commandInput,
+		rebooted,
+		sessionData)
 	if err != nil {
 		return
 	}
@@ -105,7 +114,10 @@ func Orbix(commandInput string,
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		if ignoreSI(signalChan, &signalReceived, sessionData, prompt, commandInput, username) {
+		if ignoreSI(signalChan,
+			&signalReceived,
+			sessionData,
+			prompt, commandInput, username) {
 			return
 		}
 	}()
@@ -325,7 +337,7 @@ func Orbix(commandInput string,
 			gitBranchUpdate, err := processCommand(commandLower)
 			if err != nil {
 				fmt.Println(red(err.Error()))
-				RemoveUserFromRunningFile(username)
+				DeleteUserFromRunningFile(username)
 				return
 			}
 
