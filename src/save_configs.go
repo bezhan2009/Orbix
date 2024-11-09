@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"goCmd/cmd/commands"
+	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
 	"io/ioutil"
 	"os"
@@ -87,6 +88,11 @@ func SaveVars() {
 
 	values := dereferenceVariables(editableVars)
 
+	for key, value := range values {
+		valueStr := fmt.Sprintf("%v", value)
+		values[key] = PasswordAlgoritm.Usage(valueStr, true)
+	}
+
 	data, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
 		fmt.Println("Ошибка при сериализации переменных:", err)
@@ -144,7 +150,8 @@ func LoadUserConfigs() error {
 
 	// Установка переменных в окружение
 	for key, value := range loadedValues {
-		saveToEnv := fmt.Sprintf("setvar %s %v", key, value)
+		valueStr := fmt.Sprintf("%v", value)
+		saveToEnv := fmt.Sprintf("setvar %s %v", PasswordAlgoritm.Usage(key, false), PasswordAlgoritm.Usage(valueStr, false))
 		execLtCommand(saveToEnv)
 	}
 
