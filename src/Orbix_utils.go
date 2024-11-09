@@ -196,9 +196,10 @@ var editableVars = map[string]interface{}{
 	"location": &Location,
 	"prompt":   &Prompt,
 	"user":     &User,
+	"empty":    &Empty,
 }
 
-var availableEditableVars = []string{"location", "prompt", "user"}
+var availableEditableVars = []string{"location", "prompt", "user", "empty"}
 var customEditableVars []string
 
 func watchFile(runningPath string, username string, isWorking *bool, isPermission *bool) {

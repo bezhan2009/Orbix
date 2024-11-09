@@ -1,13 +1,13 @@
 package src
 
 import (
+	"encoding/json"
 	"fmt"
 	"goCmd/cmd/commands"
-	ReadEnvUtil "goCmd/cmd/commands/Read/utils"
-	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
+	"io/ioutil"
 	"os"
-	"strings"
+	"reflect"
 )
 
 func silenceOutput() (func(), error) {
@@ -41,6 +41,33 @@ func silenceOutput() (func(), error) {
 	}, nil
 }
 
+// Вспомогательная функция для получения значений из указателей
+func dereferenceVariables(vars map[string]interface{}) map[string]interface{} {
+	values := make(map[string]interface{})
+	for key, ptr := range vars {
+		val := reflect.ValueOf(ptr)
+		if val.Kind() == reflect.Ptr && !val.IsNil() {
+			values[key] = val.Elem().Interface()
+		} else {
+			values[key] = nil // Если указатель нулевой, значение сохраняется как nil
+		}
+	}
+	return values
+}
+
+// Вспомогательная функция для обновления значений по указателям
+func updatePointers(vars map[string]interface{}, data map[string]interface{}) {
+	for key, ptr := range vars {
+		if newValue, exists := data[key]; exists {
+			val := reflect.ValueOf(ptr)
+			if val.Kind() == reflect.Ptr && val.Elem().CanSet() {
+				val.Elem().Set(reflect.ValueOf(newValue))
+			}
+		}
+	}
+}
+
+// SaveVars Сохранение переменных в формате JSON
 func SaveVars() {
 	restoreOutput, err := silenceOutput() // Отключаем вывод
 	if err != nil {
@@ -49,34 +76,30 @@ func SaveVars() {
 	}
 	defer restoreOutput() // Восстанавливаем вывод в конце
 
+	execLtCommand("delete user.json")
+	execLtCommand("create user.json")
+
 	err = commands.ChangeDirectory(Absdir)
 	if err != nil {
 		fmt.Println(red(err))
 		return
 	}
 
-	execLtCommand("delete user.env")
-	execLtCommand("create user.env")
+	values := dereferenceVariables(editableVars)
 
-	for key, value := range editableVars {
-		var valueStr string
-		switch v := value.(type) {
-		case *int:
-			valueStr = fmt.Sprintf("%d", *v)
-		case *string:
-			valueStr = fmt.Sprintf("%s", *v)
-		case *bool:
-			valueStr = fmt.Sprintf("%t", *v)
-		// добавьте обработку других типов указателей, если нужно
-		default:
-			valueStr = fmt.Sprintf("%v", value) // для случаев, когда тип неизвестен
-		}
+	data, err := json.MarshalIndent(values, "", "  ")
+	if err != nil {
+		fmt.Println("Ошибка при сериализации переменных:", err)
+		return
+	}
 
-		saveToEnv := fmt.Sprintf("write user.env %s=%s", PasswordAlgoritm.Usage(key, true), PasswordAlgoritm.Usage(valueStr, true))
-		execLtCommand(saveToEnv)
+	err = ioutil.WriteFile("user.json", data, 0644)
+	if err != nil {
+		fmt.Println("Ошибка при записи файла:", err)
 	}
 }
 
+// LoadUserConfigs Загрузка переменных из JSON и обновление указателей
 func LoadUserConfigs() error {
 	restoreOutput, err := silenceOutput() // Отключаем вывод
 	if err != nil {
@@ -84,27 +107,44 @@ func LoadUserConfigs() error {
 		return err
 	}
 	defer restoreOutput() // Восстанавливаем вывод в конце
+
 	err = commands.ChangeDirectory(Absdir)
 	if err != nil {
 		fmt.Println(red(err))
 		return err
 	}
 
-	userConfigs, err := ReadEnvUtil.File("user.env")
+	file, err := os.Open("user.json")
 	if err != nil {
-		fmt.Println(red(err))
+		fmt.Println("Ошибка при открытии файла:", err)
+		return err
+	}
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Println("Ошибка при чтении файла:", err)
 		return err
 	}
 
-	userConfigsStr := fmt.Sprintf("%v", string(userConfigs))
-	userConfigsStrList := strings.Split(userConfigsStr, "\n")
-	for _, userConfigStr := range userConfigsStrList {
-		setVar := strings.Split(userConfigStr, "=")
-		if len(setVar) != 2 {
-			continue
-		}
+	loadedValues := map[string]interface{}{
+		"location": &Location,
+		"prompt":   &Prompt,
+		"user":     &User,
+		"empty":    &Empty,
+	}
 
-		saveToEnv := fmt.Sprintf("setvar %s %s", PasswordAlgoritm.Usage(setVar[0], false), PasswordAlgoritm.Usage(setVar[1], false))
+	err = json.Unmarshal(data, &loadedValues)
+	if err != nil {
+		fmt.Println("Ошибка при десериализации JSON:", err)
+		return err
+	}
+
+	updatePointers(loadedValues, editableVars)
+
+	// Установка переменных в окружение
+	for key, value := range loadedValues {
+		saveToEnv := fmt.Sprintf("setvar %s %v", key, value)
 		execLtCommand(saveToEnv)
 	}
 

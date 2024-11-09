@@ -24,7 +24,8 @@ func setHeaders(w http.ResponseWriter) {
 }
 
 // Handler for rendering index.html
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+func indexHandler(w http.ResponseWriter,
+	r *http.Request) {
 	setHeaders(w)
 	tmpl, err := template.ParseFiles("templates/index.html")
 	if err != nil {
@@ -39,7 +40,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func OrbixLoop(red func(a ...interface{}) string, panicChan chan any, appState *system.AppState) {
+func OrbixLoop(red func(a ...interface{}) string,
+	panicChan chan any,
+	appState *system.AppState) {
 	defer func() {
 		if r := recover(); r != nil {
 			src.DeleteUserFromRunningFile(system.UserName)
@@ -103,10 +106,12 @@ func main() {
 			err = http.ListenAndServe(URL, nil)
 			if err != nil {
 				fmt.Println()
-				fmt.Println(red(fmt.Sprintf("Server failed to start: %v", err)))
+				fmt.Println(red(fmt.Sprintf("Server failed to start: %v",
+					err)))
 				portInt, err = strconv.Atoi(system.Port)
 				if err != nil {
-					fmt.Println(red(fmt.Sprintf("PortError: %v", err)))
+					fmt.Println(red(fmt.Sprintf("PortError: %v",
+						err)))
 					system.Port = "6060"
 					system.ErrorStartingServer = true
 					continue
@@ -128,7 +133,7 @@ func main() {
 			time.Sleep(retryDelay)
 			if system.ErrorStartingServer {
 				fmt.Println(green("The server was able to resolve the error, and now server is listening on port " + system.Port))
-				fmt.Print(magenta("enable secure[Y/N]: "))
+				fmt.Print(magenta(": "))
 				break
 			}
 		}

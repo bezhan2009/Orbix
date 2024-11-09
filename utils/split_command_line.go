@@ -23,6 +23,13 @@ func SplitCommandLine(input string) []string {
 			} else {
 				current.WriteRune(r) // Если внутри одинарных кавычек, добавляем символ
 			}
+		case r == '(':
+			// Если встречена двойная кавычка, переключаем состояние
+			if !inSingleQuotes {
+				inDoubleQuotes = !inDoubleQuotes
+			} else {
+				current.WriteRune(r) // Если внутри одинарных кавычек, добавляем символ
+			}
 		case r == '\'':
 			// Если встречена одинарная кавычка, переключаем состояние
 			if !inDoubleQuotes {

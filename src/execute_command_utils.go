@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"goCmd/cmd/commands"
+	ExOpenedCommReadUtils "goCmd/cmd/commands/Read/utils"
 	"goCmd/cmd/dirInfo"
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -210,6 +212,49 @@ func ExecCommandPromptLogic(
 		}
 	}
 
+	InQuotes := true
+
+	for iArg := 0; iArg < len(fullCommandArgs); iArg++ {
+		arg := fullCommandArgs[iArg]
+
+		if strings.HasPrefix(arg, "(") && InQuotes {
+			// Ищем конец команды в скобках
+			endIdx := -1
+			for j := iArg; j < len(fullCommandArgs); j++ {
+				if strings.HasSuffix(fullCommandArgs[j], ")") {
+					endIdx = j
+					continue
+				}
+			}
+
+			// Если нет закрывающей скобки
+			if endIdx == -1 {
+				fmt.Println(red(fmt.Sprintf("Syntax Error in '%s'\nPlease Close the '('", fullCommandArgs[iArg])))
+				fmt.Println(fmt.Sprintf(" %s\n%s", fmt.Sprintf("%s%s", red(fmt.Sprintf("%s", fullCommandArgs[iArg])), yellow(")")), strings.Repeat(red("-"), (len(arg)-1)+2)+yellow("^")))
+				continue
+			}
+
+			// Объединяем команду внутри скобок
+			innerCommand := strings.Join(fullCommandArgs[iArg:endIdx+1], " ")
+			innerCommand = strings.TrimSuffix(strings.TrimPrefix(innerCommand, "("), ")")
+			innerArgs := strings.Fields(innerCommand)
+
+			// Выполняем команду
+			dataRecord, err := ExecOpenedComms(innerArgs)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("Ошибка выполнения: %s", err))
+				continue
+			}
+
+			// Заменяем в основном массиве команду на результат выполнения
+			fullCommandArgs[iArg] = dataRecord
+			// Удаляем оставшиеся элементы команды из аргументов
+			fullCommandArgs = append(fullCommandArgs[:iArg+1], fullCommandArgs[endIdx+1:]...)
+			continue
+		}
+	}
+	*commandArgs = fullCommandArgs
+
 	session.Path = dir
 
 	isValid := utils.ValidCommand(*commandLower, Commands)
@@ -249,6 +294,23 @@ func ExecCommandPromptLogic(
 	}
 
 	return false
+}
+
+func ExecOpenedComms(commandArgs []string) (string, error) {
+	commandMap := map[string]func() ([]byte, error){
+		"read": func() ([]byte, error) { return ExOpenedCommReadUtils.File(commandArgs[1]) },
+	}
+
+	if handler, exists := commandMap[commandArgs[0]]; exists {
+		bytes, err := handler()
+		if err != nil {
+			return "", err
+		}
+
+		return string(bytes), nil
+	}
+
+	return "", errors.New("command not found")
 }
 
 func RecoverAndRestore(rebooted *structs.RebootedData) {
@@ -552,4 +614,31 @@ func processCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 	}
 
 	return false
+}
+
+func executeGoCode(code string) error {
+	// Создаем временный файл для исходного кода
+	tmpFile, err := ioutil.TempFile(".", "tempcode*.go")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmpFile.Name()) // Удаляем файл после выполнения
+
+	// Записываем код в файл
+	if _, err := tmpFile.Write([]byte(code)); err != nil {
+		return err
+	}
+
+	// Закрываем временный файл
+	tmpFile.Close()
+
+	// Компилируем и запускаем код
+	cmd := exec.Command("go", "run", tmpFile.Name())
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error: %s, output: %s", err.Error(), output)
+	}
+
+	fmt.Println(string(output))
+	return nil
 }

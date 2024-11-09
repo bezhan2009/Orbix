@@ -21,7 +21,7 @@ func SetVariableUtil(args []string) {
 	colors = system.GetColorsMap()
 
 	if len(args) < 2 {
-		fmt.Println(colors["yellow"]("Usage: setvar <var name> <value>"))
+		fmt.Println(colors["yellow"]("Usage: setvar <variable_name> <value>"))
 		return
 	}
 
@@ -51,6 +51,10 @@ func SetVariableUtil(args []string) {
 
 // SetVariable изменяет значение переменной по её имени с преобразованием типов
 func SetVariable(varName string, value string) error {
+	if strings.TrimSpace(strings.ToLower(varName)) == "empty" {
+		return fmt.Errorf(fmt.Sprintf("the variable %s is nil\n", varName))
+	}
+
 	// Проверяем, есть ли такая переменная в нашем списке
 	if variable, exists := editableVars[varName]; exists {
 		v := reflect.ValueOf(variable).Elem()
@@ -93,8 +97,7 @@ func SetVariable(varName string, value string) error {
 	}
 
 	if strings.TrimSpace(varName) == "*" {
-		fmt.Println(red(fmt.Sprintf("the variable %s is nil\n", varName)))
-		return nil
+		return fmt.Errorf(fmt.Sprintf("the variable %s is nil\n", varName))
 	}
 
 	_, err := strconv.Atoi(string(varName[0]))
@@ -164,7 +167,7 @@ func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
 		for _, v := range availableEditableVars {
 			value, err := GetVariableValue(v)
 			if err != nil {
-				fmt.Println(red(err.Error()))
+				continue
 			}
 
 			fmt.Println(green(fmt.Sprintf("%s: %s", v, value)))

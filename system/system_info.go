@@ -17,16 +17,19 @@ const (
 )
 
 var (
-	Beta           = false
-	BetaVersion    = ""
-	colors         = SetColorsMap()
-	OrbixFileNames = map[string]uint{
-		"running.txt":   1,
-		"user.env":      1,
-		".env":          1,
-		"commands.json": 1,
-	}
+	Beta        = false
+	BetaVersion = ""
+	colors      = SetColorsMap()
+)
+
+var (
 	OrbixRunningUsersFileName = "running.env"
+	OrbixFileNames            = map[string]uint{
+		OrbixRunningUsersFileName: 1,
+		"user.json":               1,
+		".env":                    1,
+		"commands.json":           1,
+	}
 )
 
 func Init() *AppState {

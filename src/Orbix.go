@@ -22,6 +22,7 @@ var (
 	GlobalSession         = system.Session{}
 	Location              = ""
 	User                  = ""
+	Empty                 = ""
 	PreviousSessionPath   = ""
 	PreviousSessionPrefix = ""
 	Prompt                = ""
@@ -47,6 +48,12 @@ func Orbix(commandInput string,
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
 
+			if RebootAttempts > system.MaxRetryAttempts {
+				fmt.Println(red("Max retry attempts reached. Exiting..."))
+				log.Println("Max retry attempts reached. Exiting...")
+				os.Exit(1)
+			}
+
 			RebootAttempts += 1
 
 			fmt.Println(yellow("Recovering from panic"))
@@ -59,7 +66,7 @@ func Orbix(commandInput string,
 				Prefix:   Prefix,
 			}
 
-			Orbix(commandInput,
+			Orbix(strings.TrimSpace(commandInput),
 				echo,
 				reboot,
 				SD)
