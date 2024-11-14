@@ -2,11 +2,8 @@ package src
 
 import (
 	"fmt"
-	"goCmd/cmd/dirInfo"
 	"goCmd/structs"
 	"goCmd/system"
-	"goCmd/utils"
-	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -28,7 +25,6 @@ var (
 	Prompt                = ""
 	Prefix                = ""
 	ExecutingCommand      = false
-	SignalReceived        = false
 	GitCheck              = CheckGit()
 	Unauthorized          = true
 	RebootAttempts        = uint(0)
@@ -45,31 +41,11 @@ func Orbix(commandInput string,
 		}
 
 		if r := recover(); r != nil {
-			PanicText := fmt.Sprintf("Panic recovered: %v", r)
-			fmt.Printf("\n%s\n", red(PanicText))
-
-			if RebootAttempts > system.MaxRetryAttempts {
-				fmt.Println(red("Max retry attempts reached. Exiting..."))
-				log.Println("Max retry attempts reached. Exiting...")
-				os.Exit(1)
-			}
-
-			RebootAttempts += 1
-
-			fmt.Println(yellow("Recovering from panic"))
-
-			log.Printf("Panic recovered: %v", r)
-
-			var reboot = structs.RebootedData{
-				Username: system.UserName,
-				Recover:  r,
-				Prefix:   Prefix,
-			}
-
-			Orbix(strings.TrimSpace(commandInput),
+			RecoverFromThePanic(commandInput,
+				r,
 				echo,
-				reboot,
-				SD)
+				SD,
+			)
 		}
 	}()
 
@@ -110,19 +86,14 @@ func Orbix(commandInput string,
 
 	system.UserName = username
 
-	setLocation()
-
 	// Signal handling setup (outside the loop)
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-
-	var signalReceived bool
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		if ignoreSI(signalChan,
-			&signalReceived,
 			sessionData,
 			prompt, commandInput, username) {
 			return
@@ -138,149 +109,83 @@ func Orbix(commandInput string,
 		}
 	}()
 
-	if rebooted.Prefix != "" {
-		prefix = rebooted.Prefix
+	session := InitSession(&prefix,
+		rebooted,
+		sessionData,
+	)
+
+	// Redirect output based on the echo setting
+	if echo {
+		os.Stdout, os.Stderr = originalStdout, originalStderr
 	} else {
-		prefix = sessionData.NewSessionData(sessionData.Path, sessionData.User, sessionData.GitBranch, sessionData.IsAdmin)
+		os.Stdout, os.Stderr = devNull, devNull
 	}
 
-	session, exists := sessionData.GetSession(prefix)
-	if !exists {
-		fmt.Println(red("Session does not exist!"))
+	if RestartAfterInit {
+		restartAfterInit(
+			SD,
+			sessionData,
+			rebooted,
+			prefix,
+			username,
+			echo,
+		)
 		return
 	}
 
-	if session == nil {
-		fmt.Println(red("Session is nil!"))
-		return
+	var (
+		execCommand          structs.ExecuteCommandFuncParams
+		processCommandParams structs.ProcessCommandParams
+
+		TEXCOMARGS string
+
+		commandLine  string
+		command      string
+		commandLower string
+		commandArgs  []string
+
+		runOnNewThread  bool
+		echoTime        bool
+		firstCharIs     bool
+		lastCharIs      bool
+		isComHasFlag    bool
+		continueLoop    bool
+		gitBranchUpdate bool
+
+		startTimePRCOMARGS time.Time
+	)
+
+	if len(session.CommandHistory) < 10 {
+		go Init(session)
 	}
 
-	Prefix = fmt.Sprintf(prefix)
-
-	// Initialize Global Vars
-	go Init(session)
-
-	// Load User Configs
-	fmt.Print(cyan("Loading configs"))
-	utils.AnimatedPrint("...\n", "cyan")
-
-	err = LoadUserConfigs()
-	if err != nil {
-		fmt.Println(red("Error Loading configs:", err))
-	} else {
-		fmt.Println(green("Successfully Loaded configs"))
+	if RebootAttempts != 0 {
+		RecoverAndRestore(&rebooted)
+		RebootAttempts = 0
 	}
-
-	session.PreviousPath = PreviousSessionPath
-	fmt.Println(green(session.PreviousPath))
-	if PreviousSessionPrefix != "" {
-		session, _ = sessionData.GetSession(PreviousSessionPrefix)
-	}
-
-	GlobalSession = *session
-
-	dir, _ := os.Getwd()
-	system.Path = dir
 
 	for isWorking {
-		if len(session.CommandHistory) < 10 {
-			go Init(session)
-		}
-
-		// Check if signal was received and reset flag after handling it
-		if SignalReceived {
-			SignalReceived = false
-			continue // Continue the loop after signal
-		}
-
-		// Redirect output based on the echo setting
-		if echo {
-			os.Stdout, os.Stderr = originalStdout, originalStderr
-		} else {
-			os.Stdout, os.Stderr = devNull, devNull
-		}
-
-		// Directory and user context setup (execute only when necessary)
-		dir, _ = os.Getwd()
-
-		if RestartAfterInit {
-			restartAfterInit(
-				SD,
-				sessionData,
-				rebooted,
-				prefix,
-				username,
-				echo,
-			)
-			return
-		}
-
-		RecoverAndRestore(&rebooted)
-
-		if RebootAttempts != 0 {
-			RebootAttempts = 0
-		}
-
-		if echo && session.IsAdmin {
-			if prompt == "" {
-				fmt.Printf("ORB %s>%s", dir, green(commandInput))
-			} else {
-				splitPrompt := strings.Split(prompt, ", ")
-				fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
-			}
-		}
-
-		dirC := dirInfo.CmdDir(dir)
-		user := session.User
-		if user == "" {
-			user = dirInfo.CmdUser(dir)
-		}
-
-		if username != "" {
-			user = username
-		}
-
-		if echo && !session.IsAdmin {
-			// Single user check outside repeated prompt formatting
-			if !Unauthorized {
-				go func() {
-					watchFile(RunningPath, user, &isWorking, &isPermission)
-				}()
-			}
-
-			if echo {
-				if prompt == "" {
-					if GitCheck {
-						printPromptInfo(Location, user, dirC, commandInput, session) // New helper function
-					} else {
-						printPromptInfoWithoutGit(Location, user, dirC, commandInput) // New helper function
-					}
-				} else {
-					splitPrompt := strings.Split(prompt, ", ")
-					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
-				}
-			}
-		}
+		OrbixPrompt(session,
+			prompt,
+			system.UserDir,
+			username,
+			commandInput,
+			isWorking,
+			isPermission,
+			colorsMap,
+		)
 
 		// Command processing
-		commandLine, command, commandArgs, commandLower := readCommandLine(commandInput) // Refactored input handling
+		commandLine, command, commandArgs, commandLower = readCommandLine(commandInput) // Refactored input handling
 		if commandLine == "" {
 			continue
 		}
 
-		var (
-			runOnNewThread bool
-			echoTime       bool
-			firstCharIs    bool
-			lastCharIs     bool
-			isComHasFlag   bool
-		)
-
-		execCommand := structs.ExecuteCommandFuncParams{
+		execCommand = structs.ExecuteCommandFuncParams{
 			Command:       command,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
-			Dir:           dir,
+			Dir:           system.UserDir,
 			IsWorking:     &isWorking,
 			IsPermission:  &isPermission,
 			Username:      username,
@@ -290,7 +195,7 @@ func Orbix(commandInput string,
 			GlobalSession: &GlobalSession,
 		}
 
-		processCommandParams := structs.ProcessCommandParams{
+		processCommandParams = structs.ProcessCommandParams{
 			Command:        command,
 			CommandInput:   commandInput,
 			CommandLower:   commandLower,
@@ -306,12 +211,12 @@ func Orbix(commandInput string,
 			ExecCommand:    execCommand,
 		}
 
-		startTimePRCOMARGS := time.Now()
-		continueLoop := processCommandArgs(processCommandParams)
+		startTimePRCOMARGS = time.Now()
+		continueLoop = processCommandArgs(processCommandParams)
 
 		if continueLoop {
 			if echoTime {
-				TEXCOMARGS := fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
+				TEXCOMARGS = fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
 				fmt.Println(green(TEXCOMARGS))
 				continue
 			}
@@ -324,24 +229,13 @@ func Orbix(commandInput string,
 			isComHasFlag,
 			echoTime,
 			runOnNewThread,
-			dir,
-			&commandArgs,
-			&prompt,
-			&command,
-			&commandLine,
-			&commandInput,
-			&commandLower,
+			&commandArgs, &prompt, &command, &commandLine, &commandInput, &commandLower,
 			session,
 		)
 
-		if strings.TrimSpace(commandLower) == "prompt" {
-			handlePromptCommand(commandArgs, &prompt)
-			continue
-		}
-
 		// Process command
 		go func() {
-			gitBranchUpdate, err := processCommand(commandLower)
+			gitBranchUpdate, err = processCommand(commandLower)
 			if err != nil {
 				fmt.Println(red(err.Error()))
 				DeleteUserFromRunningFile(username)
@@ -361,7 +255,6 @@ func Orbix(commandInput string,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
 			CommandInput:  commandInput,
-			Dir:           dir,
 			IsWorking:     &isWorking,
 			IsPermission:  &isPermission,
 			Username:      username,

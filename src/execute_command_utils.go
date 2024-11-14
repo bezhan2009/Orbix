@@ -144,7 +144,6 @@ func ExecCommandPromptLogic(
 	isComHasFlag,
 	echoTime,
 	runOnNewThread bool,
-	dir string,
 	commandArgs *[]string,
 	prompt, command, commandLine, commandInput, commandLower *string,
 	session *system.Session) bool {
@@ -158,6 +157,10 @@ func ExecCommandPromptLogic(
 		*commandLower = "print"
 		*commandLine = fmt.Sprintf("print %s", *commandLine)
 		*commandLine, *command, *commandArgs, *commandLower = readCommandLine(*commandLine) // Refactored input handling
+	}
+
+	if strings.TrimSpace(*commandLower) == "cd" {
+		system.UserDir, _ = os.Getwd()
 	}
 
 	commandArgsListStr := *commandArgs
@@ -253,9 +256,10 @@ func ExecCommandPromptLogic(
 			continue
 		}
 	}
+
 	*commandArgs = fullCommandArgs
 
-	session.Path = dir
+	session.Path = system.UserDir
 
 	isValid := utils.ValidCommand(*commandLower, Commands)
 
@@ -267,7 +271,7 @@ func ExecCommandPromptLogic(
 	if !isValid {
 		err := ExecExternalLoopCommand(
 			session,
-			dir,
+			system.UserDir,
 			*command,
 			*commandInput,
 			*commandLine,
@@ -553,6 +557,9 @@ func execLtCommand(commandInput string) {
 }
 
 func processCommandArgs(processCommandParams structs.ProcessCommandParams) (continueLoop bool) {
+	*processCommandParams.RunOnNewThread = false
+	*processCommandParams.EchoTime = false
+
 	if len(processCommandParams.CommandArgs) > 0 {
 		for _, commandLetter := range processCommandParams.CommandLine {
 			if commandLetter == '-' {
@@ -575,8 +582,15 @@ func processCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 					*processCommandParams.EchoTime = true
 					// Удаляем аргумент из списка
 					processCommandParams.CommandArgs = append(processCommandParams.CommandArgs[:i], processCommandParams.CommandArgs[i+1:]...)
+				default:
+					*processCommandParams.IsComHasFlag = false
+					*processCommandParams.RunOnNewThread = false
+					*processCommandParams.EchoTime = false
 				}
 			}
+		} else {
+			*processCommandParams.RunOnNewThread = false
+			*processCommandParams.EchoTime = false
 		}
 	}
 
@@ -585,6 +599,9 @@ func processCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 			*processCommandParams.FirstCharIs = true
 		} else if (string(commandLetter) == string('"') || string(commandLetter) == "'") && index == len(processCommandParams.CommandLine)-1 {
 			*processCommandParams.LastCharIs = true
+		} else {
+			*processCommandParams.FirstCharIs = false
+			*processCommandParams.LastCharIs = false
 		}
 	}
 
@@ -616,17 +633,32 @@ func processCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 	return false
 }
 
-func executeGoCode(code string) error {
+func executeGoCode(code string) {
+	var execGoCode string
+
+	if !strings.HasSuffix(code, "package") || !strings.HasSuffix(code, "main") {
+		execGoCode = fmt.Sprintf(`
+package main
+
+import "fmt"
+
+func main() {
+	%s
+}
+`, code)
+	}
 	// Создаем временный файл для исходного кода
 	tmpFile, err := ioutil.TempFile(".", "tempcode*.go")
 	if err != nil {
-		return err
+		fmt.Println(red("Error creating TempFile:", err))
+		return
 	}
 	defer os.Remove(tmpFile.Name()) // Удаляем файл после выполнения
 
 	// Записываем код в файл
-	if _, err := tmpFile.Write([]byte(code)); err != nil {
-		return err
+	if _, err = tmpFile.Write([]byte(execGoCode)); err != nil {
+		fmt.Println(red("Error writing to TempFile:", err))
+		return
 	}
 
 	// Закрываем временный файл
@@ -636,9 +668,19 @@ func executeGoCode(code string) error {
 	cmd := exec.Command("go", "run", tmpFile.Name())
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error: %s, output: %s", err.Error(), output)
+		fmt.Println(red("Error running Go code:", err))
+		return
 	}
 
-	fmt.Println(string(output))
-	return nil
+	fmt.Println(magenta(string(output)))
+	return
+}
+
+func ExecuteGoCodeUtil(commandArgs []string) {
+	if len(commandArgs) < 1 {
+		fmt.Println(yellow("Usage: gocode <code>"))
+		return
+	}
+
+	executeGoCode(commandArgs[0])
 }

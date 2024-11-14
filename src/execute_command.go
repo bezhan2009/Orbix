@@ -68,6 +68,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"old_prompt":   func() { session.IsAdmin = true },
 		"delvar":       func() { DeleteVariable(executeCommand.CommandArgs) },
 		"new_window":   func() { openNewWindowForCommand(executeCommand) },
+		"gocode":       func() { ExecuteGoCodeUtil(executeCommand.CommandArgs) },
 
 		"help":         displayHelp,
 		"systemorbix":  SystemInformation,
@@ -89,6 +90,8 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 			dir, _ := os.Getwd()
 
 			session.Path = dir
+			system.UserDir = dir
+
 			Orbix("",
 				true,
 				structs.RebootedData{},

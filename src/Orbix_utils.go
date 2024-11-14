@@ -123,6 +123,10 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 
 	command := commandParts[:1]
 
+	if strings.ToLower(commandParts[0]) == "cd" {
+		system.UserDir, _ = os.Getwd()
+	}
+
 	return commandLine, command[0], commandParts[1:], strings.ToLower(commandParts[0])
 }
 
@@ -135,7 +139,7 @@ func processCommand(commandLower string) (bool, error) {
 		return true, nil
 	}
 
-	if commandLower == "signout" {
+	if strings.TrimSpace(commandLower) == "signout" {
 		return false, fmt.Errorf("signout")
 	}
 
@@ -190,17 +194,6 @@ func restorePreviousSession(sessionData *system.AppState, prefix string) *system
 	}
 	return session
 }
-
-// Map, ограничивающий изменяемые переменные
-var editableVars = map[string]interface{}{
-	"location": &Location,
-	"prompt":   &Prompt,
-	"user":     &User,
-	"empty":    &Empty,
-}
-
-var availableEditableVars = []string{"location", "prompt", "user", "empty"}
-var customEditableVars []string
 
 func watchFile(runningPath string, username string, isWorking *bool, isPermission *bool) {
 	watcher, err := fsnotify.NewWatcher()
@@ -354,6 +347,7 @@ func commandFile(command string) bool {
 		command == "rem" ||
 		command == "del_var" ||
 		command == "del" ||
+		command == "gocode" ||
 		command == "delete" ||
 		command == "cf" ||
 		command == "df" ||
@@ -384,6 +378,128 @@ func fullFileName(commandArgs *[]string) {
 	} else {
 		return
 	}
+}
+
+func RecoverFromThePanic(commandInput string,
+	r any,
+	echo bool,
+	SD *system.AppState) {
+	PanicText := fmt.Sprintf("Panic recovered: %v", r)
+	fmt.Printf("\n%s\n", red(PanicText))
+
+	if RebootAttempts > system.MaxRetryAttempts {
+		fmt.Println(red("Max retry attempts reached. Exiting..."))
+		log.Println("Max retry attempts reached. Exiting...")
+		os.Exit(1)
+	}
+
+	RebootAttempts += 1
+
+	fmt.Println(yellow("Recovering from panic"))
+
+	log.Printf("Panic recovered: %v", r)
+
+	var reboot = structs.RebootedData{
+		Username: system.UserName,
+		Recover:  r,
+		Prefix:   Prefix,
+	}
+
+	Orbix(strings.TrimSpace(commandInput),
+		echo,
+		reboot,
+		SD)
+}
+
+func OrbixPrompt(session *system.Session, prompt, dir, username, commandInput string, isWorking, isPermission bool, colorsMap map[string]func(...interface{}) string) {
+	if session.IsAdmin {
+		if prompt == "" {
+			fmt.Printf("ORB %s>%s", dir, green(commandInput))
+		} else {
+			splitPrompt := strings.Split(prompt, ", ")
+			fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+		}
+	}
+
+	dirC := dirInfo.CmdDir(dir)
+	user := session.User
+	if user == "" {
+		user = dirInfo.CmdUser(dir)
+	}
+
+	if username != "" {
+		user = username
+	}
+
+	if !session.IsAdmin {
+		// Single user check outside repeated prompt formatting
+		if !Unauthorized {
+			go func() {
+				watchFile(RunningPath, user, &isWorking, &isPermission)
+			}()
+		}
+
+		if prompt == "" {
+			if GitCheck {
+				printPromptInfo(Location, user, dirC, commandInput, session) // New helper function
+			} else {
+				printPromptInfoWithoutGit(Location, user, dirC, commandInput) // New helper function
+			}
+		} else {
+			splitPrompt := strings.Split(prompt, ", ")
+			fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+		}
+	}
+}
+
+func InitSession(prefix *string,
+	rebooted structs.RebootedData,
+	sessionData *system.AppState) *system.Session {
+	if rebooted.Prefix != "" {
+		*prefix = rebooted.Prefix
+	} else {
+		*prefix = sessionData.NewSessionData(sessionData.Path, sessionData.User, sessionData.GitBranch, sessionData.IsAdmin)
+	}
+
+	session, exists := sessionData.GetSession(*prefix)
+	if !exists {
+		fmt.Println(red("Session does not exist!"))
+		return nil
+	}
+
+	if session == nil {
+		fmt.Println(red("Session is nil!"))
+		return nil
+	}
+
+	Prefix = fmt.Sprintf(*prefix)
+
+	// Initialize Global Vars
+	go Init(session)
+
+	// Load User Configs
+	fmt.Print(cyan("Loading configs"))
+	utils.AnimatedPrint("...\n", "cyan")
+
+	err := LoadUserConfigs()
+	if err != nil {
+		fmt.Println(red("Error Loading configs:", err))
+	} else {
+		fmt.Println(green("Successfully Loaded configs"))
+	}
+
+	session.PreviousPath = PreviousSessionPath
+	fmt.Println(green(session.PreviousPath))
+	if PreviousSessionPrefix != "" {
+		session, _ = sessionData.GetSession(PreviousSessionPrefix)
+	}
+
+	GlobalSession = *session
+
+	dir, _ := os.Getwd()
+	system.Path = dir
+
+	return session
 }
 
 func defineUser(commandInput string,
@@ -427,7 +543,6 @@ func defineUser(commandInput string,
 }
 
 func ignoreSI(signalChan chan os.Signal,
-	signalReceived *bool,
 	sessionData *system.AppState,
 	prompt, commandInput, username string) bool {
 	colorsMap := system.GetColorsMap()
@@ -437,8 +552,6 @@ func ignoreSI(signalChan chan os.Signal,
 
 	for {
 		sig := <-signalChan
-		*signalReceived = true
-		SignalReceived = *signalReceived
 
 		if sig == syscall.SIGHUP {
 			DeleteUserFromRunningFile(system.UserName)
@@ -501,10 +614,10 @@ func initOrbixFn(RestartAfterInit *bool,
 	commandInput string,
 	rebooted structs.RebootedData,
 	SD *system.AppState) *system.AppState {
-	func() {
-		Prompt = string(strings.TrimSpace(os.Getenv("PROMPT")))
-		SessionsStarted = SessionsStarted + 1
-	}()
+	Prompt = string(strings.TrimSpace(os.Getenv("PROMPT")))
+	SessionsStarted = SessionsStarted + 1
+
+	setLocation()
 
 	// Initialize colors
 	InitColors()

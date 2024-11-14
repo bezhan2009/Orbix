@@ -77,14 +77,14 @@ func SaveVars() {
 	}
 	defer restoreOutput() // Восстанавливаем вывод в конце
 
-	execLtCommand("delete user.json")
-	execLtCommand("create user.json")
-
 	err = commands.ChangeDirectory(Absdir)
 	if err != nil {
 		fmt.Println(red(err))
 		return
 	}
+
+	execLtCommand("delete user.json")
+	execLtCommand("create user.json")
 
 	values := dereferenceVariables(editableVars)
 

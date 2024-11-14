@@ -17,5 +17,6 @@ var (
 	UserName            = ""
 	OrbixWorking        = false
 	Localhost           = ""
+	UserDir             = ""
 	GitHubURL           = "https://github.com/bezhan2009/Orbix"
 )

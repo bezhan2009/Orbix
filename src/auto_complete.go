@@ -1,7 +1,9 @@
 package src
 
 import (
+	"fmt"
 	"github.com/c-bata/go-prompt"
+	"goCmd/system"
 	"os"
 	"strings"
 )
@@ -9,7 +11,7 @@ import (
 func autoComplete(d prompt.Document) []prompt.Suggest {
 	text := d.TextBeforeCursor()
 
-	text = strings.TrimSpace(text)
+	text = strings.TrimSpace(strings.ToLower(text))
 
 	// Если ничего не введено, не показывать подсказки
 	if len(text) == 0 {
@@ -79,7 +81,7 @@ func createUniqueCommandSuggestions(prefix string) []prompt.Suggest {
 
 	// Предполагается, что AdditionalCommands - это список доступных команд
 	for _, cmd := range AdditionalCommands {
-		if _, exists := uniqueCommands[cmd.Name]; !exists && strings.HasPrefix(cmd.Name, prefix) {
+		if _, exists := uniqueCommands[strings.ToLower(cmd.Name)]; !exists && strings.HasPrefix(strings.ToLower(cmd.Name), prefix) {
 			uniqueCommands[cmd.Name] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
 		}
@@ -94,9 +96,9 @@ func createCommandHistorySuggestions(prefix string) []prompt.Suggest {
 
 	// Предполагается, что CommandHistory - это слайс строк с историей команд
 	for _, cmd := range GlobalSession.CommandHistory {
-		if _, exists := uniqueCommands[cmd]; !exists && strings.HasPrefix(cmd, prefix) {
+		if _, exists := uniqueCommands[strings.ToLower(cmd)]; !exists && strings.HasPrefix(strings.ToLower(cmd), prefix) {
 			uniqueCommands[cmd] = struct{}{}
-			suggestions = append(suggestions, prompt.Suggest{Text: cmd})
+			suggestions = append(suggestions, prompt.Suggest{Text: cmd, Description: "previously entered command"})
 		}
 	}
 
@@ -105,14 +107,15 @@ func createCommandHistorySuggestions(prefix string) []prompt.Suggest {
 
 func createFileSuggestions(dir string, prefix string) []prompt.Suggest {
 	files, err := os.ReadDir(dir)
+	fileSuggestDescription := fmt.Sprintf("Finded in %s", system.UserDir)
 	if err != nil {
 		return []prompt.Suggest{}
 	}
 
 	var suggestions []prompt.Suggest
 	for _, file := range files {
-		if strings.HasPrefix(file.Name(), prefix) {
-			suggestions = append(suggestions, prompt.Suggest{Text: file.Name()})
+		if strings.HasPrefix(strings.ToLower(file.Name()), prefix) {
+			suggestions = append(suggestions, prompt.Suggest{Text: file.Name(), Description: fileSuggestDescription})
 		}
 	}
 	return suggestions

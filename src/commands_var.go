@@ -178,6 +178,8 @@ var Commands = []structs.Command{
 	{"kill", "kills process by PID"},
 	{"save", "Saves your custom vars to .env file"},
 	{"delvar", "Deletes your custom variable"},
+	{"gocode", "Executes go code"},
+	{"sc", ""},
 }
 
 // AdditionalCommands additional commands
@@ -255,6 +257,7 @@ var AdditionalCommands = []structs.Command{
 	{"kill", "kills process by PID"},
 	{"save", "Saves your custom vars to .env file"},
 	{"delvar", "Deletes your custom variable"},
+	{"gocode", "Executes go code"},
 	{"sc", ""},
 }
 
@@ -283,6 +286,7 @@ func Init(session *system.Session) {
 	session.CommandHistory = append(session.CommandHistory, "add")
 	session.CommandHistory = append(session.CommandHistory, "add .")
 	session.CommandHistory = append(session.CommandHistory, "add README.md")
+	session.CommandHistory = append(session.CommandHistory, "tasklist")
 	session.CommandHistory = append(session.CommandHistory, "--version")
 	session.CommandHistory = append(session.CommandHistory, "install")
 	session.CommandHistory = append(session.CommandHistory, "django")
@@ -364,3 +368,15 @@ func InitColors() {
 
 // OrbixFlags — список флагов, которые нужно удалить
 var OrbixFlags = []string{"--timing", "-t", "--run-in-new-thread"}
+
+// Map, ограничивающий изменяемые переменные
+var editableVars = map[string]interface{}{
+	"location": &Location,
+	"prompt":   &Prompt,
+	"user":     &User,
+	"empty":    &Empty,
+	"user_dir": &system.UserDir,
+}
+
+var availableEditableVars = []string{"location", "prompt", "user", "empty", "user_dir"}
+var customEditableVars []string

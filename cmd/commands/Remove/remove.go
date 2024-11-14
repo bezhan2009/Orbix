@@ -2,25 +2,27 @@ package Remove
 
 import (
 	"fmt"
-	"github.com/fatih/color"
+	"goCmd/system"
 	"os"
 	"strings"
 )
 
 func File(command string, commandArgs []string) (string, error) {
-	yellow := color.New(color.FgYellow).SprintFunc()
-	green := color.New(color.FgGreen).SprintFunc()
-	red := color.New(color.FgRed).SprintFunc()
+	colorsMap := system.GetColorsMap()
+	yellow := colorsMap["yellow"]
+	green := colorsMap["green"]
+	red := colorsMap["red"]
 
 	if len(commandArgs) < 1 {
-		fmt.Println(yellow(fmt.Sprintf("Usage: %s <file>", command)))
+		fmt.Println(yellow(fmt.Sprintf("Usage: %s <file>",
+			strings.TrimSpace(strings.ToLower(command)))))
 		return "", nil
 	}
 
 	name := commandArgs[0]
 
-	if name == "running.txt" {
-		fmt.Println(red("You can not delete file \"running.txt\""))
+	if strings.TrimSpace(name) == "running.env" {
+		fmt.Println(red("You can not delete file \"running.env\""))
 		return "", nil
 	}
 
