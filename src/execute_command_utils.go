@@ -143,17 +143,17 @@ func ExecCommandPromptLogic(
 	lastCharIs,
 	isComHasFlag,
 	echoTime,
-	runOnNewThread bool,
+	runOnNewThread *bool,
 	commandArgs *[]string,
 	prompt, command, commandLine, commandInput, commandLower *string,
 	session *system.Session) bool {
-	if isComHasFlag && (echoTime || runOnNewThread) {
+	if *isComHasFlag && (*echoTime || *runOnNewThread) {
 		*commandLine = removeFlags(*commandLine)
 		*commandInput = removeFlags(*commandInput)
 		*commandLine, *command, *commandArgs, *commandLower = readCommandLine(*commandLine) // Refactored input handling
 	}
 
-	if firstCharIs && lastCharIs {
+	if *firstCharIs && *lastCharIs {
 		*commandLower = "print"
 		*commandLine = fmt.Sprintf("print %s", *commandLine)
 		*commandLine, *command, *commandArgs, *commandLower = readCommandLine(*commandLine) // Refactored input handling
@@ -277,8 +277,8 @@ func ExecCommandPromptLogic(
 			*commandLine,
 			*commandLower,
 			*commandArgs,
-			echoTime,
-			runOnNewThread,
+			*echoTime,
+			*runOnNewThread,
 		)
 
 		if err != nil {
@@ -559,6 +559,8 @@ func execLtCommand(commandInput string) {
 func processCommandArgs(processCommandParams structs.ProcessCommandParams) (continueLoop bool) {
 	*processCommandParams.RunOnNewThread = false
 	*processCommandParams.EchoTime = false
+	*processCommandParams.FirstCharIs = false
+	*processCommandParams.LastCharIs = false
 
 	if len(processCommandParams.CommandArgs) > 0 {
 		for _, commandLetter := range processCommandParams.CommandLine {
@@ -599,9 +601,6 @@ func processCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 			*processCommandParams.FirstCharIs = true
 		} else if (string(commandLetter) == string('"') || string(commandLetter) == "'") && index == len(processCommandParams.CommandLine)-1 {
 			*processCommandParams.LastCharIs = true
-		} else {
-			*processCommandParams.FirstCharIs = false
-			*processCommandParams.LastCharIs = false
 		}
 	}
 

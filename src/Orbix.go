@@ -224,11 +224,11 @@ func Orbix(commandInput string,
 		}
 
 		ExecCommandPromptLogic(
-			firstCharIs,
-			lastCharIs,
-			isComHasFlag,
-			echoTime,
-			runOnNewThread,
+			&firstCharIs,
+			&lastCharIs,
+			&isComHasFlag,
+			&echoTime,
+			&runOnNewThread,
 			&commandArgs, &prompt, &command, &commandLine, &commandInput, &commandLower,
 			session,
 		)
