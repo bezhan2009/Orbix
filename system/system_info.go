@@ -17,9 +17,10 @@ const (
 )
 
 var (
-	Beta        = false
-	BetaVersion = ""
-	colors      = SetColorsMap()
+	Beta          = false
+	BetaVersion   = ""
+	colors        = SetColorsMap()
+	GlobalSession = Session{}
 )
 
 var (

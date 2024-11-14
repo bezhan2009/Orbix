@@ -1,14 +1,14 @@
-package src
+package Orbix
 
 import (
 	"fmt"
 	"goCmd/system"
 )
 
-func ExecuteTemplateUtil(commandArgs []string, SD *system.AppState) {
+func TemplateUtil(commandArgs []string, SD *system.AppState) {
 	if len(commandArgs) < 2 {
-		fmt.Println(yellow("Usage: template <template_name> echo=on"))
-		fmt.Println(yellow("Or: template <template_name> echo=off if you want without outputting the result"))
+		fmt.Println(system.Yellow("Usage: template <template_name> echo=on"))
+		fmt.Println(system.Yellow("Or: template <template_name> echo=off if you want without outputting the result"))
 		return
 	}
 
@@ -21,6 +21,6 @@ func ExecuteTemplateUtil(commandArgs []string, SD *system.AppState) {
 	}
 
 	if err := Start(commandArgs[0], commandArgs[1], SD); err != nil {
-		fmt.Println(red(err))
+		fmt.Println(system.Red(err))
 	}
 }

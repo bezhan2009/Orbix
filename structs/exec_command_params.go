@@ -7,8 +7,7 @@ type ExecuteCommandFuncParams struct {
 	Command       string
 	CommandLine   string
 	CommandInput  string
-	Dir           string
-	Commands      []Command
+	Commands      []system.Command
 	CommandArgs   []string
 	Username      string
 	IsWorking     *bool
@@ -16,5 +15,4 @@ type ExecuteCommandFuncParams struct {
 	SD            *system.AppState
 	SessionPrefix string
 	Session       *system.Session
-	GlobalSession *system.Session
 }

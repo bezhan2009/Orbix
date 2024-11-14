@@ -1,4 +1,4 @@
-package structs
+package system
 
 type Command struct {
 	Name        string

@@ -1,4 +1,4 @@
-package src
+package user
 
 import (
 	"bufio"
@@ -21,8 +21,8 @@ func getPasswordsDir() (string, error) {
 	return filepath.Abs("passwords")
 }
 
-// isPasswordDirectoryEmpty checks if there are any files in the passwords directory.
-func isPasswordDirectoryEmpty() (bool, error) {
+// IsPasswordDirectoryEmpty checks if there are any files in the passwords directory.
+func IsPasswordDirectoryEmpty() (bool, error) {
 	passwordsDir, err := getPasswordsDir()
 	if err != nil {
 		return false, err
@@ -39,21 +39,21 @@ func isPasswordDirectoryEmpty() (bool, error) {
 // CheckUser checks the username and password.
 func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 	if sd == nil {
-		fmt.Println(red("Fatal: Session is nil!!!"))
+		fmt.Println(system.Red("Fatal: Session is nil!!!"))
 		os.Exit(1)
 	}
 
-	isEmpty, err := isPasswordDirectoryEmpty()
+	isEmpty, err := IsPasswordDirectoryEmpty()
 	if err != nil {
 		commands.Screen()
-		fmt.Printf("%s\n", red("Error checking the password directory:", err))
+		fmt.Printf("%s\n", system.Red("Error checking the password directory:", err))
 		sd.IsAdmin = true
 		return "", false
 	}
 
 	if isEmpty {
 		commands.Screen()
-		fmt.Printf("%s\n", green("Welcome,", usernameFromDir))
+		fmt.Printf("%s\n", system.Green("Welcome,", usernameFromDir))
 		sd.IsAdmin = true
 		return usernameFromDir, true
 	}
@@ -61,14 +61,14 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print(magenta("enable secure[Y/N]: "))
+		fmt.Print(system.Magenta("enable secure[Y/N]: "))
 
 		var enable string
 		enable, _ = reader.ReadString('\n')
 		enable = strings.TrimSpace(enable)
 
 		if enable == "" {
-			fmt.Println(red("You entered a blank value!"))
+			fmt.Println(system.Red("You entered a blank value!"))
 			continue
 		}
 
@@ -81,11 +81,11 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 	}
 
 	for {
-		fmt.Printf("%s", magenta("Enter username: "))
+		fmt.Printf("%s", system.Magenta("Enter username: "))
 		username, _ := reader.ReadString('\n')
 		username = strings.TrimSpace(username)
 		if username == "" {
-			fmt.Println(red("You entered a blank value!"))
+			fmt.Println(system.Red("You entered a blank value!"))
 			continue
 		}
 
@@ -102,7 +102,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 
 			for _, line := range lines {
 				if strings.TrimSpace(line) == strings.TrimSpace(username) {
-					fmt.Println(red("This user already exists!"))
+					fmt.Println(system.Red("This user already exists!"))
 					return "", false
 				}
 			}
@@ -110,14 +110,14 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 			if !exactMatchFound {
 				for _, line := range lines {
 					if strings.Contains(strings.TrimSpace(line), strings.TrimSpace(username)) {
-						fmt.Println(red("Partial match found with: " + line))
+						fmt.Println(system.Red("Partial match found with: " + line))
 						return "", false
 					}
 				}
 			}
 		}
 
-		fmt.Printf("%s", magenta("Enter password: "))
+		fmt.Printf("%s", system.Magenta("Enter password: "))
 		bytePassword, err := term.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -133,7 +133,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		passwordsDir, err := getPasswordsDir()
 		if err != nil {
 			commands.Screen()
-			fmt.Printf("%s\n", magenta("Ошибка при получении пути директории паролей"))
+			fmt.Printf("%s\n", system.Magenta("Ошибка при получении пути директории паролей"))
 			return "", false
 		}
 
@@ -141,12 +141,12 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		filePath := filepath.Join(passwordDir, hashedPassword)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			commands.Screen()
-			fmt.Printf("%s\n", red("User not found or password is incorrect!"))
+			fmt.Printf("%s\n", system.Red("User not found or password is incorrect!"))
 			return usernameFromDir, false
 		}
 
 		commands.Screen()
-		fmt.Printf("%s\n", magenta("Welcome, ", username))
+		fmt.Printf("%s\n", system.Magenta("Welcome, ", username))
 
 		sd.IsAdmin = false
 		sd.User = username

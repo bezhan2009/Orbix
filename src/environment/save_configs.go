@@ -1,11 +1,14 @@
-package src
+package environment
 
 import (
 	"encoding/json"
 	"fmt"
 	"goCmd/cmd/commands"
+	"goCmd/cmd/commands/Remove"
+	"goCmd/cmd/commands/fcommands"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
+	"goCmd/utils"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -77,16 +80,16 @@ func SaveVars() {
 	}
 	defer restoreOutput() // Восстанавливаем вывод в конце
 
-	err = commands.ChangeDirectory(Absdir)
+	err = commands.ChangeDirectory(system.Absdir)
 	if err != nil {
-		fmt.Println(red(err))
+		fmt.Println(system.Red(err))
 		return
 	}
 
-	execLtCommand("delete user.json")
-	execLtCommand("create user.json")
+	Remove.File("rem", []string{"user.json"})
+	fcommands.CreateFile("user.json")
 
-	values := dereferenceVariables(editableVars)
+	values := dereferenceVariables(system.EditableVars)
 
 	for key, value := range values {
 		valueStr := fmt.Sprintf("%v", value)
@@ -109,14 +112,14 @@ func SaveVars() {
 func LoadUserConfigs() error {
 	restoreOutput, err := silenceOutput() // Отключаем вывод
 	if err != nil {
-		fmt.Println(red("Error while disabling output:", err))
+		fmt.Println(system.Red("Error while disabling output:", err))
 		return err
 	}
 	defer restoreOutput() // Восстанавливаем вывод в конце
 
-	err = commands.ChangeDirectory(Absdir)
+	err = commands.ChangeDirectory(system.Absdir)
 	if err != nil {
-		fmt.Println(red(err))
+		fmt.Println(system.Red(err))
 		return err
 	}
 
@@ -134,10 +137,10 @@ func LoadUserConfigs() error {
 	}
 
 	loadedValues := map[string]interface{}{
-		"location": &Location,
-		"prompt":   &Prompt,
-		"user":     &User,
-		"empty":    &Empty,
+		"location": &system.Location,
+		"prompt":   &system.Prompt,
+		"user":     &system.User,
+		"empty":    &system.Empty,
 	}
 
 	err = json.Unmarshal(data, &loadedValues)
@@ -146,13 +149,13 @@ func LoadUserConfigs() error {
 		return err
 	}
 
-	updatePointers(loadedValues, editableVars)
+	updatePointers(loadedValues, system.EditableVars)
 
 	// Установка переменных в окружение
 	for key, value := range loadedValues {
 		valueStr := fmt.Sprintf("%v", value)
-		saveToEnv := fmt.Sprintf("setvar %s %v", PasswordAlgoritm.Usage(key, false), PasswordAlgoritm.Usage(valueStr, false))
-		execLtCommand(saveToEnv)
+		saveToEnv := fmt.Sprintf("%s %v", PasswordAlgoritm.Usage(key, false), PasswordAlgoritm.Usage(valueStr, false))
+		SetVariableUtil(utils.SplitCommandLine(saveToEnv))
 	}
 
 	return nil

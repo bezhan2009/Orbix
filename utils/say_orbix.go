@@ -1,4 +1,4 @@
-package src
+package utils
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 func SayOrbix() {
-	// Creating a shape with the text "Orbix" in an accessible style
+	// Creating a shape with the text "CMD" in an accessible style
 	var say string
 	if system.Beta {
 		say = fmt.Sprintf("%s Beta %s", system.SystemName, system.BetaVersion)
@@ -18,5 +18,5 @@ func SayOrbix() {
 	myFigure := figure.NewFigure(say, "larry3d", true)
 
 	// We output a shape with text in magenta color
-	fmt.Println(magenta(myFigure.String()))
+	fmt.Println(system.Magenta(myFigure.String()))
 }

@@ -1,4 +1,4 @@
-package src
+package user
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 func DeleteUserFromRunningFile(username string) {
-	runningPath := filepath.Join(Absdir, system.OrbixRunningUsersFileName)
+	runningPath := filepath.Join(system.Absdir, system.OrbixRunningUsersFileName)
 
 	sourceRunning, err := os.ReadFile(runningPath)
 	if err != nil {

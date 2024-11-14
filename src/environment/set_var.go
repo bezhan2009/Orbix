@@ -1,4 +1,4 @@
-package src
+package environment
 
 import (
 	"errors"
@@ -56,7 +56,7 @@ func SetVariable(varName string, value string) error {
 	}
 
 	// Проверяем, есть ли такая переменная в нашем списке
-	if variable, exists := editableVars[varName]; exists {
+	if variable, exists := system.EditableVars[varName]; exists {
 		v := reflect.ValueOf(variable).Elem()
 		newValue := reflect.ValueOf(value)
 
@@ -106,71 +106,71 @@ func SetVariable(varName string, value string) error {
 	}
 
 	// Если переменная не найдена, добавляем её в список с переданным значением
-	availableEditableVars = append(availableEditableVars, varName)
-	customEditableVars = append(customEditableVars, varName)
-	editableVars[varName] = &value
+	system.AvailableEditableVars = append(system.AvailableEditableVars, varName)
+	system.CustomEditableVars = append(system.CustomEditableVars, varName)
+	system.EditableVars[varName] = &value
 	return ErrNotFoundAndCreated
 }
 
 func DeleteVariable(commandArgs []string) {
 	if len(commandArgs) < 1 {
-		fmt.Println(yellow("Usage: delvar <variable_name>"))
+		fmt.Println(system.Yellow("Usage: delvar <variable_name>"))
 		return
 	}
 
 	varname := commandArgs[0]
 	if strings.TrimSpace(varname) == "*" {
-		for i := 0; i < len(customEditableVars); i++ {
-			delete(editableVars, customEditableVars[i])
+		for i := 0; i < len(system.CustomEditableVars); i++ {
+			delete(system.EditableVars, system.CustomEditableVars[i])
 		}
 
 		return
 	}
 
-	if !utils2.IsValid(varname, customEditableVars) {
-		fmt.Println(red(fmt.Sprintf("the variable %s is invalid\n", varname)))
+	if !utils2.IsValid(varname, system.CustomEditableVars) {
+		fmt.Println(system.Red(fmt.Sprintf("the variable %s is invalid\n", varname)))
 		return
 	}
 
-	delete(editableVars, varname)
+	delete(system.EditableVars, varname)
 }
 
 func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
 	args := params.CommandArgs
 
 	if len(args) < 1 {
-		fmt.Println(yellow("Usage: getvar <variable_name>"))
-		fmt.Println(yellow("Or: getvar *"))
+		fmt.Println(system.Yellow("Usage: getvar <variable_name>"))
+		fmt.Println(system.Yellow("Or: getvar *"))
 		return
 	}
 
 	varName := args[0]
 
 	if strings.TrimSpace(varName) == "user" {
-		if strings.TrimSpace(User) == "" {
-			fmt.Println(green("user:"), green(params.Username))
+		if strings.TrimSpace(system.User) == "" {
+			fmt.Println(system.Green("user:"), system.Green(params.Username))
 			return
 		} else {
-			fmt.Println(green("user:"), User)
+			fmt.Println(system.Green("user:"), system.User)
 			return
 		}
 	}
 
 	if strings.TrimSpace(varName) == "current_user" {
-		fmt.Println(green("current_user:"), green(params.Username))
+		fmt.Println(system.Green("current_user:"), system.Green(params.Username))
 		return
 	}
 
 	if strings.TrimSpace(varName) == "*" {
-		fmt.Println(green("current_user:"), green(params.Username))
+		fmt.Println(system.Green("current_user:"), system.Green(params.Username))
 
-		for _, v := range availableEditableVars {
+		for _, v := range system.AvailableEditableVars {
 			value, err := GetVariableValue(v)
 			if err != nil {
 				continue
 			}
 
-			fmt.Println(green(fmt.Sprintf("%s: %s", v, value)))
+			fmt.Println(system.Green(fmt.Sprintf("%s: %s", v, value)))
 		}
 
 		return
@@ -178,14 +178,14 @@ func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
 
 	value, err := GetVariableValue(varName)
 	if err != nil {
-		fmt.Println(red(err.Error()))
+		fmt.Println(system.Red(err.Error()))
 	}
 
-	fmt.Println(green(fmt.Sprintf("%s: %s", varName, value)))
+	fmt.Println(system.Green(fmt.Sprintf("%s: %s", varName, value)))
 }
 
 func GetVariableValue(varName string) (interface{}, error) {
-	variable, exists := editableVars[strings.TrimSpace(strings.ToLower(varName))]
+	variable, exists := system.EditableVars[strings.TrimSpace(strings.ToLower(varName))]
 	if !exists {
 		return nil, errors.New(fmt.Sprintf("The %s variable was not found or cannot be changed", varName))
 	}

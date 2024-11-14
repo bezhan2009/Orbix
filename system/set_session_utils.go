@@ -1,8 +1,6 @@
-package src
+package system
 
-import "goCmd/system"
-
-func SetGitBranch(sd *system.Session) {
+func SetGitBranch(sd *Session) {
 	var errGitBranch error
 	sd.GitBranch, errGitBranch = GetCurrentGitBranch()
 	if errGitBranch != nil {
@@ -10,6 +8,6 @@ func SetGitBranch(sd *system.Session) {
 	}
 }
 
-func SetPath(sd *system.Session) {
+func SetPath(sd *Session) {
 	sd.Path = Getwd()
 }

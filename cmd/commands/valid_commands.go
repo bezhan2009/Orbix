@@ -1,8 +1,10 @@
 package commands
 
-import "goCmd/structs"
+import (
+	"goCmd/system"
+)
 
-var Commands = []structs.Command{
+var Commands = []system.Command{
 	{"help", "List of available commands"},
 	{"whois", "Domain information"},
 	{"pingview", "Displays ping"},

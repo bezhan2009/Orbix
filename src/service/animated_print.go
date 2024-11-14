@@ -1,4 +1,4 @@
-package src
+package service
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// animatedPrint custom print
-func animatedPrint(text string, color string) {
+// AnimatedPrint custom print
+func AnimatedPrint(text string, color string) {
 	colors := system.GetColorsMap()
 
 	validColors := []string{"yellow", "green", "blue", "magenta", "cyan", "red"}

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func NeofetchUtil(executeCommand structs.ExecuteCommandFuncParams, user string, Commands []structs.Command) {
+func NeofetchUtil(executeCommand structs.ExecuteCommandFuncParams, user string, Commands []system.Command) {
 	if system.OperationSystem == "windows" {
 		commands.FetchNeofetch(user)
 	} else {
@@ -18,7 +18,7 @@ func NeofetchUtil(executeCommand structs.ExecuteCommandFuncParams, user string, 
 			fullCommand := append([]string{executeCommand.Command}, executeCommand.CommandArgs...)
 			err := utils.ExternalCommand(fullCommand)
 			if err != nil {
-				fullPath := filepath.Join(executeCommand.Dir, executeCommand.Command)
+				fullPath := filepath.Join(system.UserDir, executeCommand.Command)
 				fullCommand[0] = fullPath
 				_ = utils.ExternalCommand(fullCommand)
 			}

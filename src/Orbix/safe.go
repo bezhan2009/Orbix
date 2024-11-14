@@ -1,4 +1,4 @@
-package src
+package Orbix
 
 import (
 	"bufio"
@@ -6,6 +6,7 @@ import (
 	"github.com/common-nighthawk/go-figure"
 	"github.com/fatih/color"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
+	utils2 "goCmd/system"
 	"goCmd/utils"
 	"goCmd/validators"
 	"os"
@@ -24,24 +25,24 @@ func NewUser(systemPath string) {
 	fmt.Println(systemPath)
 	err := os.Chdir(systemPath)
 	if err != nil {
-		fmt.Println(red("Error when changing the path:", err))
+		fmt.Println(utils2.Red("Error when changing the path:", err))
 	}
 
 	reader := bufio.NewReader(os.Stdin)
 	PrintNewUser()
 
-	fmt.Printf("%s", magenta("Enter username: "))
+	fmt.Printf("%s", utils2.Magenta("Enter username: "))
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
 
-	fmt.Printf("%s", magenta("Enter password: "))
+	fmt.Printf("%s", utils2.Magenta("Enter password: "))
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
 
 	isValid := validators.Password(password)
 
 	if !isValid {
-		fmt.Println(red("NewUser is Invalid"))
+		fmt.Println(utils2.Red("NewUser is Invalid"))
 		return
 	}
 
@@ -49,7 +50,7 @@ func NewUser(systemPath string) {
 	if _, err = os.Stat(passwordDir); os.IsNotExist(err) {
 		err = os.MkdirAll(passwordDir, os.ModePerm)
 		if err != nil {
-			fmt.Println(red("Error creating passwords directory:", err))
+			fmt.Println(utils2.Red("Error creating passwords directory:", err))
 			return
 		}
 	}
@@ -62,10 +63,10 @@ func NewUser(systemPath string) {
 	passwordFilePath := filepath.Join(passwordDir, hashedPassword)
 	err = os.WriteFile(passwordFilePath, []byte(hashedPassword), os.ModePerm)
 	if err != nil {
-		fmt.Println(red("Error writing to password file:", err))
+		fmt.Println(utils2.Red("Error writing to password file:", err))
 		return
 	}
 
-	fmt.Println(green("Your password (file):", passwordFilePath))
-	fmt.Println(green("Hashed password saved to file."))
+	fmt.Println(utils2.Green("Your password (file):", passwordFilePath))
+	fmt.Println(utils2.Green("Hashed password saved to file."))
 }

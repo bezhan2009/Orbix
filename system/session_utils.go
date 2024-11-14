@@ -1,4 +1,4 @@
-package src
+package system
 
 import (
 	"bytes"
@@ -9,6 +9,8 @@ import (
 	"os/exec"
 	"strings"
 )
+
+var GitCheck = CheckGit()
 
 // CheckGit checks if Git is installed on the system
 func CheckGit() bool {
@@ -45,8 +47,8 @@ func Getwd() (wd string) {
 	var err error
 	wd, err = os.Getwd()
 	if err != nil {
-		fmt.Println(yellow("WARNING: Some commands may not work because the Getwd function failed with an error"))
-		fmt.Println(red(err))
+		fmt.Println(Yellow("WARNING: Some commands may not work because the Getwd function failed with an error"))
+		fmt.Println(Red(err))
 	}
 
 	wd = strings.TrimSpace(wd)

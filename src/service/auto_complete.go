@@ -1,4 +1,4 @@
-package src
+package service
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func autoComplete(d prompt.Document) []prompt.Suggest {
+func AutoComplete(d prompt.Document) []prompt.Suggest {
 	text := d.TextBeforeCursor()
 
 	text = strings.TrimSpace(strings.ToLower(text))
@@ -80,7 +80,7 @@ func createUniqueCommandSuggestions(prefix string) []prompt.Suggest {
 	var suggestions []prompt.Suggest
 
 	// Предполагается, что AdditionalCommands - это список доступных команд
-	for _, cmd := range AdditionalCommands {
+	for _, cmd := range system.AdditionalCommands {
 		if _, exists := uniqueCommands[strings.ToLower(cmd.Name)]; !exists && strings.HasPrefix(strings.ToLower(cmd.Name), prefix) {
 			uniqueCommands[cmd.Name] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
@@ -95,7 +95,7 @@ func createCommandHistorySuggestions(prefix string) []prompt.Suggest {
 	var suggestions []prompt.Suggest
 
 	// Предполагается, что CommandHistory - это слайс строк с историей команд
-	for _, cmd := range GlobalSession.CommandHistory {
+	for _, cmd := range system.GlobalSession.CommandHistory {
 		if _, exists := uniqueCommands[strings.ToLower(cmd)]; !exists && strings.HasPrefix(strings.ToLower(cmd), prefix) {
 			uniqueCommands[cmd] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd, Description: "previously entered command"})
@@ -121,8 +121,8 @@ func createFileSuggestions(dir string, prefix string) []prompt.Suggest {
 	return suggestions
 }
 
-func suggestCommand(input string) string {
-	for _, cmd := range AdditionalCommands {
+func SuggestCommand(input string) string {
+	for _, cmd := range system.AdditionalCommands {
 		if strings.HasPrefix(cmd.Name, input) {
 			return cmd.Name
 		}

@@ -68,8 +68,10 @@ func main() {
 	fmt.Println(colors["cyan"](""))
 
 	command := []string{"go", "run", "orbix.go"}
-	err = utils.ExternalCommand(command)
-	if err != nil {
-		fmt.Println("Error executing external command:", err)
-	}
+	go func() {
+		err = utils.ExternalCommand(command)
+		if err != nil {
+			fmt.Println("Error executing external command:", err)
+		}
+	}()
 }

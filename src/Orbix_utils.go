@@ -7,6 +7,9 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/dirInfo"
+	"goCmd/src/environment"
+	"goCmd/src/service"
+	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
 	"goCmd/utils"
@@ -31,10 +34,11 @@ func initializeRunningFile(username string) {
 	}
 
 	// Check for username in running.txt and add if missing
-	runningPath := filepath.Join(Absdir, system.OrbixRunningUsersFileName)
+	runningPath := filepath.Join(system.Absdir, system.OrbixRunningUsersFileName)
 	if sourceRunning, err := os.ReadFile(runningPath); err == nil {
 		if !strings.Contains(string(sourceRunning), username) {
-			if file, err := os.OpenFile(system.OrbixRunningUsersFileName, os.O_APPEND|os.O_WRONLY, 0644); err == nil {
+			if file, err := os.OpenFile(system.OrbixRunningUsersFileName, os.O_APPEND|os.O_WRONLY,
+				0644); err == nil {
 				defer func() {
 					err = file.Close()
 					if err != nil {
@@ -42,7 +46,8 @@ func initializeRunningFile(username string) {
 					}
 				}()
 				if _, err := file.WriteString("\n" + username + "\n"); err != nil {
-					fmt.Println(fmt.Sprintf("Error writing to %s: %s", system.OrbixRunningUsersFileName, err))
+					fmt.Println(fmt.Sprintf("Error writing to %s: %s",
+						system.OrbixRunningUsersFileName, err))
 				}
 			}
 		}
@@ -50,7 +55,7 @@ func initializeRunningFile(username string) {
 }
 
 func checkUserInRunningFile(username string) bool {
-	runningPath := filepath.Join(Absdir, system.OrbixRunningUsersFileName)
+	runningPath := filepath.Join(system.Absdir, system.OrbixRunningUsersFileName)
 	sourceRunning, err := os.ReadFile(runningPath)
 	if err != nil {
 		return false
@@ -59,54 +64,54 @@ func checkUserInRunningFile(username string) bool {
 }
 
 func getUser(username string) string {
-	if strings.TrimSpace(User) != "" {
-		return User
+	if strings.TrimSpace(system.User) != "" {
+		return system.User
 	} else {
 		return username
 	}
 }
 
 func printPromptInfo(location, user, dirC, commandInput string, sd *system.Session) {
-	if len(Prompt) > 2 {
-		Prompt = string(Prompt[0:2])
+	if len(system.Prompt) > 2 {
+		system.Prompt = string(system.Prompt[0:2])
 	}
 
 	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s%s%s\n",
-		yellow("╭"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
-		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
-		cyan("~"), cyan(dirC), yellow("]"), yellow(" git:"), green("["), green(sd.GitBranch), green("]"))
+		system.Yellow("╭"), system.Yellow("─"), system.Yellow("("), system.Cyan("Orbix@"+getUser(user)), system.Yellow(")"), system.Yellow("─"), system.Yellow("["),
+		system.Yellow(location), system.Magenta(time.Now().Format("15:04")), system.Yellow("]"), system.Yellow("─"), system.Yellow("["),
+		system.Cyan("~"), system.Cyan(dirC), system.Yellow("]"), system.Yellow(" git:"), system.Green("["), system.Green(sd.GitBranch), system.Green("]"))
 	fmt.Printf("%s%s %s",
-		yellow("╰"), green(strings.TrimSpace(Prompt)), green(commandInput))
+		system.Yellow("╰"), system.Green(strings.TrimSpace(system.Prompt)), system.Green(commandInput))
 
 	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
 		fmt.Println()
 	}
 }
 
-func printPromptInfoWithoutGit(location, user, dirC, commandInput string) {
-	if len(Prompt) > 2 {
-		Prompt = string(Prompt[0])
+func PrintPromptInfoWithoutGit(location, user, dirC, commandInput string) {
+	if len(system.Prompt) > 2 {
+		system.Prompt = string(system.Prompt[0])
 	}
 
 	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
-		yellow("╭"), yellow("─"), yellow("("), cyan("Orbix@"+getUser(user)), yellow(")"), yellow("─"), yellow("["),
-		yellow(location), magenta(time.Now().Format("15:04")), yellow("]"), yellow("─"), yellow("["),
-		cyan("~"), cyan(dirC), yellow("]"))
+		system.Yellow("╭"), system.Yellow("─"), system.Yellow("("), system.Cyan("Orbix@"+getUser(user)), system.Yellow(")"), system.Yellow("─"), system.Yellow("["),
+		system.Yellow(location), system.Magenta(time.Now().Format("15:04")), system.Yellow("]"), system.Yellow("─"), system.Yellow("["),
+		system.Cyan("~"), system.Cyan(dirC), system.Yellow("]"))
 	fmt.Printf("%s%s %s",
-		yellow("╰"), green(strings.TrimSpace(Prompt)), green(commandInput))
+		system.Yellow("╰"), system.Green(strings.TrimSpace(system.Prompt)), system.Green(commandInput))
 
 	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
 		fmt.Println()
 	}
 }
 
-func readCommandLine(commandInput string) (string, string, []string, string) {
+func ReadCommandLine(commandInput string) (string, string, []string, string) {
 	var commandLine string
 	if commandInput != "" {
 		commandLine = strings.TrimSpace(commandInput)
 	} else {
 		// Чтение ввода
-		commandLine = strings.TrimSpace(prompt.Input("", autoComplete))
+		commandLine = strings.TrimSpace(prompt.Input("", service.AutoComplete))
 	}
 
 	commandLineSplit := strings.Split(commandLine, " ")
@@ -130,12 +135,12 @@ func readCommandLine(commandInput string) (string, string, []string, string) {
 	return commandLine, command[0], commandParts[1:], strings.ToLower(commandParts[0])
 }
 
-func processCommand(commandLower string) (bool, error) {
-	if strings.TrimSpace(commandLower) == "cd" && GitCheck {
+func ProcessCommand(commandLower string) (bool, error) {
+	if strings.TrimSpace(commandLower) == "cd" && system.GitCheck {
 		return true, nil
 	}
 
-	if strings.TrimSpace(commandLower) == "git" && GitCheck {
+	if strings.TrimSpace(commandLower) == "git" && system.GitCheck {
 		return true, nil
 	}
 
@@ -144,55 +149,6 @@ func processCommand(commandLower string) (bool, error) {
 	}
 
 	return false, nil
-}
-
-// Функция обработки каждой команды
-func handleCommand(command string) (ok bool) {
-	// Пример конкатенации строк через оператор "+"
-	if strings.Contains(command, "+") {
-		parts := strings.Split(command, "+")
-		var result string
-		for _, part := range parts {
-			// Убираем кавычки и пробелы
-			cleanPart := strings.Trim(part, "\" ")
-			result += cleanPart
-		}
-
-		if result != command {
-			fmt.Println(result)
-			return true
-		}
-
-		return false
-	} else {
-		// Вывод просто строки (если нет "+")
-		cleanCommand := strings.Trim(command, "\"")
-		if command != cleanCommand {
-			fmt.Println(cleanCommand)
-			return true
-		}
-
-		return false
-	}
-}
-
-func createNewSession(path, user, gitBranch string, isAdmin bool) *system.Session {
-	session := &system.Session{
-		Path:      path,
-		User:      user,
-		GitBranch: gitBranch,
-		IsAdmin:   isAdmin,
-	}
-	return session
-}
-
-func restorePreviousSession(sessionData *system.AppState, prefix string) *system.Session {
-	session, exists := sessionData.GetSession(prefix)
-	if !exists {
-		fmt.Println(red("Session does not exist!"))
-		return nil
-	}
-	return session
 }
 
 func watchFile(runningPath string, username string, isWorking *bool, isPermission *bool) {
@@ -219,7 +175,7 @@ func watchFile(runningPath string, username string, isWorking *bool, isPermissio
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write && *isWorking {
 					if !checkUserInRunningFile(username) && *isWorking {
-						fmt.Print(red("\nUser not authorized. to continue, press Enter:"))
+						fmt.Print(system.Red("\nUser not authorized. to continue, press Enter:"))
 						devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
 						func() {
 							err = devNull.Close()
@@ -252,7 +208,7 @@ func watchFile(runningPath string, username string, isWorking *bool, isPermissio
 	<-done
 }
 
-func openNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
+func OpenNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	var cmd *exec.Cmd
 
 	// Преобразуем команду в формат для запуска в новом окне
@@ -260,7 +216,7 @@ func openNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	dir, _ := os.Getwd()
 	newOrbix := func() {
 		if len(executeCommand.CommandArgs) < 1 {
-			err := commands.ChangeDirectory(Absdir)
+			err := commands.ChangeDirectory(system.Absdir)
 			if err != nil {
 				fmt.Println("Error changing directory:", err)
 			}
@@ -301,17 +257,17 @@ func openNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
 	}
 }
 
-func catchSyntaxErrs(execCommandCatchErrs structs.ExecuteCommandCatchErrs) (findErr bool) {
+func CatchSyntaxErrs(execCommandCatchErrs structs.ExecuteCommandCatchErrs) (findErr bool) {
 	if *execCommandCatchErrs.EchoTime && *execCommandCatchErrs.RunOnNewThread && !(execCommandCatchErrs.CommandLower == "orbix") {
-		fmt.Println(red("You cannot take timing and running on new thread at the same time"))
+		fmt.Println(system.Red("You cannot take timing and running on new thread at the same time"))
 		return true
 	}
 
 	return false
 }
 
-// removeFlags удаляет части строки, если они содержатся в OrbixFlags
-func removeFlags(input string) string {
+// RemoveFlags удаляет части строки, если они содержатся в OrbixFlags
+func RemoveFlags(input string) string {
 	// Разделяем строку на части
 	parts := strings.Fields(input)
 	var result []string
@@ -319,7 +275,7 @@ func removeFlags(input string) string {
 	// Проходим по всем частям
 	for _, part := range parts {
 		// Проверяем, есть ли текущая часть в OrbixFlags
-		if !contains(OrbixFlags, part) {
+		if !contains(system.Flags, part) {
 			// Если часть не является флагом, добавляем её в результат
 			result = append(result, part)
 		}
@@ -339,7 +295,7 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
-func commandFile(command string) bool {
+func CommandFile(command string) bool {
 	return command == "py" ||
 		command == "read" ||
 		command == "edit" ||
@@ -355,7 +311,7 @@ func commandFile(command string) bool {
 		command == "cl"
 }
 
-func fullFileName(commandArgs *[]string) {
+func FullFileName(commandArgs *[]string) {
 	if len(*commandArgs) == 0 {
 		return
 	}
@@ -380,41 +336,10 @@ func fullFileName(commandArgs *[]string) {
 	}
 }
 
-func RecoverFromThePanic(commandInput string,
-	r any,
-	echo bool,
-	SD *system.AppState) {
-	PanicText := fmt.Sprintf("Panic recovered: %v", r)
-	fmt.Printf("\n%s\n", red(PanicText))
-
-	if RebootAttempts > system.MaxRetryAttempts {
-		fmt.Println(red("Max retry attempts reached. Exiting..."))
-		log.Println("Max retry attempts reached. Exiting...")
-		os.Exit(1)
-	}
-
-	RebootAttempts += 1
-
-	fmt.Println(yellow("Recovering from panic"))
-
-	log.Printf("Panic recovered: %v", r)
-
-	var reboot = structs.RebootedData{
-		Username: system.UserName,
-		Recover:  r,
-		Prefix:   Prefix,
-	}
-
-	Orbix(strings.TrimSpace(commandInput),
-		echo,
-		reboot,
-		SD)
-}
-
 func OrbixPrompt(session *system.Session, prompt, dir, username, commandInput string, isWorking, isPermission bool, colorsMap map[string]func(...interface{}) string) {
 	if session.IsAdmin {
 		if prompt == "" {
-			fmt.Printf("ORB %s>%s", dir, green(commandInput))
+			fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
 		} else {
 			splitPrompt := strings.Split(prompt, ", ")
 			fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
@@ -422,28 +347,28 @@ func OrbixPrompt(session *system.Session, prompt, dir, username, commandInput st
 	}
 
 	dirC := dirInfo.CmdDir(dir)
-	user := session.User
-	if user == "" {
-		user = dirInfo.CmdUser(dir)
+	Orbixuser := session.User
+	if Orbixuser == "" {
+		Orbixuser = dirInfo.CmdUser(dir)
 	}
 
 	if username != "" {
-		user = username
+		Orbixuser = username
 	}
 
 	if !session.IsAdmin {
-		// Single user check outside repeated prompt formatting
-		if !Unauthorized {
+		// Single Orbixuser check outside repeated prompt formatting
+		if !system.Unauthorized {
 			go func() {
-				watchFile(RunningPath, user, &isWorking, &isPermission)
+				watchFile(system.RunningPath, Orbixuser, &isWorking, &isPermission)
 			}()
 		}
 
 		if prompt == "" {
-			if GitCheck {
-				printPromptInfo(Location, user, dirC, commandInput, session) // New helper function
+			if system.GitCheck {
+				printPromptInfo(system.Location, Orbixuser, dirC, commandInput, session) // New helper function
 			} else {
-				printPromptInfoWithoutGit(Location, user, dirC, commandInput) // New helper function
+				PrintPromptInfoWithoutGit(system.Location, Orbixuser, dirC, commandInput) // New helper function
 			}
 		} else {
 			splitPrompt := strings.Split(prompt, ", ")
@@ -463,38 +388,38 @@ func InitSession(prefix *string,
 
 	session, exists := sessionData.GetSession(*prefix)
 	if !exists {
-		fmt.Println(red("Session does not exist!"))
+		fmt.Println(system.Red("Session does not exist!"))
 		return nil
 	}
 
 	if session == nil {
-		fmt.Println(red("Session is nil!"))
+		fmt.Println(system.Red("Session is nil!"))
 		return nil
 	}
 
-	Prefix = fmt.Sprintf(*prefix)
+	system.Prefix = fmt.Sprintf(*prefix)
 
 	// Initialize Global Vars
-	go Init(session)
+	go system.InitSession(session)
 
 	// Load User Configs
-	fmt.Print(cyan("Loading configs"))
+	fmt.Print(system.Cyan("Loading configs"))
 	utils.AnimatedPrint("...\n", "cyan")
 
-	err := LoadUserConfigs()
+	err := environment.LoadUserConfigs()
 	if err != nil {
-		fmt.Println(red("Error Loading configs:", err))
+		fmt.Println(system.Red("Error Loading configs:", err))
 	} else {
-		fmt.Println(green("Successfully Loaded configs"))
+		fmt.Println(system.Green("Successfully Loaded configs"))
 	}
 
-	session.PreviousPath = PreviousSessionPath
-	fmt.Println(green(session.PreviousPath))
-	if PreviousSessionPrefix != "" {
-		session, _ = sessionData.GetSession(PreviousSessionPrefix)
+	session.PreviousPath = system.PreviousSessionPath
+	fmt.Println(system.Green(session.PreviousPath))
+	if system.PreviousSessionPrefix != "" {
+		session, _ = sessionData.GetSession(system.PreviousSessionPrefix)
 	}
 
-	GlobalSession = *session
+	system.GlobalSession = *session
 
 	dir, _ := os.Getwd()
 	system.Path = dir
@@ -502,15 +427,15 @@ func InitSession(prefix *string,
 	return session
 }
 
-func defineUser(commandInput string,
+func DefineUser(commandInput string,
 	rebooted structs.RebootedData,
 	sessionData *system.AppState) (string, error) {
 	var username string
 
 	// Check if password directory is empty once and handle errors here
-	isEmpty, err := isPasswordDirectoryEmpty()
+	isEmpty, err := user.IsPasswordDirectoryEmpty()
 	if err != nil {
-		animatedPrint(fmt.Sprintf("Error checking password directory: %s\n", err.Error()), "red")
+		service.AnimatedPrint(fmt.Sprintf("Error checking password directory: %s\n", err.Error()), "red")
 		return "", errors.New("ErrCheckPasswordDirectory")
 	}
 
@@ -518,21 +443,21 @@ func defineUser(commandInput string,
 		username = strings.TrimSpace(rebooted.Username)
 	} else if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
-		user := dirInfo.CmdUser(dir)
+		OrbixUser := dirInfo.CmdUser(dir)
 
-		nameUser, isSuccess := CheckUser(user, sessionData)
+		nameUser, isSuccess := user.CheckUser(OrbixUser, sessionData)
 		if !isSuccess {
 			return "", errors.New("ErrSuccess")
 		}
-		Unauthorized = false
+		system.Unauthorized = false
 		username = nameUser
-		if username != user {
+		if username != OrbixUser {
 			initializeRunningFile(username)
 		}
 
-		if user == username {
+		if OrbixUser == username {
 			sessionData.IsAdmin = true
-			sessionData.User = user
+			sessionData.User = OrbixUser
 		} else {
 			sessionData.IsAdmin = false
 			sessionData.User = username
@@ -542,11 +467,11 @@ func defineUser(commandInput string,
 	return username, nil
 }
 
-func ignoreSI(signalChan chan os.Signal,
+func IgnoreSI(signalChan chan os.Signal,
 	sessionData *system.AppState,
 	prompt, commandInput, username string) bool {
 	colorsMap := system.GetColorsMap()
-	if SessionsStarted > 1 {
+	if system.SessionsStarted > 1 {
 		return true
 	}
 
@@ -554,13 +479,13 @@ func ignoreSI(signalChan chan os.Signal,
 		sig := <-signalChan
 
 		if sig == syscall.SIGHUP {
-			DeleteUserFromRunningFile(system.UserName)
+			user.DeleteUserFromRunningFile(system.UserName)
 			os.Exit(1)
 		}
 
-		if !ExecutingCommand {
-			fmt.Println(red("^C"))
-			if !GlobalSession.IsAdmin {
+		if !system.ExecutingCommand {
+			fmt.Println(system.Red("^C"))
+			if !system.GlobalSession.IsAdmin {
 				dir, _ := os.Getwd()
 
 				dirC := dirInfo.CmdDir(dir)
@@ -575,11 +500,11 @@ func ignoreSI(signalChan chan os.Signal,
 
 				fmt.Println()
 				if prompt == "" {
-					if GitCheck {
-						gitBranch, _ := GetCurrentGitBranch()
-						printPromptInfo(Location, user, dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
+					if system.GitCheck {
+						gitBranch, _ := system.GetCurrentGitBranch()
+						printPromptInfo(system.Location, user, dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
 					} else {
-						printPromptInfoWithoutGit(Location, user, dirC, commandInput)
+						PrintPromptInfoWithoutGit(system.Location, user, dirC, commandInput)
 					}
 				} else {
 					splitPrompt := strings.Split(prompt, ", ")
@@ -588,7 +513,7 @@ func ignoreSI(signalChan chan os.Signal,
 			} else {
 				dir, _ := os.Getwd()
 				if prompt == "" {
-					fmt.Printf("ORB %s>%s", dir, green(commandInput))
+					fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
 				} else {
 					splitPrompt := strings.Split(prompt, ", ")
 					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
@@ -601,35 +526,35 @@ func ignoreSI(signalChan chan os.Signal,
 }
 
 func setLocation() {
-	if strings.TrimSpace(Location) == "" {
-		Location = os.Getenv("CITY")
-		if strings.TrimSpace(Location) == "" {
-			Location = string(strings.TrimSpace(os.Getenv("USERS_LOCATION")))
+	if strings.TrimSpace(system.Location) == "" {
+		system.Location = os.Getenv("CITY")
+		if strings.TrimSpace(system.Location) == "" {
+			system.Location = string(strings.TrimSpace(os.Getenv("USERS_LOCATION")))
 		}
 	}
 }
 
-func initOrbixFn(RestartAfterInit *bool,
+func InitOrbixFn(RestartAfterInit *bool,
 	echo bool,
 	commandInput string,
 	rebooted structs.RebootedData,
 	SD *system.AppState) *system.AppState {
-	Prompt = string(strings.TrimSpace(os.Getenv("PROMPT")))
-	SessionsStarted = SessionsStarted + 1
+	system.Prompt = string(strings.TrimSpace(os.Getenv("PROMPT")))
+	system.SessionsStarted = system.SessionsStarted + 1
 
 	setLocation()
 
 	// Initialize colors
-	InitColors()
+	system.InitColors()
 
 	if strings.TrimSpace(strings.ToLower(system.OperationSystem)) == "windows" {
-		Commands = append(Commands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
-		AdditionalCommands = append(AdditionalCommands, structs.Command{Name: "neofetch", Description: "Displays information about the system"})
+		system.Commands = append(system.Commands, system.Command{Name: "neofetch", Description: "Displays information about the system"})
+		system.AdditionalCommands = append(system.AdditionalCommands, system.Command{Name: "neofetch", Description: "Displays information about the system"})
 	}
 
-	if RebootAttempts > 5 {
+	if system.RebootAttempts > 5 {
 		system.OrbixWorking = false
-		fmt.Println(red("Max retry attempts reached. Exiting..."))
+		fmt.Println(system.Red("Max retry attempts reached. Exiting..."))
 		log.Println("Max retry attempts reached. Exiting...")
 		return nil
 	}
@@ -641,43 +566,24 @@ func initOrbixFn(RestartAfterInit *bool,
 	}
 
 	if SD == nil {
-		fmt.Println(red("Fatal: App State is nil!"))
+		fmt.Println(system.Red("Fatal: App State is nil!"))
 		os.Exit(1)
 	}
 
-	if err := commands.ChangeDirectory(Absdir); err != nil {
-		fmt.Println(red(err))
+	if err := commands.ChangeDirectory(system.Absdir); err != nil {
+		fmt.Println(system.Red(err))
 	}
 
 	sessionData := SD
 
 	if !echo && commandInput == "" {
-		fmt.Println(red("You cannot enable echo with an empty Input command!"))
+		fmt.Println(system.Red("You cannot enable echo with an empty Input command!"))
 		return nil
 	}
 
 	if echo && rebooted.Username == "" && commandInput == "" {
-		SystemInformation()
+		environment.SystemInformation()
 	}
 
 	return sessionData
-}
-
-func restartAfterInit(SD *system.AppState,
-	sessionData *system.AppState,
-	rebooted structs.RebootedData,
-	prefix,
-	username string,
-	echo bool) {
-	SD.User = username
-	SD.IsAdmin = sessionData.IsAdmin
-	rebooted.Prefix = prefix
-	if len(os.Args) > 1 {
-		return
-	}
-
-	Orbix("",
-		echo,
-		rebooted,
-		SD)
 }

@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"goCmd/internal/run"
-	"goCmd/src"
+	"goCmd/src/Orbix"
+	"goCmd/src/environment"
+	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
 	"html/template"
@@ -45,7 +47,7 @@ func OrbixLoop(red func(a ...interface{}) string,
 	appState *system.AppState) {
 	defer func() {
 		if r := recover(); r != nil {
-			src.DeleteUserFromRunningFile(system.UserName)
+			user.DeleteUserFromRunningFile(system.UserName)
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)
 			fmt.Printf("\n%s\n", red(PanicText))
 			log.Printf("Panic recovered: %v", r)
@@ -55,7 +57,7 @@ func OrbixLoop(red func(a ...interface{}) string,
 		}
 	}()
 
-	src.Orbix("",
+	Orbix.Orbix("",
 		true,
 		structs.RebootedData{},
 		appState)
@@ -64,7 +66,7 @@ func OrbixLoop(red func(a ...interface{}) string,
 }
 
 func main() {
-	// Initialization CMD
+	// Initialization Orbix
 	run.Init()
 
 	// Initialization system vars
@@ -87,7 +89,7 @@ func main() {
 			command += arg + " "
 		}
 
-		src.Orbix(command,
+		Orbix.Orbix(command,
 			true,
 			structs.RebootedData{},
 			appState)
@@ -192,13 +194,14 @@ func main() {
 	go func() {
 		time.Sleep(time.Second * 1)
 		if !system.OrbixWorking {
-			src.DeleteUserFromRunningFile(system.UserName)
+			user.DeleteUserFromRunningFile(system.UserName)
 			os.Exit(1)
 		}
 	}()
 
 	defer func() {
-		src.DeleteUserFromRunningFile(system.UserName)
+		environment.SaveVars()
+		user.DeleteUserFromRunningFile(system.UserName)
 		os.Exit(1)
 	}()
 }

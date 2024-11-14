@@ -1,34 +1,16 @@
-package src
+package Orbix
 
 import (
 	"fmt"
+	"goCmd/src"
+	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
-)
-
-var (
-	Absdir, _             = filepath.Abs("")
-	RunningPath           = filepath.Join(Absdir, system.OrbixRunningUsersFileName)
-	GlobalSession         = system.Session{}
-	Location              = ""
-	User                  = ""
-	Empty                 = ""
-	PreviousSessionPath   = ""
-	PreviousSessionPrefix = ""
-	Prompt                = ""
-	Prefix                = ""
-	ExecutingCommand      = false
-	GitCheck              = CheckGit()
-	Unauthorized          = true
-	RebootAttempts        = uint(0)
-	SessionsStarted       = uint(0)
 )
 
 func Orbix(commandInput string,
@@ -36,10 +18,6 @@ func Orbix(commandInput string,
 	rebooted structs.RebootedData,
 	SD *system.AppState) {
 	defer func() {
-		if strings.TrimSpace(commandInput) == "" {
-			SaveVars()
-		}
-
 		if r := recover(); r != nil {
 			RecoverFromThePanic(commandInput,
 				r,
@@ -49,16 +27,16 @@ func Orbix(commandInput string,
 		}
 	}()
 
-	if !usingForLT(commandInput) {
-		Prompt = "_>"
-		execLtCommand(commandInput)
+	if !UsingForLT(commandInput) {
+		system.Prompt = "_>"
+		ExecLtCommand(commandInput)
 
 		return
 	}
 
 	RestartAfterInit := false
 
-	sessionData := initOrbixFn(&RestartAfterInit,
+	sessionData := src.InitOrbixFn(&RestartAfterInit,
 		echo,
 		commandInput,
 		rebooted,
@@ -70,7 +48,7 @@ func Orbix(commandInput string,
 		isPermission = false
 	}
 
-	username, err := defineUser(commandInput,
+	username, err := src.DefineUser(commandInput,
 		rebooted,
 		sessionData)
 	if err != nil {
@@ -93,7 +71,7 @@ func Orbix(commandInput string,
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		if ignoreSI(signalChan,
+		if src.IgnoreSI(signalChan,
 			sessionData,
 			prompt, commandInput, username) {
 			return
@@ -109,7 +87,7 @@ func Orbix(commandInput string,
 		}
 	}()
 
-	session := InitSession(&prefix,
+	session := src.InitSession(&prefix,
 		rebooted,
 		sessionData,
 	)
@@ -122,7 +100,7 @@ func Orbix(commandInput string,
 	}
 
 	if RestartAfterInit {
-		restartAfterInit(
+		RestartAfterInitFn(
 			SD,
 			sessionData,
 			rebooted,
@@ -156,16 +134,16 @@ func Orbix(commandInput string,
 	)
 
 	if len(session.CommandHistory) < 10 {
-		go Init(session)
+		go system.InitSession(session)
 	}
 
-	if RebootAttempts != 0 {
+	if system.RebootAttempts != 0 {
 		RecoverAndRestore(&rebooted)
-		RebootAttempts = 0
+		system.RebootAttempts = 0
 	}
 
 	for isWorking {
-		OrbixPrompt(session,
+		src.OrbixPrompt(session,
 			prompt,
 			system.UserDir,
 			username,
@@ -176,7 +154,7 @@ func Orbix(commandInput string,
 		)
 
 		// Command processing
-		commandLine, command, commandArgs, commandLower = readCommandLine(commandInput) // Refactored input handling
+		commandLine, command, commandArgs, commandLower = src.ReadCommandLine(commandInput) // Refactored input handling
 		if commandLine == "" {
 			continue
 		}
@@ -185,14 +163,12 @@ func Orbix(commandInput string,
 			Command:       command,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
-			Dir:           system.UserDir,
 			IsWorking:     &isWorking,
 			IsPermission:  &isPermission,
 			Username:      username,
 			SD:            sessionData,
 			SessionPrefix: prefix,
 			Session:       session,
-			GlobalSession: &GlobalSession,
 		}
 
 		processCommandParams = structs.ProcessCommandParams{
@@ -212,12 +188,12 @@ func Orbix(commandInput string,
 		}
 
 		startTimePRCOMARGS = time.Now()
-		continueLoop = processCommandArgs(processCommandParams)
+		continueLoop = ProcessCommandArgs(processCommandParams)
 
 		if continueLoop {
 			if echoTime {
 				TEXCOMARGS = fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
-				fmt.Println(green(TEXCOMARGS))
+				fmt.Println(system.Green(TEXCOMARGS))
 				continue
 			}
 			continue
@@ -235,17 +211,17 @@ func Orbix(commandInput string,
 
 		// Process command
 		go func() {
-			gitBranchUpdate, err = processCommand(commandLower)
+			gitBranchUpdate, err = src.ProcessCommand(commandLower)
 			if err != nil {
-				fmt.Println(red(err.Error()))
-				DeleteUserFromRunningFile(username)
+				fmt.Println(system.Red(err.Error()))
+				user.DeleteUserFromRunningFile(username)
 				return
 			}
 
 			if gitBranchUpdate {
-				session.GitBranch, err = GetCurrentGitBranch()
+				session.GitBranch, err = system.GetCurrentGitBranch()
 				if err != nil {
-					fmt.Println("Error Updating Git Branch", red(err.Error()))
+					fmt.Println("Error Updating Git Branch", system.Red(err.Error()))
 				}
 			}
 		}()
@@ -261,7 +237,6 @@ func Orbix(commandInput string,
 			SD:            sessionData,
 			SessionPrefix: prefix,
 			Session:       session,
-			GlobalSession: &GlobalSession,
 		}
 
 		err = ExecLoopCommand(
@@ -272,7 +247,7 @@ func Orbix(commandInput string,
 			execCommand,
 		)
 
-		UnknownCommandsCounter = 0
+		src.UnknownCommandsCounter = 0
 
 		if err != nil {
 			continue

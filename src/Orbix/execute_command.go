@@ -1,4 +1,4 @@
-package src
+package Orbix
 
 import (
 	"goCmd/cmd/commands"
@@ -6,6 +6,10 @@ import (
 	"goCmd/cmd/commands/template"
 	"goCmd/internal/Network"
 	"goCmd/internal/Network/wifiUtils"
+	"goCmd/src"
+	"goCmd/src/environment"
+	"goCmd/src/handlers"
+	"goCmd/src/user"
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
@@ -14,12 +18,12 @@ import (
 	"strings"
 )
 
-func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
-	ExecutingCommand = true
+func Command(executeCommand structs.ExecuteCommandFuncParams) {
+	system.ExecutingCommand = true
 	session := executeCommand.Session
 
-	if commandFile(strings.TrimSpace(executeCommand.CommandLower)) {
-		fullFileName(&executeCommand.CommandArgs)
+	if src.CommandFile(strings.TrimSpace(executeCommand.CommandLower)) {
+		src.FullFileName(&executeCommand.CommandArgs)
 	}
 
 	commandMap := map[string]func(){
@@ -32,47 +36,50 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"dnslookup":   func() { ExCommUtils.DnsLookupUtil(executeCommand.CommandArgs) },
 		"ipinfo":      func() { ExCommUtils.IPInfoUtil(executeCommand.CommandArgs) },
 		"geoip":       func() { ExCommUtils.GeoIPUtil(executeCommand.CommandArgs) },
-		"getvar":      func() { GetVariableValueUtil(executeCommand) },
+		"getvar":      func() { environment.GetVariableValueUtil(executeCommand) },
 		"matrixmul":   func() { MatrixMultiplication.MatrixMulCommand(executeCommand.CommandArgs) },
 		"primes":      func() { ExCommUtils.CalculatePrimesUtil(executeCommand.CommandArgs) },
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(executeCommand.CommandArgs) },
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(executeCommand.CommandArgs) },
 		"newtemplate": func() { template.Make(executeCommand.CommandArgs) },
-		"template":    func() { ExecuteTemplateUtil(executeCommand.CommandArgs, executeCommand.SD) },
+		"template":    func() { TemplateUtil(executeCommand.CommandArgs, executeCommand.SD) },
 		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(executeCommand.CommandArgs) },
-		"create":      func() { ExCommUtils.CreateFileUtil(executeCommand.CommandArgs, executeCommand.Dir) },
+		"create":      func() { ExCommUtils.CreateFileUtil(executeCommand.CommandArgs, system.UserDir) },
 		"write":       func() { ExCommUtils.WriteFileUtil(executeCommand.CommandArgs) },
 		"read":        func() { ExCommUtils.ReadFileUtil(executeCommand.CommandArgs) },
 		"remove":      func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"del":         func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"delete":      func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
 		"rem":         func() { ExCommUtils.RemoveFileUtil(executeCommand.CommandArgs, executeCommand.Command) },
-		"rename":      func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, yellow) },
-		"cf":          func() { ExCommUtils.CFUtil(executeCommand.CommandArgs) },
-		"df":          func() { ExCommUtils.DFUtil(executeCommand.CommandArgs) },
-		"ren":         func() { ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, yellow) },
+		"rename": func() {
+			ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, system.Yellow)
+		},
+		"cf": func() { ExCommUtils.CFUtil(executeCommand.CommandArgs) },
+		"df": func() { ExCommUtils.DFUtil(executeCommand.CommandArgs) },
+		"ren": func() {
+			ExCommUtils.RenameFileUtil(executeCommand.CommandArgs, executeCommand.Command, system.Yellow)
+		},
 		"cd": func() {
 			ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs, session)
-			SetGitBranch(session)
+			system.SetGitBranch(session)
 		},
 		"edit":         func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
 		"open_link":    func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
 		"api_request":  func() { commands.ApiRequest() },
 		"print":        func() { commands.Print(executeCommand.CommandArgs) },
 		"kill":         func() { ExCommUtils.KillProcessUtil(executeCommand.CommandArgs) },
-		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, User, Commands) },
-		"setvar":       func() { SetVariableUtil(executeCommand.CommandArgs) },
+		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, system.User, system.Commands) },
+		"setvar":       func() { environment.SetVariableUtil(executeCommand.CommandArgs) },
 		"stusenv":      func() { commands.SetUserFromENV(system.Path) },
 		"set_user_env": func() { commands.SetUserFromENV(system.Path) },
 		"new_prompt":   func() { session.IsAdmin = false },
 		"old_prompt":   func() { session.IsAdmin = true },
-		"delvar":       func() { DeleteVariable(executeCommand.CommandArgs) },
-		"new_window":   func() { openNewWindowForCommand(executeCommand) },
-		"gocode":       func() { ExecuteGoCodeUtil(executeCommand.CommandArgs) },
+		"delvar":       func() { environment.DeleteVariable(executeCommand.CommandArgs) },
+		"new_window":   func() { src.OpenNewWindowForCommand(executeCommand) },
 
-		"help":         displayHelp,
-		"systemorbix":  SystemInformation,
-		"save":         SaveVars,
+		"help":         handlers.DisplayHelp,
+		"systemorbix":  environment.SystemInformation,
+		"save":         environment.SaveVars,
 		"clean":        commands.Screen,
 		"cls":          commands.Screen,
 		"clear":        commands.Screen,
@@ -96,7 +103,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 				true,
 				structs.RebootedData{},
 				executeCommand.SD)
-			PreviousSessionPrefix = executeCommand.SessionPrefix
+			system.PreviousSessionPrefix = executeCommand.SessionPrefix
 		},
 		"newuser": func() { NewUser(system.Path) },
 		"signout": func() {
@@ -105,7 +112,7 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 		"exit": func() {
 			*executeCommand.IsWorking = false
 			*executeCommand.IsPermission = false
-			DeleteUserFromRunningFile(executeCommand.Username)
+			user.DeleteUserFromRunningFile(executeCommand.Username)
 		},
 	}
 
@@ -121,13 +128,13 @@ func ExecuteCommand(executeCommand structs.ExecuteCommandFuncParams) {
 				handler()
 			}
 		} else {
-			isValid := utils.ValidCommand(executeCommand.CommandLower, AdditionalCommands)
+			isValid := utils.ValidCommand(executeCommand.CommandLower, system.AdditionalCommands)
 			if !isValid {
-				HandleUnknownCommandUtil(executeCommand.Command, Commands)
+				handlers.HandleUnknownCommandUtil(executeCommand.Command, system.Commands)
 			}
 		}
 	}
 
-	executeCommand.GlobalSession = executeCommand.Session
-	ExecutingCommand = false
+	system.GlobalSession = *executeCommand.Session
+	system.ExecutingCommand = false
 }
