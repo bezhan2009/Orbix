@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"goCmd/internal/run"
 	"goCmd/src/Orbix"
-	"goCmd/src/environment"
 	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
@@ -200,7 +199,6 @@ func main() {
 	}()
 
 	defer func() {
-		environment.SaveVars()
 		user.DeleteUserFromRunningFile(system.UserName)
 		os.Exit(1)
 	}()

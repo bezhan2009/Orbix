@@ -80,11 +80,19 @@ func SaveVars() {
 	}
 	defer restoreOutput() // Восстанавливаем вывод в конце
 
+	system.UserDir, _ = os.Getwd()
+	system.EditableVars["user_dir"] = &system.UserDir
 	err = commands.ChangeDirectory(system.Absdir)
 	if err != nil {
 		fmt.Println(system.Red(err))
 		return
 	}
+	defer func() {
+		err = commands.ChangeDirectory(system.UserDir)
+		if err != nil {
+			fmt.Println(system.Red(err))
+		}
+	}()
 
 	Remove.File("rem", []string{"user.json"})
 	fcommands.CreateFile("user.json")
@@ -122,6 +130,12 @@ func LoadUserConfigs() error {
 		fmt.Println(system.Red(err))
 		return err
 	}
+	defer func() {
+		err = commands.ChangeDirectory(system.UserDir)
+		if err != nil {
+			fmt.Println(system.Red(err))
+		}
+	}()
 
 	file, err := os.Open("user.json")
 	if err != nil {
@@ -157,6 +171,8 @@ func LoadUserConfigs() error {
 		saveToEnv := fmt.Sprintf("%s %v", PasswordAlgoritm.Usage(key, false), PasswordAlgoritm.Usage(valueStr, false))
 		SetVariableUtil(utils.SplitCommandLine(saveToEnv))
 	}
+
+	commands.ChangeDirectory(system.UserDir)
 
 	return nil
 }

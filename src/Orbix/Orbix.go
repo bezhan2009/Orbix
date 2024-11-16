@@ -3,7 +3,6 @@ package Orbix
 import (
 	"fmt"
 	"goCmd/src"
-	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
 	"os"
@@ -209,23 +208,6 @@ func Orbix(commandInput string,
 			session,
 		)
 
-		// Process command
-		go func() {
-			gitBranchUpdate, err = src.ProcessCommand(commandLower)
-			if err != nil {
-				fmt.Println(system.Red(err.Error()))
-				user.DeleteUserFromRunningFile(username)
-				return
-			}
-
-			if gitBranchUpdate {
-				session.GitBranch, err = system.GetCurrentGitBranch()
-				if err != nil {
-					fmt.Println("Error Updating Git Branch", system.Red(err.Error()))
-				}
-			}
-		}()
-
 		execCommand = structs.ExecuteCommandFuncParams{
 			Command:       command,
 			CommandLower:  commandLower,
@@ -252,6 +234,15 @@ func Orbix(commandInput string,
 		if err != nil {
 			continue
 		}
+
+		// Process command
+		go func() {
+			gitBranchUpdate = src.ProcessCommand(commandLower)
+
+			if gitBranchUpdate {
+				session.GitBranch, _ = system.GetCurrentGitBranch()
+			}
+		}()
 	}
 
 	EndOfSessions(originalStdout, originalStderr,

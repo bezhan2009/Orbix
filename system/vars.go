@@ -144,8 +144,6 @@ var AdditionalCommands = []Command{
 	{"sc", ""},
 }
 
-var CommandHistory []string
-
 var (
 	Absdir, _             = filepath.Abs("")
 	RunningPath           = filepath.Join(Absdir, OrbixRunningUsersFileName)

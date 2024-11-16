@@ -61,7 +61,7 @@ func Command(executeCommand structs.ExecuteCommandFuncParams) {
 		},
 		"cd": func() {
 			ExCommUtils.ChangeDirectoryUtil(executeCommand.CommandArgs, session)
-			system.SetGitBranch(session)
+			system.UserDir, _ = os.Getwd()
 		},
 		"edit":         func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
 		"open_link":    func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
@@ -113,6 +113,7 @@ func Command(executeCommand structs.ExecuteCommandFuncParams) {
 			*executeCommand.IsWorking = false
 			*executeCommand.IsPermission = false
 			user.DeleteUserFromRunningFile(executeCommand.Username)
+			environment.SaveVars()
 		},
 	}
 

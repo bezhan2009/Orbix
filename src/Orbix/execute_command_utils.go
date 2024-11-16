@@ -9,6 +9,7 @@ import (
 	"goCmd/src"
 	"goCmd/src/environment"
 	"goCmd/src/handlers"
+	"goCmd/src/user"
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
@@ -161,10 +162,6 @@ func ExecCommandPromptLogic(
 		*commandLower = "print"
 		*commandLine = fmt.Sprintf("print %s", *commandLine)
 		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(*commandLine) // Refactored input handling
-	}
-
-	if strings.TrimSpace(*commandLower) == "cd" {
-		system.UserDir, _ = os.Getwd()
 	}
 
 	commandArgsListStr := *commandArgs
@@ -564,6 +561,12 @@ func ProcessCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 	*processCommandParams.EchoTime = false
 	*processCommandParams.FirstCharIs = false
 	*processCommandParams.LastCharIs = false
+
+	if processCommandParams.CommandLower == "signout" {
+		user.DeleteUserFromRunningFile(system.UserName)
+		*processCommandParams.IsWorking = false
+		return true
+	}
 
 	if len(processCommandParams.CommandArgs) > 0 {
 		for _, commandLetter := range processCommandParams.CommandLine {

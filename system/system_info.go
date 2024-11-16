@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	Version         = "1.10.3"
+	Version         = "1.10.4"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
@@ -38,7 +38,9 @@ func Init() *AppState {
 
 	Beta = SetBetaVersion(colors)
 
-	UserDir, _ = os.Getwd()
+	if UserDir == "" {
+		UserDir, _ = os.Getwd()
+	}
 
 	// Initialization AppState
 	return NewSystemData()

@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"goCmd/system"
 	"os"
 	"path/filepath"
 )
@@ -39,7 +38,7 @@ func ChangeDirectory(path string) error {
 	}
 
 	// Print the new current directory, similar to how Windows `cd` works
-	system.UserDir, err = os.Getwd()
+	_, err = os.Getwd()
 	if err != nil {
 		return fmt.Errorf("couldn't get the current directory after the change: %v", err)
 	}

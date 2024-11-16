@@ -128,27 +128,19 @@ func ReadCommandLine(commandInput string) (string, string, []string, string) {
 
 	command := commandParts[:1]
 
-	if strings.ToLower(commandParts[0]) == "cd" {
-		system.UserDir, _ = os.Getwd()
-	}
-
 	return commandLine, command[0], commandParts[1:], strings.ToLower(commandParts[0])
 }
 
-func ProcessCommand(commandLower string) (bool, error) {
+func ProcessCommand(commandLower string) bool {
 	if strings.TrimSpace(commandLower) == "cd" && system.GitCheck {
-		return true, nil
+		return true
 	}
 
 	if strings.TrimSpace(commandLower) == "git" && system.GitCheck {
-		return true, nil
+		return true
 	}
 
-	if strings.TrimSpace(commandLower) == "signout" {
-		return false, fmt.Errorf("signout")
-	}
-
-	return false, nil
+	return false
 }
 
 func watchFile(runningPath string, username string, isWorking *bool, isPermission *bool) {
