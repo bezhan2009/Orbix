@@ -38,6 +38,15 @@ func IsPasswordDirectoryEmpty() (bool, error) {
 
 // CheckUser checks the username and password.
 func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
+	currentPath, _ := os.Getwd()
+	defer os.Chdir(currentPath)
+
+	err := commands.ChangeDirectory(system.SourcePath)
+	if err != nil {
+		fmt.Println(system.Red("Error changing directory:", err))
+		return "", false
+	}
+
 	if sd == nil {
 		fmt.Println(system.Red("Fatal: Session is nil!!!"))
 		os.Exit(1)

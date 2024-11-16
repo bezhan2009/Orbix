@@ -21,6 +21,7 @@ var (
 	BetaVersion   = ""
 	colors        = SetColorsMap()
 	GlobalSession = Session{}
+	SourcePath, _ = os.Getwd()
 )
 
 var (

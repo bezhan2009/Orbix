@@ -1,4 +1,4 @@
-package Orbix
+package user
 
 import (
 	"bufio"
@@ -21,9 +21,11 @@ func PrintNewUser() {
 	fmt.Println(greenText(myFigure.String()))
 }
 
-func NewUser(systemPath string) {
-	fmt.Println(systemPath)
-	err := os.Chdir(systemPath)
+func NewUser() {
+	currentPath, _ := os.Getwd()
+	defer os.Chdir(currentPath)
+
+	err := os.Chdir(utils2.SourcePath)
 	if err != nil {
 		fmt.Println(utils2.Red("Error when changing the path:", err))
 	}
@@ -38,6 +40,11 @@ func NewUser(systemPath string) {
 	fmt.Printf("%s", utils2.Magenta("Enter password: "))
 	password, _ := reader.ReadString('\n')
 	password = strings.TrimSpace(password)
+
+	if username == "" || password == "" {
+		fmt.Println(utils2.Red("Username or password is empty"))
+		return
+	}
 
 	isValid := validators.Password(password)
 

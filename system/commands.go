@@ -1,5 +1,10 @@
 package system
 
+type Command struct {
+	Name        string
+	Description string
+}
+
 var (
 	Red     func(a ...interface{}) string
 	Green   func(a ...interface{}) string

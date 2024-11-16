@@ -54,6 +54,12 @@ func Orbix(commandInput string,
 		return
 	}
 
+	// Load User Configs
+	src.LoadConfigs()
+	if username != "" {
+		system.EditableVars["user"] = &username
+	}
+
 	var prompt string
 	var prefix string
 

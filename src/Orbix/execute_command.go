@@ -105,7 +105,7 @@ func Command(executeCommand structs.ExecuteCommandFuncParams) {
 				executeCommand.SD)
 			system.PreviousSessionPrefix = executeCommand.SessionPrefix
 		},
-		"newuser": func() { NewUser(system.Path) },
+		"newuser": func() { user.NewUser() },
 		"signout": func() {
 			SignOutUtil(executeCommand.Username, executeCommand.SD.Path, executeCommand.SD, executeCommand.SessionPrefix)
 		},

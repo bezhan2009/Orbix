@@ -369,6 +369,18 @@ func OrbixPrompt(session *system.Session, prompt, dir, username, commandInput st
 	}
 }
 
+func LoadConfigs() {
+	fmt.Print(system.Cyan("Loading configs"))
+	utils.AnimatedPrint("...\n", "cyan")
+
+	err := environment.LoadUserConfigs()
+	if err != nil {
+		fmt.Println(system.Red("Error Loading configs:", err))
+	} else {
+		fmt.Println(system.Green("Successfully Loaded configs"))
+	}
+}
+
 func InitSession(prefix *string,
 	rebooted structs.RebootedData,
 	sessionData *system.AppState) *system.Session {
@@ -393,17 +405,6 @@ func InitSession(prefix *string,
 
 	// Initialize Global Vars
 	go system.InitSession(session)
-
-	// Load User Configs
-	fmt.Print(system.Cyan("Loading configs"))
-	utils.AnimatedPrint("...\n", "cyan")
-
-	err := environment.LoadUserConfigs()
-	if err != nil {
-		fmt.Println(system.Red("Error Loading configs:", err))
-	} else {
-		fmt.Println(system.Green("Successfully Loaded configs"))
-	}
 
 	session.PreviousPath = system.PreviousSessionPath
 	fmt.Println(system.Green(session.PreviousPath))
