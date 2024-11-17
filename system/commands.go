@@ -14,7 +14,8 @@ var (
 	Cyan    func(a ...interface{}) string
 )
 
-func InitSession(session *Session) {
+func InitSession(username string,
+	session *Session) {
 	// Initialize CommandHistory with package or tool names
 	session.CommandHistory = append(session.CommandHistory, "help")
 	session.CommandHistory = append(session.CommandHistory, "run")
@@ -97,6 +98,9 @@ func InitSession(session *Session) {
 	session.CommandHistory = append(session.CommandHistory, "tar decompress")
 	session.CommandHistory = append(session.CommandHistory, "convert")
 	session.CommandHistory = append(session.CommandHistory, "nmap monitor")
+
+	// Set username in system var
+	UserName = username
 
 	// Initialize session data
 	SetGitBranch(session)

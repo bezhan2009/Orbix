@@ -23,6 +23,17 @@ import (
 	"time"
 )
 
+var (
+	TEXCOM             string
+	commandExLogg      string
+	commandArgsListStr []string
+	commandList        []string
+	fullCommandArgs    []string
+	argList            []string
+
+	startTime time.Time
+)
+
 func EndOfSessions(originalStdout, originalStderr *os.File,
 	session *system.Session,
 	sessionData *system.AppState,
@@ -70,10 +81,10 @@ func ExecLoopCommand(commandLower,
 	} else {
 		if echoTime {
 			// Запоминаем время начала
-			startTime := time.Now()
+			startTime = time.Now()
 			Command(execCommand)
 			// Выводим время выполнения
-			TEXCOM := fmt.Sprintf("Command executed in: %s\n",
+			TEXCOM = fmt.Sprintf("Command executed in: %s\n",
 				time.Since(startTime))
 			fmt.Println(system.Green(TEXCOM))
 		} else {
@@ -111,10 +122,10 @@ func ExecExternalLoopCommand(session *system.Session,
 	} else {
 		if echoTime {
 			// Запоминаем время начала
-			startTime := time.Now()
+			startTime = time.Now()
 			err = executeCommandOrbix(fullCommand, command, commandLower, dir)
 			// Выводим время выполнения
-			TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+			TEXCOM = fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
 			fmt.Println(system.Green(TEXCOM))
 
 			if strings.TrimSpace(commandInput) != "" {
@@ -143,6 +154,16 @@ func getCustomVar(varName string) (interface{}, error) {
 	return nil, errors.New("Variable not found: " + varName)
 }
 
+func updateGlobalCommVars() {
+	TEXCOM = ""
+	commandExLogg = ""
+	commandArgsListStr = []string{}
+	commandList = []string{}
+	fullCommandArgs = []string{}
+	argList = []string{}
+	startTime = time.Time{}
+}
+
 func ExecCommandPromptLogic(
 	firstCharIs,
 	lastCharIs,
@@ -150,7 +171,7 @@ func ExecCommandPromptLogic(
 	echoTime,
 	runOnNewThread *bool,
 	commandArgs *[]string,
-	prompt, command, commandLine, commandInput, commandLower *string,
+	command, commandLine, commandInput, commandLower *string,
 	session *system.Session) bool {
 	if *isComHasFlag && (*echoTime || *runOnNewThread) {
 		*commandLine = src.RemoveFlags(*commandLine)
@@ -164,14 +185,13 @@ func ExecCommandPromptLogic(
 		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(*commandLine) // Refactored input handling
 	}
 
-	commandArgsListStr := *commandArgs
-	fullCommandArgs := []string{}
-	commandExLogg := *command
+	commandArgsListStr = *commandArgs
+	commandExLogg = *command
 
 	for _ = range *commandLine {
 		if string(commandExLogg[0]) == "$" && len(strings.TrimSpace(commandExLogg)) > 1 {
 			if string(commandExLogg[len(commandExLogg)-1]) == "-" {
-				commandList := strings.Split(commandExLogg, "-")
+				commandList = strings.Split(commandExLogg, "-")
 				commandExLogg = commandList[0]
 				break
 			}
@@ -197,7 +217,7 @@ func ExecCommandPromptLogic(
 	for iArg, arg := range *commandArgs {
 		if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
 			if string(arg[len(arg)-1]) == "-" {
-				argList := strings.Split(arg, "-")
+				argList = strings.Split(arg, "-")
 				arg = argList[0]
 				fullCommandArgs[iArg] = arg
 				*commandArgs = fullCommandArgs
@@ -293,11 +313,6 @@ func ExecCommandPromptLogic(
 		return true
 	}
 
-	if strings.TrimSpace(*commandLower) == "prompt" {
-		handlers.HandlePromptCommand(*commandArgs, prompt)
-		return true
-	}
-
 	return false
 }
 
@@ -366,14 +381,6 @@ func executeCommandOrbix(fullCommandEx []string,
 	}
 
 	return nil
-}
-
-func UsingForLT(commandInput string) bool {
-	if strings.TrimSpace(commandInput) != "" && strings.TrimSpace(commandInput) != "restart" {
-		return false
-	}
-
-	return true
 }
 
 func ExecLtCommand(commandInput string) {
@@ -610,7 +617,7 @@ func ProcessCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 		}
 	}
 
-	if commandInt, err := strconv.Atoi(processCommandParams.Command); err == nil && len(processCommandParams.CommandArgs) == 0 {
+	if commandInt, err := strconv.Atoi(processCommandParams.Command); err == nil && len(processCommandParams.CommandArgs) == 0 && commandInt < system.MaxInt {
 		fmt.Println(system.Magenta(commandInt))
 		return true
 	}

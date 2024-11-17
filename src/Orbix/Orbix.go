@@ -6,9 +6,6 @@ import (
 	"goCmd/structs"
 	"goCmd/system"
 	"os"
-	"os/signal"
-	"sync"
-	"syscall"
 	"time"
 )
 
@@ -26,39 +23,11 @@ func Orbix(commandInput string,
 		}
 	}()
 
-	if !UsingForLT(commandInput) {
-		system.Prompt = "_>"
-		ExecLtCommand(commandInput)
-
-		return
-	}
-
-	RestartAfterInit := false
-
-	sessionData := src.InitOrbixFn(&RestartAfterInit,
+	OrbixLoopData := src.OrbixUser(commandInput,
 		echo,
-		commandInput,
-		rebooted,
-		SD)
-
-	isWorking := true
-	isPermission := true
-	if commandInput != "" {
-		isPermission = false
-	}
-
-	username, err := src.DefineUser(commandInput,
-		rebooted,
-		sessionData)
-	if err != nil {
-		return
-	}
-
-	// Load User Configs
-	src.LoadConfigs()
-	if username != "" {
-		system.EditableVars["user"] = &username
-	}
+		&rebooted,
+		SD,
+		ExecLtCommand)
 
 	var prompt string
 	var prefix string
@@ -67,26 +36,14 @@ func Orbix(commandInput string,
 
 	colorsMap = system.GetColorsMap()
 
-	system.UserName = username
-
 	// Signal handling setup (outside the loop)
-	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		if src.IgnoreSI(signalChan,
-			sessionData,
-			prompt, commandInput, username) {
-			return
-		}
-	}()
+	src.IgnoreSiC(commandInput, prompt,
+		OrbixLoopData)
 
 	originalStdout, originalStderr := os.Stdout, os.Stderr
 	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
 	defer func() {
-		err = devNull.Close()
+		err := devNull.Close()
 		if err != nil {
 			return
 		}
@@ -94,7 +51,7 @@ func Orbix(commandInput string,
 
 	session := src.InitSession(&prefix,
 		rebooted,
-		sessionData,
+		OrbixLoopData,
 	)
 
 	// Redirect output based on the echo setting
@@ -104,13 +61,13 @@ func Orbix(commandInput string,
 		os.Stdout, os.Stderr = devNull, devNull
 	}
 
-	if RestartAfterInit {
+	if OrbixLoopData.RestartAfterInit {
 		RestartAfterInitFn(
 			SD,
-			sessionData,
+			OrbixLoopData.SessionData,
 			rebooted,
 			prefix,
-			username,
+			OrbixLoopData.Username,
 			echo,
 		)
 		return
@@ -135,26 +92,24 @@ func Orbix(commandInput string,
 		continueLoop    bool
 		gitBranchUpdate bool
 
+		err error
+
 		startTimePRCOMARGS time.Time
 	)
 
-	if len(session.CommandHistory) < 10 {
-		go system.InitSession(session)
-	}
+	src.EdgeCases(session,
+		OrbixLoopData,
+		rebooted,
+		RecoverAndRestore)
 
-	if system.RebootAttempts != 0 {
-		RecoverAndRestore(&rebooted)
-		system.RebootAttempts = 0
-	}
-
-	for isWorking {
+	for OrbixLoopData.IsWorking {
 		src.OrbixPrompt(session,
 			prompt,
 			system.UserDir,
-			username,
+			OrbixLoopData.Username,
 			commandInput,
-			isWorking,
-			isPermission,
+			OrbixLoopData.IsWorking,
+			OrbixLoopData.IsPermission,
 			colorsMap,
 		)
 
@@ -165,13 +120,14 @@ func Orbix(commandInput string,
 		}
 
 		execCommand = structs.ExecuteCommandFuncParams{
+			Prompt:        &prompt,
 			Command:       command,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
-			IsWorking:     &isWorking,
-			IsPermission:  &isPermission,
-			Username:      username,
-			SD:            sessionData,
+			IsWorking:     &OrbixLoopData.IsWorking,
+			IsPermission:  &OrbixLoopData.IsPermission,
+			Username:      OrbixLoopData.Username,
+			SD:            OrbixLoopData.SessionData,
 			SessionPrefix: prefix,
 			Session:       session,
 		}
@@ -186,7 +142,7 @@ func Orbix(commandInput string,
 			EchoTime:       &echoTime,
 			FirstCharIs:    &firstCharIs,
 			LastCharIs:     &lastCharIs,
-			IsWorking:      &isWorking,
+			IsWorking:      &OrbixLoopData.IsWorking,
 			IsComHasFlag:   &isComHasFlag,
 			Session:        session,
 			ExecCommand:    execCommand,
@@ -204,25 +160,29 @@ func Orbix(commandInput string,
 			continue
 		}
 
-		ExecCommandPromptLogic(
+		if ExecCommandPromptLogic(
 			&firstCharIs,
 			&lastCharIs,
 			&isComHasFlag,
 			&echoTime,
 			&runOnNewThread,
-			&commandArgs, &prompt, &command, &commandLine, &commandInput, &commandLower,
+			&commandArgs, &command, &commandLine, &commandInput, &commandLower,
 			session,
-		)
+		) {
+			updateGlobalCommVars()
+			continue
+		}
 
 		execCommand = structs.ExecuteCommandFuncParams{
+			Prompt:        &prompt,
 			Command:       command,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
 			CommandInput:  commandInput,
-			IsWorking:     &isWorking,
-			IsPermission:  &isPermission,
-			Username:      username,
-			SD:            sessionData,
+			IsWorking:     &OrbixLoopData.IsWorking,
+			IsPermission:  &OrbixLoopData.IsPermission,
+			Username:      OrbixLoopData.Username,
+			SD:            OrbixLoopData.SessionData,
 			SessionPrefix: prefix,
 			Session:       session,
 		}
@@ -235,6 +195,7 @@ func Orbix(commandInput string,
 			execCommand,
 		)
 
+		updateGlobalCommVars()
 		src.UnknownCommandsCounter = 0
 
 		if err != nil {
@@ -253,6 +214,6 @@ func Orbix(commandInput string,
 
 	EndOfSessions(originalStdout, originalStderr,
 		session,
-		sessionData,
+		OrbixLoopData.SessionData,
 		prefix)
 }

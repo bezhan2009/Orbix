@@ -1,4 +1,4 @@
-![Opera_Снимок_2024-07-28_224908_logo html-removebg-preview](https://github.com/user-attachments/assets/9849e2a9-af26-4e69-bc3e-b335ecdacedc)
+![Opera_Снимок_2024-07-28_224908_logo html-removebg-preview](https://github.com/userName-attachments/assets/9849e2a9-af26-4e69-bc3e-b335ecdacedc)
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI)
 ![GitHub language count](https://img.shields.io/github/languages/count/bezhan2009/ORPXI)
@@ -24,12 +24,12 @@ git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
 go run main.go
 ```
-![image](https://github.com/user-attachments/assets/2b540539-45d5-4aee-acfe-236682cbb3ea)
-![image](https://github.com/user-attachments/assets/c2a23ac9-e6d3-45a6-bde7-d9301202f637)
-![image](https://github.com/user-attachments/assets/20216f61-7171-44e9-aa8c-0b9ccf57bf2c)
+![image](https://github.com/userName-attachments/assets/2b540539-45d5-4aee-acfe-236682cbb3ea)
+![image](https://github.com/userName-attachments/assets/c2a23ac9-e6d3-45a6-bde7-d9301202f637)
+![image](https://github.com/userName-attachments/assets/20216f61-7171-44e9-aa8c-0b9ccf57bf2c)
 
 ### По ссылке http://localhost:6060
-![image](https://github.com/user-attachments/assets/dc2d0b92-0c81-4658-873d-b1b39fcbdd5b)
+![image](https://github.com/userName-attachments/assets/dc2d0b92-0c81-4658-873d-b1b39fcbdd5b)
 
 ### Список доступных команд
 

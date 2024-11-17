@@ -16,13 +16,26 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 )
 
+type OrbixUserFunc struct {
+	Username string
+
+	IsWorking        bool
+	IsPermission     bool
+	RestartAfterInit bool
+
+	SessionData *system.AppState
+}
+
 var UnknownCommandsCounter uint
+var dirC string
 
 // New helper functions
 func initializeRunningFile(username string) {
@@ -71,7 +84,8 @@ func getUser(username string) string {
 	}
 }
 
-func printPromptInfo(location, user, dirC, commandInput string, sd *system.Session) {
+func printPromptInfo(location, user, dirC, commandInput string,
+	sd *system.Session) {
 	if len(system.Prompt) > 2 {
 		system.Prompt = string(system.Prompt[0:2])
 	}
@@ -105,6 +119,12 @@ func PrintPromptInfoWithoutGit(location, user, dirC, commandInput string) {
 	}
 }
 
+func commandVar(commandLower string) bool {
+	return commandLower == "setvar" ||
+		commandLower == "delvar" ||
+		commandLower == "getvar"
+}
+
 func ReadCommandLine(commandInput string) (string, string, []string, string) {
 	var commandLine string
 	if commandInput != "" {
@@ -115,7 +135,7 @@ func ReadCommandLine(commandInput string) (string, string, []string, string) {
 	}
 
 	commandLineSplit := strings.Split(commandLine, " ")
-	if commandLineSplit[0] == "setvar" || commandLineSplit[0] == "delvar" || commandLineSplit[0] == "getvar" {
+	if commandVar(strings.ToLower(commandLineSplit[0])) {
 		command := commandLineSplit[:1]
 
 		return commandLine, command[0], commandLineSplit[1:], strings.ToLower(commandLineSplit[0])
@@ -132,11 +152,11 @@ func ReadCommandLine(commandInput string) (string, string, []string, string) {
 }
 
 func ProcessCommand(commandLower string) bool {
-	if strings.TrimSpace(commandLower) == "cd" && system.GitCheck {
+	if strings.TrimSpace(commandLower) == "cd" && system.GitExists {
 		return true
 	}
 
-	if strings.TrimSpace(commandLower) == "git" && system.GitCheck {
+	if strings.TrimSpace(commandLower) == "git" && system.GitExists {
 		return true
 	}
 
@@ -328,17 +348,40 @@ func FullFileName(commandArgs *[]string) {
 	}
 }
 
-func OrbixPrompt(session *system.Session, prompt, dir, username, commandInput string, isWorking, isPermission bool, colorsMap map[string]func(...interface{}) string) {
+func customPrompt(commandInput, prompt string,
+	colorsMap map[string]func(...interface{}) string) {
+	if strings.TrimSpace(commandInput) != "" {
+		splitPrompt := strings.Split(prompt, ", ")
+		fmt.Printf("%s%s", colorsMap[splitPrompt[1]](splitPrompt[0]), system.Green(commandInput))
+	} else {
+		splitPrompt := strings.Split(prompt, ", ")
+		fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+	}
+}
+
+func printOldPrompt(commandInput, dir string) {
+	if strings.TrimSpace(commandInput) != "" {
+		fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
+	} else {
+		fmt.Printf("ORB %s>", dir)
+	}
+}
+
+func OrbixPrompt(session *system.Session,
+	prompt, dir, username, commandInput string,
+	isWorking, isPermission bool,
+	colorsMap map[string]func(...interface{}) string) {
 	if session.IsAdmin {
 		if prompt == "" {
-			fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
+			printOldPrompt(commandInput, dir)
 		} else {
-			splitPrompt := strings.Split(prompt, ", ")
-			fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+			customPrompt(commandInput, prompt,
+				colorsMap)
 		}
+
+		return
 	}
 
-	dirC := dirInfo.CmdDir(dir)
 	Orbixuser := session.User
 	if Orbixuser == "" {
 		Orbixuser = dirInfo.CmdUser(dir)
@@ -349,7 +392,7 @@ func OrbixPrompt(session *system.Session, prompt, dir, username, commandInput st
 	}
 
 	if !session.IsAdmin {
-		// Single Orbixuser check outside repeated prompt formatting
+		// Single user check outside repeated prompt formatting
 		if !system.Unauthorized {
 			go func() {
 				watchFile(system.RunningPath, Orbixuser, &isWorking, &isPermission)
@@ -357,14 +400,21 @@ func OrbixPrompt(session *system.Session, prompt, dir, username, commandInput st
 		}
 
 		if prompt == "" {
-			if system.GitCheck {
-				printPromptInfo(system.Location, Orbixuser, dirC, commandInput, session) // New helper function
+			if system.GitExists {
+				printPromptInfo(system.Location,
+					Orbixuser,
+					dirC,
+					commandInput,
+					session) // New helper function
 			} else {
-				PrintPromptInfoWithoutGit(system.Location, Orbixuser, dirC, commandInput) // New helper function
+				PrintPromptInfoWithoutGit(system.Location,
+					Orbixuser,
+					dirC,
+					commandInput) // New helper function
 			}
 		} else {
-			splitPrompt := strings.Split(prompt, ", ")
-			fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+			customPrompt(commandInput, prompt,
+				colorsMap)
 		}
 	}
 }
@@ -383,14 +433,21 @@ func LoadConfigs() {
 
 func InitSession(prefix *string,
 	rebooted structs.RebootedData,
-	sessionData *system.AppState) *system.Session {
+	OrbixLoopData OrbixUserFunc) *system.Session {
+	dirC = dirInfo.CmdDir(system.UserDir)
+
 	if rebooted.Prefix != "" {
 		*prefix = rebooted.Prefix
 	} else {
-		*prefix = sessionData.NewSessionData(sessionData.Path, sessionData.User, sessionData.GitBranch, sessionData.IsAdmin)
+		*prefix = OrbixLoopData.SessionData.NewSessionData(
+			OrbixLoopData.SessionData.Path,
+			OrbixLoopData.SessionData.User,
+			OrbixLoopData.SessionData.GitBranch,
+			OrbixLoopData.SessionData.IsAdmin,
+		)
 	}
 
-	session, exists := sessionData.GetSession(*prefix)
+	session, exists := OrbixLoopData.SessionData.GetSession(*prefix)
 	if !exists {
 		fmt.Println(system.Red("Session does not exist!"))
 		return nil
@@ -404,18 +461,17 @@ func InitSession(prefix *string,
 	system.Prefix = fmt.Sprintf(*prefix)
 
 	// Initialize Global Vars
-	go system.InitSession(session)
+	go system.InitSession(OrbixLoopData.Username,
+		session)
 
 	session.PreviousPath = system.PreviousSessionPath
-	fmt.Println(system.Green(session.PreviousPath))
 	if system.PreviousSessionPrefix != "" {
-		session, _ = sessionData.GetSession(system.PreviousSessionPrefix)
+		session, _ = OrbixLoopData.SessionData.GetSession(system.PreviousSessionPrefix)
 	}
 
 	system.GlobalSession = *session
 
-	dir, _ := os.Getwd()
-	system.Path = dir
+	system.Path = system.UserDir
 
 	return session
 }
@@ -460,7 +516,7 @@ func DefineUser(commandInput string,
 	return username, nil
 }
 
-func IgnoreSI(signalChan chan os.Signal,
+func ignoreSI(signalChan chan os.Signal,
 	sessionData *system.AppState,
 	prompt, commandInput, username string) bool {
 	colorsMap := system.GetColorsMap()
@@ -481,41 +537,57 @@ func IgnoreSI(signalChan chan os.Signal,
 			if !system.GlobalSession.IsAdmin {
 				dir, _ := os.Getwd()
 
-				dirC := dirInfo.CmdDir(dir)
-				user := sessionData.User
-				if user == "" {
-					user = dirInfo.CmdUser(dir)
+				dirC = dirInfo.CmdDir(dir)
+				userName := sessionData.User
+				if userName == "" {
+					userName = dirInfo.CmdUser(dir)
 				}
 
 				if username != "" {
-					user = username
+					userName = username
 				}
 
 				fmt.Println()
 				if prompt == "" {
-					if system.GitCheck {
+					if system.GitExists {
 						gitBranch, _ := system.GetCurrentGitBranch()
-						printPromptInfo(system.Location, user, dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
+						printPromptInfo(system.Location, userName, dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
 					} else {
-						PrintPromptInfoWithoutGit(system.Location, user, dirC, commandInput)
+						PrintPromptInfoWithoutGit(system.Location, userName, dirC, commandInput)
 					}
 				} else {
-					splitPrompt := strings.Split(prompt, ", ")
-					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+					customPrompt(commandInput, prompt,
+						colorsMap)
 				}
 			} else {
 				dir, _ := os.Getwd()
 				if prompt == "" {
 					fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
 				} else {
-					splitPrompt := strings.Split(prompt, ", ")
-					fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
+					customPrompt(commandInput, prompt,
+						colorsMap)
 				}
 			}
 		}
 	}
 
 	return false
+}
+
+func IgnoreSiC(commandInput, prompt string,
+	OrbixLoopData OrbixUserFunc) {
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		if ignoreSI(signalChan,
+			OrbixLoopData.SessionData,
+			prompt, commandInput, OrbixLoopData.Username) {
+			return
+		}
+	}()
 }
 
 func setLocation() {
@@ -579,4 +651,88 @@ func InitOrbixFn(RestartAfterInit *bool,
 	}
 
 	return sessionData
+}
+
+func UsingForLT(commandInput string) bool {
+	if strings.TrimSpace(commandInput) != "" && strings.TrimSpace(commandInput) != "restart" {
+		return false
+	}
+
+	return true
+}
+
+func OrbixUser(commandInput string,
+	echo bool,
+	rebooted *structs.RebootedData,
+	SD *system.AppState,
+	ExecLtCommand func(commandInput string)) OrbixUserFunc {
+	if !UsingForLT(commandInput) {
+		system.Prompt = "_>"
+		ExecLtCommand(commandInput)
+
+		return OrbixUserFunc{
+			IsWorking:        false,
+			IsPermission:     false,
+			Username:         "",
+			SessionData:      &system.AppState{},
+			RestartAfterInit: false,
+		}
+	}
+
+	RestartAfterInit := false
+
+	sessionData := InitOrbixFn(&RestartAfterInit,
+		echo,
+		commandInput,
+		*rebooted,
+		SD)
+
+	isWorking := true
+	isPermission := true
+	if commandInput != "" {
+		isPermission = false
+	}
+
+	username, err := DefineUser(commandInput,
+		*rebooted,
+		sessionData)
+	if err != nil {
+		return OrbixUserFunc{
+			IsWorking:        false,
+			IsPermission:     false,
+			Username:         "",
+			SessionData:      &system.AppState{},
+			RestartAfterInit: false,
+		}
+	}
+
+	// Load User Configs
+	LoadConfigs()
+
+	if username != "" {
+		system.EditableVars["user"] = &username
+	}
+
+	return OrbixUserFunc{
+		IsWorking:        isWorking,
+		IsPermission:     isPermission,
+		Username:         username,
+		SessionData:      sessionData,
+		RestartAfterInit: RestartAfterInit,
+	}
+}
+
+func EdgeCases(session *system.Session,
+	OrbixLoopData OrbixUserFunc,
+	rebooted structs.RebootedData,
+	RecoverAndRestore func(rebooted *structs.RebootedData)) {
+	if len(session.CommandHistory) < 10 {
+		go system.InitSession(OrbixLoopData.Username,
+			session)
+	}
+
+	if system.RebootAttempts != 0 {
+		RecoverAndRestore(&rebooted)
+		system.RebootAttempts = 0
+	}
 }

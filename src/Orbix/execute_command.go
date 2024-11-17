@@ -76,6 +76,7 @@ func Command(executeCommand structs.ExecuteCommandFuncParams) {
 		"old_prompt":   func() { session.IsAdmin = true },
 		"delvar":       func() { environment.DeleteVariable(executeCommand.CommandArgs) },
 		"new_window":   func() { src.OpenNewWindowForCommand(executeCommand) },
+		"prompt":       func() { handlers.HandlePromptCommand(executeCommand.CommandArgs, executeCommand.Prompt) },
 
 		"help":         handlers.DisplayHelp,
 		"systemorbix":  environment.SystemInformation,

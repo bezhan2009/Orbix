@@ -9,6 +9,10 @@ import (
 )
 
 func DeleteUserFromRunningFile(username string) {
+	if system.Unauthorized {
+		return
+	}
+
 	runningPath := filepath.Join(system.Absdir, system.OrbixRunningUsersFileName)
 
 	sourceRunning, err := os.ReadFile(runningPath)

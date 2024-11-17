@@ -1,5 +1,5 @@
 
-![Opera_Снимок_2024-07-28_224908_logo html-removebg-preview](https://github.com/user-attachments/assets/9849e2a9-af26-4e69-bc3e-b335ecdacedc)
+![Opera_Снимок_2024-07-28_224908_logo html-removebg-preview](https://github.com/userName-attachments/assets/9849e2a9-af26-4e69-bc3e-b335ecdacedc)
 
 
 ![GitHub top language](https://img.shields.io/github/languages/top/bezhan2009/ORPXI)
@@ -28,12 +28,12 @@ git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
 go run main.go
 ```
-![image](https://github.com/user-attachments/assets/acab7584-39ef-43ae-82a9-d022bbfc9359)
-![image](https://github.com/user-attachments/assets/7c4c019a-2372-4f0f-9303-fb368fe3bd83)
-![image](https://github.com/user-attachments/assets/cdf47169-2cb7-4f51-b729-9bc0dd0b3344)
+![image](https://github.com/userName-attachments/assets/acab7584-39ef-43ae-82a9-d022bbfc9359)
+![image](https://github.com/userName-attachments/assets/7c4c019a-2372-4f0f-9303-fb368fe3bd83)
+![image](https://github.com/userName-attachments/assets/cdf47169-2cb7-4f51-b729-9bc0dd0b3344)
 
 ### On http://localhost:6060
-![image](https://github.com/user-attachments/assets/dc2d0b92-0c81-4658-873d-b1b39fcbdd5b)
+![image](https://github.com/userName-attachments/assets/dc2d0b92-0c81-4658-873d-b1b39fcbdd5b)
 
 
 ### List of Available Commands
@@ -53,12 +53,12 @@ go run main.go
 - **PINGVIEW**: Displays ping.
 - **PANIC**: Panics inside the command line
 - **PRINT**: Prints the text(args: font; example font=3d).
-- **NEWUSER**: Adds a new user for Orbix.
+- **NEWUSER**: Adds a new userName for Orbix.
 - **ORBIX**: Starts another instance of Orbix.
 - **TEMPLATE**: Executes a specific command template.
 - **SYSTEMORBIX**: Displays information about Orbix.
 - **SYSTEMINFO**: Displays system information.
-- **SIGNOUT**: Logs out the user from Orbix.
+- **SIGNOUT**: Logs out the userName from Orbix.
 - **TREE**: Graphically displays the directory structure of a disk or path.
 - **NEOFETCH**: Displays information about the system.
 - **WRITE**: Writes data to a file.

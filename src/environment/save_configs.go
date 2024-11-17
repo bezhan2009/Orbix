@@ -106,13 +106,13 @@ func SaveVars() {
 
 	data, err := json.MarshalIndent(values, "", "  ")
 	if err != nil {
-		fmt.Println("Ошибка при сериализации переменных:", err)
+		fmt.Println("Error serializing variables:", err)
 		return
 	}
 
 	err = ioutil.WriteFile("user.json", data, 0644)
 	if err != nil {
-		fmt.Println("Ошибка при записи файла:", err)
+		fmt.Println("Error writing file:", err)
 	}
 }
 
@@ -139,14 +139,14 @@ func LoadUserConfigs() error {
 
 	file, err := os.Open("user.json")
 	if err != nil {
-		fmt.Println("Ошибка при открытии файла:", err)
+		fmt.Println("Error opening file:", err)
 		return err
 	}
 	defer file.Close()
 
 	data, err := ioutil.ReadAll(file)
 	if err != nil {
-		fmt.Println("Ошибка при чтении файла:", err)
+		fmt.Println("Error reading file:", err)
 		return err
 	}
 
@@ -159,7 +159,7 @@ func LoadUserConfigs() error {
 
 	err = json.Unmarshal(data, &loadedValues)
 	if err != nil {
-		fmt.Println("Ошибка при десериализации JSON:", err)
+		fmt.Println("Error deserializing JSON:", err)
 		return err
 	}
 
@@ -172,7 +172,10 @@ func LoadUserConfigs() error {
 		SetVariableUtil(utils.SplitCommandLine(saveToEnv))
 	}
 
-	commands.ChangeDirectory(system.UserDir)
+	err = commands.ChangeDirectory(system.UserDir)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -49,16 +49,14 @@ func NewSystemData() *AppState {
 }
 
 // NewSessionData создает новую сессию и добавляет её в карту сессий.
-func (s *AppState) NewSessionData(path, user, gitBranch string, isAdmin bool) (prefix string) {
+func (s *AppState) NewSessionData(path, user, gitBranch string,
+	isAdmin bool) (prefix string) {
 	s.mu.Lock() // Защищаем доступ к карте сессий.
 	defer s.mu.Unlock()
 
 	// Проверяем пустые значения и заменяем их на дефолтные
 	if user == "" {
 		user = "unknown_user"
-	}
-	if gitBranch == "" {
-		gitBranch = ""
 	}
 
 	// Используем текущую временную метку для уникальности
@@ -68,7 +66,7 @@ func (s *AppState) NewSessionData(path, user, gitBranch string, isAdmin bool) (p
 	sessionID := uuid.New().String()
 
 	// Формируем уникальный префикс
-	prefix = fmt.Sprintf("%s_%s_%s_%s", timeStamp, gitBranch, user, sessionID)
+	prefix = fmt.Sprintf("%s.%s.%s.%s", timeStamp, gitBranch, user, sessionID)
 
 	// Добавляем сессию в карту
 	s.Session[prefix] = Session{
@@ -98,21 +96,22 @@ func (s *AppState) DeleteSession(prefix string) {
 	delete(s.Session, prefix)
 }
 
-var GitCheck = CheckGit()
+var GitExists = CheckGitExists()
 
-// CheckGit checks if Git is installed on the system
-func CheckGit() bool {
+// CheckGitExists checks if Git is installed on the system
+func CheckGitExists() bool {
 	// Попробуем выполнить команду "git --version"
 	_, err := exec.LookPath("git")
 	if err != nil {
 		log.Println("Git is not installed.")
 		return false
 	}
+
 	return true
 }
 
 func GetCurrentGitBranch() (string, error) {
-	if !GitCheck {
+	if !GitExists {
 		ErrGitNotInstalled := errors.New("ErrGitNotInstalled")
 		return "", ErrGitNotInstalled
 	}

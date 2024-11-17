@@ -14,6 +14,7 @@ const (
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
+	MaxInt          = int(^uint64(0) >> 1)
 )
 
 var (

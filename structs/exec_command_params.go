@@ -3,6 +3,7 @@ package structs
 import "goCmd/system"
 
 type ExecuteCommandFuncParams struct {
+	Prompt        *string
 	CommandLower  string
 	Command       string
 	CommandLine   string
