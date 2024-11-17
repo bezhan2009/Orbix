@@ -35,11 +35,11 @@ scripts/dump.rdb
 scripts/dist
 userName.env
 running.env
-go_build_goCmd.exe
-scripts/scripts.exe
+*.exe
 *.txt
 *.log
 *.json
+orbix
 !CMakeLists.txt
 
 # Other Scripts

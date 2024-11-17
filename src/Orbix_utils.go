@@ -24,16 +24,6 @@ import (
 	"time"
 )
 
-type OrbixUserFunc struct {
-	Username string
-
-	IsWorking        bool
-	IsPermission     bool
-	RestartAfterInit bool
-
-	SessionData *system.AppState
-}
-
 var UnknownCommandsCounter uint
 var dirC string
 
@@ -84,37 +74,72 @@ func getUser(username string) string {
 	}
 }
 
-func printPromptInfo(location, user, dirC, commandInput string,
-	sd *system.Session) {
+func printPromptInfo(location, user, dirC, commandInput *string, sd *system.Session) {
+	// Обрезаем Prompt, если он длинный
 	if len(system.Prompt) > 2 {
-		system.Prompt = string(system.Prompt[0:2])
+		system.Prompt = string(system.Prompt[:2])
 	}
 
-	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s%s%s\n",
-		system.Yellow("╭"), system.Yellow("─"), system.Yellow("("), system.Cyan("Orbix@"+getUser(user)), system.Yellow(")"), system.Yellow("─"), system.Yellow("["),
-		system.Yellow(location), system.Magenta(time.Now().Format("15:04")), system.Yellow("]"), system.Yellow("─"), system.Yellow("["),
-		system.Cyan("~"), system.Cyan(dirC), system.Yellow("]"), system.Yellow(" git:"), system.Green("["), system.Green(sd.GitBranch), system.Green("]"))
-	fmt.Printf("%s%s %s",
-		system.Yellow("╰"), system.Green(strings.TrimSpace(system.Prompt)), system.Green(commandInput))
+	// Сохраняем форматированные данные в переменные
+	gitBranch := system.Green(sd.GitBranch)
+	userInfo := system.Cyan("Orbix@" + getUser(*user))
+	locationInfo := system.Yellow(*location)
+	dirInfo := system.Cyan(*dirC)
+	currentTime := system.Magenta(time.Now().Format("15:04"))
+	prompt := strings.TrimSpace(system.Prompt)
+	input := strings.TrimSpace(*commandInput)
 
-	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
+	// Формируем строки для вывода
+	header := fmt.Sprintf(
+		"\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s%s%s%s%s",
+		system.Yellow("╭"), system.Yellow("─"), system.Yellow("("),
+		userInfo, system.Yellow(")"), system.Yellow("─"), system.Yellow("["),
+		locationInfo, currentTime, system.Yellow("]"), system.Yellow("─"), system.Yellow("["),
+		system.Cyan("~"), dirInfo, system.Yellow("]"), system.Yellow(" git:"), system.Yellow("["), gitBranch, system.Yellow("]"),
+	)
+
+	footer := fmt.Sprintf("%s%s %s", system.Yellow("╰"), system.Green(prompt), system.Green(*commandInput))
+
+	// Печатаем информацию
+	fmt.Println(header)
+	fmt.Print(footer)
+
+	// Выводим перенос строки, если есть команды
+	if input != "" && len(os.Args) > 0 {
 		fmt.Println()
 	}
 }
 
-func PrintPromptInfoWithoutGit(location, user, dirC, commandInput string) {
+func PrintPromptInfoWithoutGit(location, user, dirC, commandInput *string) {
+	// Обрезаем Prompt, если он длинный
 	if len(system.Prompt) > 2 {
-		system.Prompt = string(system.Prompt[0])
+		system.Prompt = string(system.Prompt[:1])
 	}
 
-	fmt.Printf("\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s\n",
-		system.Yellow("╭"), system.Yellow("─"), system.Yellow("("), system.Cyan("Orbix@"+getUser(user)), system.Yellow(")"), system.Yellow("─"), system.Yellow("["),
-		system.Yellow(location), system.Magenta(time.Now().Format("15:04")), system.Yellow("]"), system.Yellow("─"), system.Yellow("["),
-		system.Cyan("~"), system.Cyan(dirC), system.Yellow("]"))
-	fmt.Printf("%s%s %s",
-		system.Yellow("╰"), system.Green(strings.TrimSpace(system.Prompt)), system.Green(commandInput))
+	// Сохраняем форматированные данные в переменные
+	userInfo := system.Cyan("Orbix@" + getUser(*user))
+	locationInfo := system.Yellow(*location)
+	dirInfo := system.Cyan(*dirC)
+	currentTime := system.Magenta(time.Now().Format("15:04"))
+	prompt := strings.TrimSpace(system.Prompt)
 
-	if strings.TrimSpace(commandInput) != "" && len(os.Args) > 0 {
+	// Формируем строки для вывода
+	header := fmt.Sprintf(
+		"\n%s%s%s%s%s%s%s%s %s%s%s%s%s%s%s",
+		system.Yellow("╭"), system.Yellow("─"), system.Yellow("("),
+		userInfo, system.Yellow(")"), system.Yellow("─"), system.Yellow("["),
+		locationInfo, currentTime, system.Yellow("]"), system.Yellow("─"), system.Yellow("["),
+		system.Cyan("~"), dirInfo, system.Yellow("]"),
+	)
+
+	footer := fmt.Sprintf("%s%s %s", system.Yellow("╰"), system.Green(prompt), system.Green(commandInput))
+
+	// Печатаем информацию
+	fmt.Println(header)
+	fmt.Print(footer)
+
+	// Выводим перенос строки, если есть команды
+	if *commandInput != "" && len(os.Args) > 0 {
 		fmt.Println()
 	}
 }
@@ -220,7 +245,7 @@ func watchFile(runningPath string, username string, isWorking *bool, isPermissio
 	<-done
 }
 
-func OpenNewWindowForCommand(executeCommand structs.ExecuteCommandFuncParams) {
+func OpenNewWindowForCommand(executeCommand *structs.ExecuteCommandFuncParams) {
 	var cmd *exec.Cmd
 
 	// Преобразуем команду в формат для запуска в новом окне
@@ -348,46 +373,48 @@ func FullFileName(commandArgs *[]string) {
 	}
 }
 
-func customPrompt(commandInput, prompt string,
+func customPrompt(commandInput, prompt *string,
 	colorsMap map[string]func(...interface{}) string) {
-	if strings.TrimSpace(commandInput) != "" {
-		splitPrompt := strings.Split(prompt, ", ")
+	if strings.TrimSpace(*commandInput) != "" {
+		splitPrompt := strings.Split(*prompt, ", ")
 		fmt.Printf("%s%s", colorsMap[splitPrompt[1]](splitPrompt[0]), system.Green(commandInput))
 	} else {
-		splitPrompt := strings.Split(prompt, ", ")
+		splitPrompt := strings.Split(*prompt, ", ")
 		fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
 	}
 }
 
-func printOldPrompt(commandInput, dir string) {
-	if strings.TrimSpace(commandInput) != "" {
-		fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
+func printOldPrompt(commandInput, dir *string) {
+	if strings.TrimSpace(*commandInput) != "" {
+		fmt.Printf("ORB %s>%s", *dir, system.Green(*commandInput))
 	} else {
-		fmt.Printf("ORB %s>", dir)
+		fmt.Printf("ORB %s>", *dir)
 	}
 }
 
 func OrbixPrompt(session *system.Session,
-	prompt, dir, username, commandInput string,
-	isWorking, isPermission bool,
-	colorsMap map[string]func(...interface{}) string) {
+	prompt, dir, username, commandInput *string,
+	isWorking, isPermission *bool,
+	colorsMap *map[string]func(...interface{}) string) {
 	if session.IsAdmin {
-		if prompt == "" {
+		if *prompt == "" {
 			printOldPrompt(commandInput, dir)
 		} else {
 			customPrompt(commandInput, prompt,
-				colorsMap)
+				*colorsMap)
 		}
 
 		return
 	}
 
-	Orbixuser := session.User
-	if Orbixuser == "" {
+	Orbixuser, err := environment.GetVariableValue("user")
+	if Orbixuser == "" || err != nil {
 		Orbixuser = dirInfo.CmdUser(dir)
 	}
 
-	if username != "" {
+	OrbixuserStr := fmt.Sprintf("%s", Orbixuser)
+
+	if *username != "" {
 		Orbixuser = username
 	}
 
@@ -395,26 +422,26 @@ func OrbixPrompt(session *system.Session,
 		// Single user check outside repeated prompt formatting
 		if !system.Unauthorized {
 			go func() {
-				watchFile(system.RunningPath, Orbixuser, &isWorking, &isPermission)
+				watchFile(system.RunningPath, OrbixuserStr, isWorking, isPermission)
 			}()
 		}
 
-		if prompt == "" {
+		if *prompt == "" {
 			if system.GitExists {
-				printPromptInfo(system.Location,
-					Orbixuser,
-					dirC,
+				printPromptInfo(&system.Location,
+					&OrbixuserStr,
+					&dirC,
 					commandInput,
 					session) // New helper function
 			} else {
-				PrintPromptInfoWithoutGit(system.Location,
-					Orbixuser,
-					dirC,
+				PrintPromptInfoWithoutGit(&system.Location,
+					&OrbixuserStr,
+					&dirC,
 					commandInput) // New helper function
 			}
 		} else {
 			customPrompt(commandInput, prompt,
-				colorsMap)
+				*colorsMap)
 		}
 	}
 }
@@ -433,7 +460,7 @@ func LoadConfigs() {
 
 func InitSession(prefix *string,
 	rebooted structs.RebootedData,
-	OrbixLoopData OrbixUserFunc) *system.Session {
+	OrbixLoopData structs.OrbixLoopData) *system.Session {
 	dirC = dirInfo.CmdDir(system.UserDir)
 
 	if rebooted.Prefix != "" {
@@ -492,7 +519,7 @@ func DefineUser(commandInput string,
 		username = strings.TrimSpace(rebooted.Username)
 	} else if !isEmpty && commandInput == "" {
 		dir, _ := os.Getwd()
-		OrbixUser := dirInfo.CmdUser(dir)
+		OrbixUser := dirInfo.CmdUser(&dir)
 
 		nameUser, isSuccess := user.CheckUser(OrbixUser, sessionData)
 		if !isSuccess {
@@ -518,7 +545,7 @@ func DefineUser(commandInput string,
 
 func ignoreSI(signalChan chan os.Signal,
 	sessionData *system.AppState,
-	prompt, commandInput, username string) bool {
+	prompt, commandInput, username *string) bool {
 	colorsMap := system.GetColorsMap()
 	if system.SessionsStarted > 1 {
 		return true
@@ -540,20 +567,20 @@ func ignoreSI(signalChan chan os.Signal,
 				dirC = dirInfo.CmdDir(dir)
 				userName := sessionData.User
 				if userName == "" {
-					userName = dirInfo.CmdUser(dir)
+					userName = dirInfo.CmdUser(&dir)
 				}
 
-				if username != "" {
-					userName = username
+				if *username != "" {
+					userName = *username
 				}
 
 				fmt.Println()
-				if prompt == "" {
+				if *prompt == "" {
 					if system.GitExists {
 						gitBranch, _ := system.GetCurrentGitBranch()
-						printPromptInfo(system.Location, userName, dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
+						printPromptInfo(&system.Location, &userName, &dirC, commandInput, &system.Session{Path: dir, GitBranch: gitBranch})
 					} else {
-						PrintPromptInfoWithoutGit(system.Location, userName, dirC, commandInput)
+						PrintPromptInfoWithoutGit(&system.Location, &userName, &dirC, commandInput)
 					}
 				} else {
 					customPrompt(commandInput, prompt,
@@ -561,7 +588,7 @@ func ignoreSI(signalChan chan os.Signal,
 				}
 			} else {
 				dir, _ := os.Getwd()
-				if prompt == "" {
+				if *prompt == "" {
 					fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
 				} else {
 					customPrompt(commandInput, prompt,
@@ -574,8 +601,8 @@ func ignoreSI(signalChan chan os.Signal,
 	return false
 }
 
-func IgnoreSiC(commandInput, prompt string,
-	OrbixLoopData OrbixUserFunc) {
+func IgnoreSiC(commandInput, prompt *string,
+	OrbixLoopData *structs.OrbixLoopData) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 
@@ -584,7 +611,7 @@ func IgnoreSiC(commandInput, prompt string,
 	go func() {
 		if ignoreSI(signalChan,
 			OrbixLoopData.SessionData,
-			prompt, commandInput, OrbixLoopData.Username) {
+			prompt, commandInput, &OrbixLoopData.Username) {
 			return
 		}
 	}()
@@ -665,17 +692,21 @@ func OrbixUser(commandInput string,
 	echo bool,
 	rebooted *structs.RebootedData,
 	SD *system.AppState,
-	ExecLtCommand func(commandInput string)) OrbixUserFunc {
+	ExecLtCommand func(commandInput string)) structs.OrbixLoopData {
 	if !UsingForLT(commandInput) {
 		system.Prompt = "_>"
 		ExecLtCommand(commandInput)
 
-		return OrbixUserFunc{
-			IsWorking:        false,
-			IsPermission:     false,
+		isWorking := false
+		isPermission := false
+		RestartAfterInit := false
+
+		return structs.OrbixLoopData{
+			IsWorking:        &isWorking,
+			IsPermission:     &isPermission,
 			Username:         "",
 			SessionData:      &system.AppState{},
-			RestartAfterInit: false,
+			RestartAfterInit: &RestartAfterInit,
 		}
 	}
 
@@ -697,12 +728,15 @@ func OrbixUser(commandInput string,
 		*rebooted,
 		sessionData)
 	if err != nil {
-		return OrbixUserFunc{
-			IsWorking:        false,
-			IsPermission:     false,
+		isWorking = false
+		isPermission = false
+		RestartAfterInit = false
+		return structs.OrbixLoopData{
+			IsWorking:        &isWorking,
+			IsPermission:     &isPermission,
 			Username:         "",
 			SessionData:      &system.AppState{},
-			RestartAfterInit: false,
+			RestartAfterInit: &RestartAfterInit,
 		}
 	}
 
@@ -713,17 +747,17 @@ func OrbixUser(commandInput string,
 		system.EditableVars["user"] = &username
 	}
 
-	return OrbixUserFunc{
-		IsWorking:        isWorking,
-		IsPermission:     isPermission,
+	return structs.OrbixLoopData{
+		IsWorking:        &isWorking,
+		IsPermission:     &isPermission,
 		Username:         username,
 		SessionData:      sessionData,
-		RestartAfterInit: RestartAfterInit,
+		RestartAfterInit: &RestartAfterInit,
 	}
 }
 
 func EdgeCases(session *system.Session,
-	OrbixLoopData OrbixUserFunc,
+	OrbixLoopData structs.OrbixLoopData,
 	rebooted structs.RebootedData,
 	RecoverAndRestore func(rebooted *structs.RebootedData)) {
 	if len(session.CommandHistory) < 10 {

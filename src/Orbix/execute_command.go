@@ -18,9 +18,9 @@ import (
 	"strings"
 )
 
-func Command(executeCommand structs.ExecuteCommandFuncParams) {
+func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 	system.ExecutingCommand = true
-	session := executeCommand.Session
+	session := executeCommand.LoopData.Session
 
 	if src.CommandFile(strings.TrimSpace(executeCommand.CommandLower)) {
 		src.FullFileName(&executeCommand.CommandArgs)
@@ -42,7 +42,7 @@ func Command(executeCommand structs.ExecuteCommandFuncParams) {
 		"picalc":      func() { ExCommUtils.CalculatePiUtil(executeCommand.CommandArgs) },
 		"fileio":      func() { ExCommUtils.FileIOStressTestUtil(executeCommand.CommandArgs) },
 		"newtemplate": func() { template.Make(executeCommand.CommandArgs) },
-		"template":    func() { TemplateUtil(executeCommand.CommandArgs, executeCommand.SD) },
+		"template":    func() { TemplateUtil(executeCommand.CommandArgs, executeCommand.LoopData.SessionData) },
 		"copysource":  func() { ExCommUtils.CommandCopySourceUtil(executeCommand.CommandArgs) },
 		"create":      func() { ExCommUtils.CreateFileUtil(executeCommand.CommandArgs, system.UserDir) },
 		"write":       func() { ExCommUtils.WriteFileUtil(executeCommand.CommandArgs) },
@@ -103,30 +103,39 @@ func Command(executeCommand structs.ExecuteCommandFuncParams) {
 			Orbix("",
 				true,
 				structs.RebootedData{},
-				executeCommand.SD)
+				executeCommand.LoopData.SessionData)
 			system.PreviousSessionPrefix = executeCommand.SessionPrefix
 		},
 		"newuser": func() { user.NewUser() },
 		"signout": func() {
-			SignOutUtil(executeCommand.Username, executeCommand.SD.Path, executeCommand.SD, executeCommand.SessionPrefix)
+			SignOutUtil(
+				executeCommand.LoopData.Username,
+				executeCommand.LoopData.SessionData.Path,
+				executeCommand.LoopData.SessionData,
+				executeCommand.SessionPrefix,
+			)
 		},
 		"exit": func() {
-			*executeCommand.IsWorking = false
-			*executeCommand.IsPermission = false
-			user.DeleteUserFromRunningFile(executeCommand.Username)
+			*executeCommand.LoopData.IsWorking = false
+			*executeCommand.LoopData.IsPermission = false
+			user.DeleteUserFromRunningFile(executeCommand.LoopData.Username)
 			environment.SaveVars()
 		},
 	}
+	defer func() {
+		commandMap = nil
+		permissionRequiredCommands = nil
+	}()
 
-	if *executeCommand.IsWorking {
+	if *executeCommand.LoopData.IsWorking {
 		if strings.TrimSpace(executeCommand.CommandInput) != "" {
-			*executeCommand.IsWorking = false
+			*executeCommand.LoopData.IsWorking = false
 		}
 
 		if handler, exists := commandMap[executeCommand.CommandLower]; exists {
 			handler()
 		} else if handler, exists = permissionRequiredCommands[executeCommand.CommandLower]; exists {
-			if *executeCommand.IsPermission {
+			if *executeCommand.LoopData.IsPermission {
 				handler()
 			}
 		} else {
@@ -137,6 +146,6 @@ func Command(executeCommand structs.ExecuteCommandFuncParams) {
 		}
 	}
 
-	system.GlobalSession = *executeCommand.Session
+	system.GlobalSession = *executeCommand.LoopData.Session
 	system.ExecutingCommand = false
 }

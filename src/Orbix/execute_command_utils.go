@@ -55,31 +55,31 @@ func EndOfSessions(originalStdout, originalStderr *os.File,
 }
 
 func ExecLoopCommand(commandLower,
-	prefix string,
-	echoTime, runOnNewThread bool,
-	execCommand structs.ExecuteCommandFuncParams) error {
+	prefix *string,
+	echoTime, runOnNewThread *bool,
+	execCommand *structs.ExecuteCommandFuncParams) error {
 	if src.UnknownCommandsCounter != 0 {
 		return nil
 	}
 
 	execCommandCatchErrs := structs.ExecuteCommandCatchErrs{
-		CommandLower:   commandLower,
-		EchoTime:       &echoTime,
-		RunOnNewThread: &runOnNewThread,
+		CommandLower:   *commandLower,
+		EchoTime:       echoTime,
+		RunOnNewThread: runOnNewThread,
 	}
 
-	if strings.TrimSpace(commandLower) == "orbix" && *execCommand.IsWorking {
-		system.PreviousSessionPrefix = prefix
+	if strings.TrimSpace(*commandLower) == "orbix" && *execCommand.LoopData.IsWorking {
+		system.PreviousSessionPrefix = *prefix
 	}
 
 	if src.CatchSyntaxErrs(execCommandCatchErrs) {
 		return errors.New("continue loop")
 	}
 
-	if runOnNewThread {
+	if *runOnNewThread {
 		go Command(execCommand)
 	} else {
-		if echoTime {
+		if *echoTime {
 			// Запоминаем время начала
 			startTime = time.Now()
 			Command(execCommand)
@@ -399,7 +399,7 @@ func ExecLtCommand(commandInput string) {
 	dir, _ := os.Getwd()
 	dirC := dirInfo.CmdDir(dir)
 
-	src.PrintPromptInfoWithoutGit(system.Location, user, dirC, commandInput)
+	src.PrintPromptInfoWithoutGit(&system.Location, &user, &dirC, &commandInput)
 
 	commandLine,
 		command,
@@ -427,12 +427,15 @@ func ExecLtCommand(commandInput string) {
 		Command:       command,
 		CommandLower:  commandLower,
 		CommandArgs:   commandArgs,
-		IsWorking:     &isWorking,
-		IsPermission:  &PermissionDenied,
-		Username:      user,
-		SD:            &sessionData,
 		SessionPrefix: "",
-		Session:       &session,
+		LoopData: structs.OrbixLoopData{
+			Session:      &session,
+			SessionData:  &sessionData,
+			IsWorking:    &isWorking,
+			IsPermission: &PermissionDenied,
+			Username:     user,
+			CommandInput: commandInput,
+		},
 	}
 
 	processCommandParams := structs.ProcessCommandParams{
@@ -445,14 +448,20 @@ func ExecLtCommand(commandInput string) {
 		EchoTime:       &echoTime,
 		FirstCharIs:    &firstCharIs,
 		LastCharIs:     &lastCharIs,
-		IsWorking:      &isWorking,
 		IsComHasFlag:   &isComHasFlag,
-		Session:        &session,
 		ExecCommand:    execCommand,
+		LoopData: structs.OrbixLoopData{
+			Session:      &session,
+			SessionData:  &sessionData,
+			IsWorking:    &isWorking,
+			IsPermission: &PermissionDenied,
+			Username:     user,
+			CommandInput: commandInput,
+		},
 	}
 
 	startTimePRCOMARGS := time.Now()
-	continueLoop := ProcessCommandArgs(processCommandParams)
+	continueLoop := ProcessCommandArgs(&processCommandParams)
 
 	if continueLoop {
 		if echoTime {
@@ -530,12 +539,15 @@ func ExecLtCommand(commandInput string) {
 		CommandLower:  commandLower,
 		CommandArgs:   commandArgs,
 		CommandInput:  commandInput,
-		IsWorking:     &isWorking,
-		IsPermission:  &PermissionDenied,
-		Username:      "OneCom",
-		SD:            &sessionData,
 		SessionPrefix: "",
-		Session:       &session,
+		LoopData: structs.OrbixLoopData{
+			Session:      &session,
+			SessionData:  &sessionData,
+			IsWorking:    &isWorking,
+			IsPermission: &PermissionDenied,
+			Username:     user,
+			CommandInput: commandInput,
+		},
 	}
 
 	execCommandCatchErrs := structs.ExecuteCommandCatchErrs{
@@ -548,22 +560,22 @@ func ExecLtCommand(commandInput string) {
 	}
 
 	if runOnNewThread {
-		go Command(execCommand)
+		go Command(&execCommand)
 	} else {
 		if echoTime {
 			// Запоминаем время начала
 			startTime = time.Now()
-			Command(execCommand)
+			Command(&execCommand)
 			// Выводим время выполнения
 			TEXCOM = fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
 			fmt.Println(system.Green(TEXCOM))
 		} else {
-			Command(execCommand)
+			Command(&execCommand)
 		}
 	}
 }
 
-func ProcessCommandArgs(processCommandParams structs.ProcessCommandParams) (continueLoop bool) {
+func ProcessCommandArgs(processCommandParams *structs.ProcessCommandParams) (continueLoop bool) {
 	*processCommandParams.RunOnNewThread = false
 	*processCommandParams.EchoTime = false
 	*processCommandParams.FirstCharIs = false
@@ -571,7 +583,7 @@ func ProcessCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 
 	if processCommandParams.CommandLower == "signout" {
 		user.DeleteUserFromRunningFile(system.UserName)
-		*processCommandParams.IsWorking = false
+		*processCommandParams.LoopData.IsWorking = false
 		return true
 	}
 
@@ -622,21 +634,21 @@ func ProcessCommandArgs(processCommandParams structs.ProcessCommandParams) (cont
 		return true
 	}
 
-	if strings.TrimSpace(processCommandParams.CommandLower) == "neofetch" && *processCommandParams.IsWorking && system.OperationSystem == "windows" {
+	if strings.TrimSpace(processCommandParams.CommandLower) == "neofetch" && *processCommandParams.LoopData.IsWorking && system.OperationSystem == "windows" {
 		neofetchUser := system.User
 
 		if system.User == "" {
-			neofetchUser = processCommandParams.Session.User
+			neofetchUser = processCommandParams.LoopData.Session.User
 		}
 
 		if *processCommandParams.RunOnNewThread {
-			go ExCommUtils.NeofetchUtil(processCommandParams.ExecCommand, neofetchUser, system.Commands)
+			go ExCommUtils.NeofetchUtil(&processCommandParams.ExecCommand, neofetchUser, system.Commands)
 		} else {
-			ExCommUtils.NeofetchUtil(processCommandParams.ExecCommand, neofetchUser, system.Commands)
+			ExCommUtils.NeofetchUtil(&processCommandParams.ExecCommand, neofetchUser, system.Commands)
 		}
 
 		if strings.TrimSpace(processCommandParams.CommandInput) != "" {
-			*processCommandParams.IsWorking = false
+			*processCommandParams.LoopData.IsWorking = false
 		}
 
 		return true

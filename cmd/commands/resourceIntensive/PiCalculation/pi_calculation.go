@@ -73,5 +73,5 @@ func PiCalcCommand(precision int) {
 	// Выводим результат, если вычисления завершились успешно
 	printResult := fmt.Sprintf("Calculated pi to %d digits in %s\n", precision, elapsed)
 	fmt.Printf(green(printResult))
-	fmt.Println(green("Pi:", pi.Text('f', 6)))
+	fmt.Println(green("Pi:", pi))
 }

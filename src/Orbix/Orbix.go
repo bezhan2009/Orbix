@@ -5,7 +5,6 @@ import (
 	"goCmd/src"
 	"goCmd/structs"
 	"goCmd/system"
-	"os"
 	"time"
 )
 
@@ -14,16 +13,12 @@ func Orbix(commandInput string,
 	rebooted structs.RebootedData,
 	SD *system.AppState) {
 	defer func() {
-		if r := recover(); r != nil {
-			RecoverFromThePanic(commandInput,
-				r,
-				echo,
-				SD,
-			)
-		}
+		handlePanic(commandInput,
+			echo,
+			SD)
 	}()
 
-	OrbixLoopData := src.OrbixUser(commandInput,
+	LoopData := src.OrbixUser(commandInput,
 		echo,
 		&rebooted,
 		SD,
@@ -32,46 +27,32 @@ func Orbix(commandInput string,
 	var prompt string
 	var prefix string
 
-	var colorsMap map[string]func(...interface{}) string
-
-	colorsMap = system.GetColorsMap()
+	colorsMap := system.GetColorsMap()
 
 	// Signal handling setup (outside the loop)
-	src.IgnoreSiC(commandInput, prompt,
-		OrbixLoopData)
-
-	originalStdout, originalStderr := os.Stdout, os.Stderr
-	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
-	defer func() {
-		err := devNull.Close()
-		if err != nil {
-			return
-		}
-	}()
+	src.IgnoreSiC(&commandInput, &prompt,
+		&LoopData)
 
 	session := src.InitSession(&prefix,
 		rebooted,
-		OrbixLoopData,
+		LoopData,
 	)
 
-	// Redirect output based on the echo setting
-	if echo {
-		os.Stdout, os.Stderr = originalStdout, originalStderr
-	} else {
-		os.Stdout, os.Stderr = devNull, devNull
-	}
+	originalStdout, originalStderr := setupOutputRedirect(echo)
 
-	if OrbixLoopData.RestartAfterInit {
+	if *LoopData.RestartAfterInit {
 		RestartAfterInitFn(
 			SD,
-			OrbixLoopData.SessionData,
+			LoopData.SessionData,
 			rebooted,
 			prefix,
-			OrbixLoopData.Username,
+			LoopData.Username,
 			echo,
 		)
 		return
 	}
+
+	LoopData.Session = session
 
 	var (
 		execCommand          structs.ExecuteCommandFuncParams
@@ -98,19 +79,19 @@ func Orbix(commandInput string,
 	)
 
 	src.EdgeCases(session,
-		OrbixLoopData,
+		LoopData,
 		rebooted,
 		RecoverAndRestore)
 
-	for OrbixLoopData.IsWorking {
+	for *LoopData.IsWorking {
 		src.OrbixPrompt(session,
-			prompt,
-			system.UserDir,
-			OrbixLoopData.Username,
-			commandInput,
-			OrbixLoopData.IsWorking,
-			OrbixLoopData.IsPermission,
-			colorsMap,
+			&prompt,
+			&system.UserDir,
+			&LoopData.Username,
+			&commandInput,
+			LoopData.IsWorking,
+			LoopData.IsPermission,
+			&colorsMap,
 		)
 
 		// Command processing
@@ -124,12 +105,8 @@ func Orbix(commandInput string,
 			Command:       command,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
-			IsWorking:     &OrbixLoopData.IsWorking,
-			IsPermission:  &OrbixLoopData.IsPermission,
-			Username:      OrbixLoopData.Username,
-			SD:            OrbixLoopData.SessionData,
 			SessionPrefix: prefix,
-			Session:       session,
+			LoopData:      LoopData,
 		}
 
 		processCommandParams = structs.ProcessCommandParams{
@@ -142,14 +119,13 @@ func Orbix(commandInput string,
 			EchoTime:       &echoTime,
 			FirstCharIs:    &firstCharIs,
 			LastCharIs:     &lastCharIs,
-			IsWorking:      &OrbixLoopData.IsWorking,
 			IsComHasFlag:   &isComHasFlag,
-			Session:        session,
 			ExecCommand:    execCommand,
+			LoopData:       LoopData,
 		}
 
 		startTimePRCOMARGS = time.Now()
-		continueLoop = ProcessCommandArgs(processCommandParams)
+		continueLoop = ProcessCommandArgs(&processCommandParams)
 
 		if continueLoop {
 			if echoTime {
@@ -176,20 +152,16 @@ func Orbix(commandInput string,
 			CommandLower:  commandLower,
 			CommandArgs:   commandArgs,
 			CommandInput:  commandInput,
-			IsWorking:     &OrbixLoopData.IsWorking,
-			IsPermission:  &OrbixLoopData.IsPermission,
-			Username:      OrbixLoopData.Username,
-			SD:            OrbixLoopData.SessionData,
 			SessionPrefix: prefix,
-			Session:       session,
+			LoopData:      LoopData,
 		}
 
 		err = ExecLoopCommand(
-			commandLower,
-			prefix,
-			echoTime,
-			runOnNewThread,
-			execCommand,
+			&commandLower,
+			&prefix,
+			&echoTime,
+			&runOnNewThread,
+			&execCommand,
 		)
 
 		updateGlobalCommVars()
@@ -211,6 +183,6 @@ func Orbix(commandInput string,
 
 	EndOfSessions(originalStdout, originalStderr,
 		session,
-		OrbixLoopData.SessionData,
+		LoopData.SessionData,
 		prefix)
 }

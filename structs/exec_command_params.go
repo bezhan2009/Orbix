@@ -1,6 +1,20 @@
 package structs
 
-import "goCmd/system"
+import (
+	"goCmd/system"
+)
+
+type OrbixLoopData struct {
+	Username     string
+	CommandInput string
+
+	IsWorking        *bool
+	IsPermission     *bool
+	RestartAfterInit *bool
+
+	SessionData *system.AppState
+	Session     *system.Session
+}
 
 type ExecuteCommandFuncParams struct {
 	Prompt        *string
@@ -10,10 +24,6 @@ type ExecuteCommandFuncParams struct {
 	CommandInput  string
 	Commands      []system.Command
 	CommandArgs   []string
-	Username      string
-	IsWorking     *bool
-	IsPermission  *bool
-	SD            *system.AppState
 	SessionPrefix string
-	Session       *system.Session
+	LoopData      OrbixLoopData
 }

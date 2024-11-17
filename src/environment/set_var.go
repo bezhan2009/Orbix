@@ -135,7 +135,7 @@ func DeleteVariable(commandArgs []string) {
 	delete(system.EditableVars, varname)
 }
 
-func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
+func GetVariableValueUtil(params *structs.ExecuteCommandFuncParams) {
 	args := params.CommandArgs
 
 	if len(args) < 1 {
@@ -148,7 +148,7 @@ func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
 
 	if strings.TrimSpace(varName) == "user" {
 		if strings.TrimSpace(system.User) == "" {
-			fmt.Println(system.Green("user:"), system.Green(params.Username))
+			fmt.Println(system.Green("user:"), system.Green(params.LoopData.Username))
 			return
 		} else {
 			fmt.Println(system.Green("user:"), system.User)
@@ -157,12 +157,12 @@ func GetVariableValueUtil(params structs.ExecuteCommandFuncParams) {
 	}
 
 	if strings.TrimSpace(varName) == "current_user" {
-		fmt.Println(system.Green("current_user:"), system.Green(params.Username))
+		fmt.Println(system.Green("current_user:"), system.Green(params.LoopData.Username))
 		return
 	}
 
 	if strings.TrimSpace(varName) == "*" {
-		fmt.Println(system.Green("current_user:"), system.Green(params.Username))
+		fmt.Println(system.Green("current_user:"), system.Green(params.LoopData.Username))
 
 		for _, v := range system.AvailableEditableVars {
 			value, err := GetVariableValue(v)

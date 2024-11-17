@@ -22,8 +22,35 @@
 ```bash
 git clone https://github.com/bezhan2009/Orbix.git
 cd Orbix
+```
+**На Windows:**
+```bash
+./build_go.bat
+```
+
+**На Unix:**
+```bash
+./build_go.shell
+```
+
+## Запуск и проверка наличий обновлений:
+**На Windows:**
+```bash
+./build_cpp.bat
+```
+
+**На Unix:**
+```bash
+./build_cpp.shell
+```
+
+**Так же, вы можете сделать это запустив файл main.go из корневой директории**
+```bash
+cd
+примерный/путь/Orbix
 go run main.go
 ```
+
 ![image](https://github.com/user-attachments/assets/2b540539-45d5-4aee-acfe-236682cbb3ea)
 ![image](https://github.com/user-attachments/assets/c2a23ac9-e6d3-45a6-bde7-d9301202f637)
 ![image](https://github.com/user-attachments/assets/20216f61-7171-44e9-aa8c-0b9ccf57bf2c)

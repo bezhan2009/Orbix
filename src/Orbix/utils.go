@@ -58,3 +58,28 @@ func RestartAfterInitFn(SD *system.AppState,
 		rebooted,
 		SD)
 }
+
+func handlePanic(commandInput string, echo bool, SD *system.AppState) {
+	if r := recover(); r != nil {
+		RecoverFromThePanic(commandInput, r, echo, SD)
+	}
+}
+
+func setupOutputRedirect(echo bool) (originalStdout, originalStderr *os.File) {
+	originalStdout, originalStderr = os.Stdout, os.Stderr
+	devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
+	defer func() {
+		err := devNull.Close()
+		if err != nil {
+			return
+		}
+	}()
+
+	if echo {
+		os.Stdout, os.Stderr = originalStdout, originalStderr
+	} else {
+		os.Stdout, os.Stderr = devNull, devNull
+	}
+
+	return
+}

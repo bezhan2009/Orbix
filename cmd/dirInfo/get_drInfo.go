@@ -29,12 +29,12 @@ func decodeWindowsPath(dir string) string {
 	return filepath.ToSlash(dir)
 }
 
-func CmdUser(dir string) string {
+func CmdUser(dir *string) string {
 	if system.OperationSystem == "linux" {
 		return os.Getenv("USER")
 	} else {
 		// Считаем количество слэшей и получаем имя пользователя между 1 и 2 слэшом
-		parts := strings.SplitN(dir, "\\", 3)
+		parts := strings.SplitN(*dir, "\\", 3)
 		if len(parts) >= 2 {
 			return parts[1]
 		}

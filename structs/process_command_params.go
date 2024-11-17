@@ -1,7 +1,5 @@
 package structs
 
-import "goCmd/system"
-
 type ProcessCommandParams struct {
 	Command        string
 	CommandInput   string
@@ -12,10 +10,9 @@ type ProcessCommandParams struct {
 	EchoTime       *bool
 	FirstCharIs    *bool
 	LastCharIs     *bool
-	IsWorking      *bool
 	IsComHasFlag   *bool
-	Session        *system.Session
 	ExecCommand    ExecuteCommandFuncParams
+	LoopData       OrbixLoopData
 }
 
 type ExecuteCommandCatchErrs struct {
