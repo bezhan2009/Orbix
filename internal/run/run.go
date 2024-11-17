@@ -8,7 +8,6 @@ import (
 	"goCmd/utils"
 	"log"
 	"os"
-	"syscall"
 )
 
 // Init initializes CMD
@@ -60,7 +59,7 @@ PROMPT: _>`
 
 	if utils.IsHidden() {
 		fmt.Println(red("You are BLOCKED!!!"))
-		syscall.Exit(int(syscall.ERROR_ACCESS_DENIED))
+		os.Exit(5)
 	}
 
 	passwordsDir := "passwords"
