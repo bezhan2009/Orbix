@@ -501,10 +501,10 @@ func ExecLtCommand(commandInput string) {
 		} else {
 			if echoTime {
 				// Запоминаем время начала
-				startTime := time.Now()
+				startTime = time.Now()
 				executeCommandOrbix(fullCommand, command, commandLower, dir)
 				// Выводим время выполнения
-				TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+				TEXCOM = fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
 				fmt.Println(system.Green(TEXCOM))
 
 				if strings.TrimSpace(commandInput) != "" {
@@ -552,10 +552,10 @@ func ExecLtCommand(commandInput string) {
 	} else {
 		if echoTime {
 			// Запоминаем время начала
-			startTime := time.Now()
+			startTime = time.Now()
 			Command(execCommand)
 			// Выводим время выполнения
-			TEXCOM := fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
+			TEXCOM = fmt.Sprintf("Command executed in: %s\n", time.Since(startTime))
 			fmt.Println(system.Green(TEXCOM))
 		} else {
 			Command(execCommand)

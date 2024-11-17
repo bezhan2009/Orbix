@@ -160,7 +160,7 @@ func Orbix(commandInput string,
 			continue
 		}
 
-		if ExecCommandPromptLogic(
+		ExecCommandPromptLogic(
 			&firstCharIs,
 			&lastCharIs,
 			&isComHasFlag,
@@ -168,10 +168,7 @@ func Orbix(commandInput string,
 			&runOnNewThread,
 			&commandArgs, &command, &commandLine, &commandInput, &commandLower,
 			session,
-		) {
-			updateGlobalCommVars()
-			continue
-		}
+		)
 
 		execCommand = structs.ExecuteCommandFuncParams{
 			Prompt:        &prompt,
