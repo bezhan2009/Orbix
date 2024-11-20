@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/fatih/color"
+	"log"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 )
@@ -102,4 +104,16 @@ func SetColorsMap() map[string]func(...interface{}) string {
 
 func GetColorsMap() map[string]func(...interface{}) string {
 	return colors
+}
+
+// CheckPackageExists checks if Package is installed on the system
+func CheckPackageExists(packageName string) bool {
+	// Попробуем выполнить команду "git --version"
+	_, err := exec.LookPath(packageName)
+	if err != nil {
+		log.Println("Git is not installed.")
+		return false
+	}
+
+	return true
 }

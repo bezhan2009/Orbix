@@ -141,7 +141,7 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 		} else {
 			isValid := utils.ValidCommand(executeCommand.CommandLower, system.AdditionalCommands)
 			if !isValid {
-				handlers.HandleUnknownCommandUtil(executeCommand.Command, system.Commands)
+				handlers.HandleUnknownCommandUtil(executeCommand.Command, executeCommand.CommandLower, system.Commands)
 			}
 		}
 	}

@@ -368,7 +368,7 @@ func executeCommandOrbix(fullCommandEx []string,
 		if err != nil {
 			isValid := utils.ValidCommand(commandLowerEx, system.AdditionalCommands)
 			if !isValid {
-				handlers.HandleUnknownCommandUtil(commandEx, system.Commands)
+				handlers.HandleUnknownCommandUtil(commandEx, commandLowerEx, system.Commands)
 				return err
 			} else {
 				return errors.New("continue loop")

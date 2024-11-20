@@ -86,7 +86,6 @@ func Orbix(commandInput string,
 	for *LoopData.IsWorking {
 		src.OrbixPrompt(session,
 			&prompt,
-			&system.UserDir,
 			&LoopData.Username,
 			&commandInput,
 			LoopData.IsWorking,

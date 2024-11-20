@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -96,19 +95,7 @@ func (s *AppState) DeleteSession(prefix string) {
 	delete(s.Session, prefix)
 }
 
-var GitExists = CheckGitExists()
-
-// CheckGitExists checks if Git is installed on the system
-func CheckGitExists() bool {
-	// Попробуем выполнить команду "git --version"
-	_, err := exec.LookPath("git")
-	if err != nil {
-		log.Println("Git is not installed.")
-		return false
-	}
-
-	return true
-}
+var GitExists = CheckPackageExists("git")
 
 func GetCurrentGitBranch() (string, error) {
 	if !GitExists {

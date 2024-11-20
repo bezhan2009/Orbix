@@ -132,7 +132,7 @@ func PrintPromptInfoWithoutGit(location, user, dirC, commandInput *string) {
 		system.Cyan("~"), dirInfo, system.Yellow("]"),
 	)
 
-	footer := fmt.Sprintf("%s%s %s", system.Yellow("╰"), system.Green(prompt), system.Green(commandInput))
+	footer := fmt.Sprintf("%s%s %s", system.Yellow("╰"), system.Green(prompt), system.Green(*commandInput))
 
 	// Печатаем информацию
 	fmt.Println(header)
@@ -393,12 +393,12 @@ func printOldPrompt(commandInput, dir *string) {
 }
 
 func OrbixPrompt(session *system.Session,
-	prompt, dir, username, commandInput *string,
+	prompt, username, commandInput *string,
 	isWorking, isPermission *bool,
 	colorsMap *map[string]func(...interface{}) string) {
 	if session.IsAdmin {
 		if *prompt == "" {
-			printOldPrompt(commandInput, dir)
+			printOldPrompt(commandInput, &system.UserDir)
 		} else {
 			customPrompt(commandInput, prompt,
 				*colorsMap)
@@ -409,7 +409,7 @@ func OrbixPrompt(session *system.Session,
 
 	Orbixuser, err := environment.GetVariableValue("user")
 	if Orbixuser == "" || err != nil {
-		Orbixuser = dirInfo.CmdUser(dir)
+		Orbixuser = dirInfo.CmdUser(&system.UserDir)
 	}
 
 	OrbixuserStr := fmt.Sprintf("%s", Orbixuser)
@@ -419,6 +419,8 @@ func OrbixPrompt(session *system.Session,
 	}
 
 	if !session.IsAdmin {
+		dirC = dirInfo.CmdDir(system.UserDir)
+
 		// Single user check outside repeated prompt formatting
 		if !system.Unauthorized {
 			go func() {
