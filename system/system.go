@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Version         = "1.10.8"
+	Version         = "1.10.9"
 	License         = "MIT"
 	SystemName      = "Orbix"
 	OperationSystem = runtime.GOOS
@@ -111,7 +111,7 @@ func CheckPackageExists(packageName string) bool {
 	// Попробуем выполнить команду "git --version"
 	_, err := exec.LookPath(packageName)
 	if err != nil {
-		log.Println("Git is not installed.")
+		log.Println(fmt.Sprintf("%s is not installed.", packageName))
 		return false
 	}
 
