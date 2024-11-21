@@ -30,6 +30,9 @@ var (
 	commandList        []string
 	fullCommandArgs    []string
 	argList            []string
+	commExLoggSplit    []string
+	argSplit           []string
+	iArgSplit          int
 
 	startTime time.Time
 )
@@ -157,10 +160,16 @@ func getCustomVar(varName string) (interface{}, error) {
 func updateGlobalCommVars() {
 	TEXCOM = ""
 	commandExLogg = ""
+
+	commExLoggSplit = []string{}
 	commandArgsListStr = []string{}
 	commandList = []string{}
 	fullCommandArgs = []string{}
 	argList = []string{}
+	argSplit = []string{}
+
+	iArgSplit = 0
+
 	startTime = time.Time{}
 }
 
@@ -189,6 +198,41 @@ func ExecCommandPromptLogic(
 	commandExLogg = *command
 
 	for _ = range *commandLine {
+		if !strings.Contains(commandExLogg, "$") {
+			break
+		}
+
+		if strings.Contains(commandExLogg, "+") {
+			commExLoggSplit = strings.Split(commandExLogg, "+")
+
+			commandExLogg = ""
+
+			for _, arg := range commExLoggSplit {
+				if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
+					if string(arg[len(arg)-1]) == "-" {
+						argList = strings.Split(arg, "-")
+						commandExLogg = argList[0]
+						continue
+					}
+
+					customVar, err := getCustomVar(arg[1:])
+					if err != nil {
+						fmt.Println(system.Red(err))
+						continue
+					}
+
+					if customVar != nil {
+						commandExLogg += customVar.(string)
+					}
+				}
+			}
+
+			*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(commandExLogg) // Refactored input handling
+			fullCommandArgs = append(fullCommandArgs, *commandArgs...)
+
+			break
+		}
+
 		if string(commandExLogg[0]) == "$" && len(strings.TrimSpace(commandExLogg)) > 1 {
 			if string(commandExLogg[len(commandExLogg)-1]) == "-" {
 				commandList = strings.Split(commandExLogg, "-")
@@ -199,6 +243,7 @@ func ExecCommandPromptLogic(
 			customVar, err := getCustomVar(commandExLogg[1:])
 			if err != nil {
 				fmt.Println(system.Red(err))
+				continue
 			}
 
 			if customVar != nil {
@@ -207,14 +252,48 @@ func ExecCommandPromptLogic(
 				fullCommandArgs = append(fullCommandArgs, *commandArgs...)
 			}
 		}
-
-		break
 	}
 
 	fullCommandArgs = append(fullCommandArgs, commandArgsListStr...)
 	*commandArgs = fullCommandArgs
 
 	for iArg, arg := range *commandArgs {
+		if !strings.Contains(arg, "$") {
+			continue
+		}
+
+		if strings.Contains(arg, "+") {
+			argSplit = strings.Split(arg, "+")
+
+			var argSplitTemp []string
+			for iArgSplit, arg = range argSplit {
+				if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
+					if string(arg[len(arg)-1]) == "-" {
+						argList = strings.Split(arg, "-")
+						arg = argList[0]
+						fullCommandArgs[iArg] = arg
+						*commandArgs = fullCommandArgs
+						continue
+					}
+
+					customVar, err := getCustomVar(arg[1:])
+					if err != nil {
+						fmt.Println(system.Red(err))
+						continue
+					}
+
+					if customVar != nil {
+						argSplitTemp = append(argSplitTemp, customVar.(string))
+					}
+				}
+			}
+
+			iArgSplit -= 1
+			fullCommandArgs = append(fullCommandArgs[:iArgSplit], append(argSplitTemp, fullCommandArgs[iArgSplit+1:]...)...)
+
+			continue
+		}
+
 		if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
 			if string(arg[len(arg)-1]) == "-" {
 				argList = strings.Split(arg, "-")
