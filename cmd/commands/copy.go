@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -13,7 +14,12 @@ func File(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer sourceFile.Close()
+	defer func(sourceFile *os.File) {
+		err := sourceFile.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(sourceFile)
 
 	// Если целевая директория - "buffer", используем буфер обмена
 	if strings.ToLower(dst) == "buffer" {
@@ -36,7 +42,12 @@ func File(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer destinationFile.Close()
+	defer func(destinationFile *os.File) {
+		err := destinationFile.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(destinationFile)
 
 	_, err = io.Copy(destinationFile, sourceFile)
 	if err != nil {

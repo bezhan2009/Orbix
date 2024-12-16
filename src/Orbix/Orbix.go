@@ -5,6 +5,7 @@ import (
 	"goCmd/src"
 	"goCmd/structs"
 	"goCmd/system"
+	"goCmd/utils"
 	"time"
 )
 
@@ -18,11 +19,26 @@ func Orbix(commandInput string,
 			SD)
 	}()
 
-	LoopData := src.OrbixUser(commandInput,
+	LoopData, LoadUserConfigsFn := src.OrbixUser(commandInput,
 		echo,
 		&rebooted,
 		SD,
 		ExecLtCommand)
+
+	if !*LoopData.IsWorking {
+		if LoadUserConfigsFn != nil {
+			// Load User Configs
+			if err := LoadUserConfigsFn(); err != nil {
+				fmt.Println(system.Cyan("New attempt"))
+				utils.AnimatedPrintLong("...", "cyan")
+				if err = LoadUserConfigsFn(); err != nil {
+					fmt.Println(system.Red("Failed..."))
+				}
+			}
+		}
+
+		return
+	}
 
 	var prompt string
 	var prefix string
@@ -86,7 +102,6 @@ func Orbix(commandInput string,
 	for *LoopData.IsWorking {
 		src.OrbixPrompt(session,
 			&prompt,
-			&LoopData.Username,
 			&commandInput,
 			LoopData.IsWorking,
 			LoopData.IsPermission,
@@ -130,8 +145,8 @@ func Orbix(commandInput string,
 			if echoTime {
 				TEXCOMARGS = fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
 				fmt.Println(system.Green(TEXCOMARGS))
-				continue
 			}
+
 			continue
 		}
 

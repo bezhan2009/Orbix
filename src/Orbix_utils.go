@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/c-bata/go-prompt"
 	"github.com/fsnotify/fsnotify"
+	_chan "goCmd/chan"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/dirInfo"
 	"goCmd/src/environment"
@@ -67,7 +68,7 @@ func checkUserInRunningFile(username string) bool {
 }
 
 func getUser(username string) string {
-	if strings.TrimSpace(system.User) != "" {
+	if strings.TrimSpace(system.User) == "" {
 		return system.User
 	} else {
 		return username
@@ -211,7 +212,7 @@ func watchFile(runningPath string, username string, isWorking *bool, isPermissio
 					return
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write && *isWorking {
-					if !checkUserInRunningFile(username) && *isWorking {
+					if !checkUserInRunningFile(username) && *isWorking && system.User == username {
 						fmt.Print(system.Red("\nUser not authorized. to continue, press Enter:"))
 						devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
 						func() {
@@ -339,6 +340,7 @@ func CommandFile(command string) bool {
 		command == "create" ||
 		command == "rem" ||
 		command == "del_var" ||
+		command == "format" ||
 		command == "del" ||
 		command == "gocode" ||
 		command == "delete" ||
@@ -393,7 +395,7 @@ func printOldPrompt(commandInput, dir *string) {
 }
 
 func OrbixPrompt(session *system.Session,
-	prompt, username, commandInput *string,
+	prompt, commandInput *string,
 	isWorking, isPermission *bool,
 	colorsMap *map[string]func(...interface{}) string) {
 	if session.IsAdmin {
@@ -407,16 +409,12 @@ func OrbixPrompt(session *system.Session,
 		return
 	}
 
-	Orbixuser, err := environment.GetVariableValue("user")
-	if Orbixuser == "" || err != nil {
+	Orbixuser, _ := environment.GetVariableValue("user")
+	if Orbixuser == "" {
 		Orbixuser = dirInfo.CmdUser(&system.UserDir)
 	}
 
 	OrbixuserStr := fmt.Sprintf("%s", Orbixuser)
-
-	if *username != "" {
-		Orbixuser = username
-	}
 
 	if !session.IsAdmin {
 		dirC = dirInfo.CmdDir(system.UserDir)
@@ -448,7 +446,7 @@ func OrbixPrompt(session *system.Session,
 	}
 }
 
-func LoadConfigs() {
+func LoadConfigs() error {
 	fmt.Print(system.Cyan("Loading configs"))
 	utils.AnimatedPrint("...\n", "cyan")
 
@@ -458,6 +456,8 @@ func LoadConfigs() {
 	} else {
 		fmt.Println(system.Green("Successfully Loaded configs"))
 	}
+
+	return err
 }
 
 func InitSession(prefix *string,
@@ -523,10 +523,18 @@ func DefineUser(commandInput string,
 		dir, _ := os.Getwd()
 		OrbixUser := dirInfo.CmdUser(&dir)
 
-		nameUser, isSuccess := user.CheckUser(OrbixUser, sessionData)
+		nameUser, isSuccess, errUser := user.CheckUser(OrbixUser, sessionData)
 		if !isSuccess {
-			return "", errors.New("ErrSuccess")
+			if _chan.UserStatusAuth {
+				system.Unauthorized = false
+				_chan.UpdateChan()
+			} else {
+				system.Unauthorized = true
+			}
+
+			return "", errUser
 		}
+
 		system.Unauthorized = false
 		username = nameUser
 		if username != OrbixUser {
@@ -577,6 +585,10 @@ func ignoreSI(signalChan chan os.Signal,
 				}
 
 				fmt.Println()
+				if system.ExecutingCommand {
+					return true
+				}
+
 				if *prompt == "" {
 					if system.GitExists {
 						gitBranch, _ := system.GetCurrentGitBranch()
@@ -694,8 +706,20 @@ func OrbixUser(commandInput string,
 	echo bool,
 	rebooted *structs.RebootedData,
 	SD *system.AppState,
-	ExecLtCommand func(commandInput string)) structs.OrbixLoopData {
+	ExecLtCommand func(commandInput string)) (LoopData structs.OrbixLoopData, LoadUserConfigsFn func() error) {
+	LoadUserConfigsFn = LoadConfigs
+
 	if !UsingForLT(commandInput) {
+
+		// Load User Configs
+		if err := LoadConfigs(); err != nil {
+			fmt.Println(system.Cyan("New attempt"))
+			utils.AnimatedPrintLong("...", "cyan")
+			if err = LoadConfigs(); err != nil {
+				fmt.Println(system.Red("Failed..."))
+			}
+		}
+
 		system.Prompt = "_>"
 		ExecLtCommand(commandInput)
 
@@ -709,7 +733,7 @@ func OrbixUser(commandInput string,
 			Username:         "",
 			SessionData:      &system.AppState{},
 			RestartAfterInit: &RestartAfterInit,
-		}
+		}, LoadUserConfigsFn
 	}
 
 	RestartAfterInit := false
@@ -739,11 +763,17 @@ func OrbixUser(commandInput string,
 			Username:         "",
 			SessionData:      &system.AppState{},
 			RestartAfterInit: &RestartAfterInit,
-		}
+		}, LoadUserConfigsFn
 	}
 
 	// Load User Configs
-	LoadConfigs()
+	if err = LoadConfigs(); err != nil {
+		fmt.Println(system.Cyan("New attempt"))
+		utils.AnimatedPrintLong("...", "cyan")
+		if err = LoadConfigs(); err != nil {
+			fmt.Println(system.Red("Failed..."))
+		}
+	}
 
 	if username != "" {
 		system.EditableVars["user"] = &username
@@ -755,7 +785,7 @@ func OrbixUser(commandInput string,
 		Username:         username,
 		SessionData:      sessionData,
 		RestartAfterInit: &RestartAfterInit,
-	}
+	}, nil
 }
 
 func EdgeCases(session *system.Session,

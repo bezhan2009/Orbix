@@ -3,6 +3,7 @@ package user
 import (
 	"bufio"
 	"fmt"
+	_chan "goCmd/chan"
 	"goCmd/cmd/commands"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
@@ -37,14 +38,18 @@ func IsPasswordDirectoryEmpty() (bool, error) {
 }
 
 // CheckUser checks the username and password.
-func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
+func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error) {
+	if !system.Unauthorized {
+		_chan.UserStatusAuth = true
+	}
+	system.Unauthorized = true
 	currentPath, _ := os.Getwd()
 	defer os.Chdir(currentPath)
 
 	err := commands.ChangeDirectory(system.SourcePath)
 	if err != nil {
 		fmt.Println(system.Red("Error changing directory:", err))
-		return "", false
+		return "", false, err
 	}
 
 	if sd == nil {
@@ -57,14 +62,14 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		commands.Screen()
 		fmt.Printf("%s\n", system.Red("Error checking the password directory:", err))
 		sd.IsAdmin = true
-		return "", false
+		return "", false, err
 	}
 
 	if isEmpty {
 		commands.Screen()
 		fmt.Printf("%s\n", system.Green("Welcome,", usernameFromDir))
 		sd.IsAdmin = true
-		return usernameFromDir, true
+		return usernameFromDir, true, err
 	}
 
 	reader := bufio.NewReader(os.Stdin)
@@ -83,11 +88,13 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 
 		if strings.ToLower(strings.TrimSpace(enable)) != "y" {
 			sd.IsAdmin = true
-			return usernameFromDir, true
+			return usernameFromDir, true, nil
 		} else {
 			break
 		}
 	}
+
+	var attempts uint = 0
 
 	for {
 		fmt.Printf("%s", system.Magenta("Enter username: "))
@@ -111,8 +118,9 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 
 			for _, line := range lines {
 				if strings.TrimSpace(line) == strings.TrimSpace(username) {
+					system.Unauthorized = true
 					fmt.Println(system.Red("This user already exists!"))
-					return "", false
+					return "", false, system.UserAlreadyExists
 				}
 			}
 
@@ -120,7 +128,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 				for _, line := range lines {
 					if strings.Contains(strings.TrimSpace(line), strings.TrimSpace(username)) {
 						fmt.Println(system.Red("Partial match found with: " + line))
-						return "", false
+						return "", false, system.ExactMatchNotFound
 					}
 				}
 			}
@@ -130,7 +138,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		bytePassword, err := term.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			fmt.Println("Error:", err)
-			return "", false
+			return "", false, err
 		}
 
 		password := string(bytePassword)
@@ -142,16 +150,22 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 		passwordsDir, err := getPasswordsDir()
 		if err != nil {
 			commands.Screen()
-			fmt.Printf("%s\n", system.Magenta("Ошибка при получении пути директории паролей"))
-			return "", false
+			fmt.Printf("%s\n", system.Red("Error getting password directory:", err))
+			return "", false, err
 		}
 
 		passwordDir := filepath.Join(passwordsDir, username)
 		filePath := filepath.Join(passwordDir, hashedPassword)
 		if _, err := os.Stat(filePath); os.IsNotExist(err) {
 			commands.Screen()
+			system.Unauthorized = true
 			fmt.Printf("%s\n", system.Red("User not found or password is incorrect!"))
-			return usernameFromDir, false
+			attempts += 1
+			if !(attempts > system.MaxUserAuthAttempts) {
+				continue
+			}
+
+			return usernameFromDir, false, err
 		}
 
 		commands.Screen()
@@ -159,6 +173,6 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool) {
 
 		sd.IsAdmin = false
 		sd.User = username
-		return username, true
+		return username, true, nil
 	}
 }

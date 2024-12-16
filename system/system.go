@@ -12,11 +12,12 @@ import (
 )
 
 const (
-	Version         = "1.10.9"
-	License         = "MIT"
-	SystemName      = "Orbix"
-	OperationSystem = runtime.GOOS
-	MaxInt          = int(^uint64(0) >> 1)
+	Version             = "1.10.10"
+	License             = "MIT"
+	SystemName          = "Orbix"
+	OperationSystem     = runtime.GOOS
+	MaxInt              = int(^uint64(0) >> 1)
+	MaxUserAuthAttempts = uint(3)
 )
 
 var (
@@ -35,6 +36,7 @@ var (
 		".env":                    1,
 		"commands.json":           1,
 	}
+	OrbixUser = &User
 )
 
 func Init() *AppState {

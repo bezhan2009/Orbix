@@ -34,7 +34,7 @@ cd Orbix
 
 **On Unix:**
 ```bash
-./build_go.shell
+sh ./build_go.sh
 ```
 
 ## Launch and Check for updates:
@@ -45,7 +45,7 @@ cd Orbix
 
 **On Unix:**
 ```bash
-./build_cpp.shell
+sh ./build_cpp.sh
 ```
 
 **Also, you can run main.go in root directory**

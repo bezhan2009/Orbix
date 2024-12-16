@@ -369,6 +369,8 @@ func ExecCommandPromptLogic(
 	}
 
 	if !isValid {
+		system.ExecutingCommand = true
+
 		err := ExecExternalLoopCommand(
 			session,
 			system.UserDir,
@@ -380,6 +382,8 @@ func ExecCommandPromptLogic(
 			*echoTime,
 			*runOnNewThread,
 		)
+
+		system.ExecutingCommand = false
 
 		if err != nil {
 			return true
@@ -423,43 +427,69 @@ func RecoverAndRestore(rebooted *structs.RebootedData) {
 // Command execution logic that can be run in a new thread
 func executeCommandOrbix(fullCommandEx []string,
 	commandEx, commandLowerEx, dirEx string) error {
+
+	var fullCommandExCopy []string
+
+	fullCommandExCopy = append(fullCommandExCopy, fullCommandEx...)
+
+	fullPath := filepath.Join(dirEx, commandEx)
+	fullCommandEx[0] = fullPath
+
+	// Проверяем расширение файла и выбираем подходящий интерпретатор
+	extension := strings.ToLower(filepath.Ext(fullPath))
+
+	if extension == ".exe" {
+		err := utils.ExternalCommand(fullCommandEx)
+		if err != nil {
+			fullCommandEx = fullCommandExCopy
+		}
+
+		return err
+	} else {
+		fullCommandEx = fullCommandExCopy
+	}
+
 	err := utils.ExternalCommand(fullCommandEx)
 	if err != nil {
-		fullPath := filepath.Join(dirEx, commandEx)
+		fullPath = filepath.Join(dirEx, commandEx)
 		fullCommandEx[0] = fullPath
 
 		// Проверяем расширение файла и выбираем подходящий интерпретатор
-		extension := strings.ToLower(filepath.Ext(fullPath))
+		extension = strings.ToLower(filepath.Ext(fullPath))
 		var cmd *exec.Cmd
 		switch extension {
-		case ".bat":
-			cmd = exec.Command("cmd.exe", "/C", fullPath)
 		case ".ps1":
 			cmd = exec.Command("powershell", "-File", fullPath)
 		case ".py":
 			cmd = exec.Command("python", fullPath)
 		default:
-			cmd = exec.Command(fullPath)
+			cmd = exec.Command("cmd.exe", "/C", fullPath)
 		}
 
-		// Запускаем команду и обрабатываем ошибки
-		err = cmd.Run()
-		if err != nil {
-			isValid := utils.ValidCommand(commandLowerEx, system.AdditionalCommands)
-			if !isValid {
-				handlers.HandleUnknownCommandUtil(commandEx, commandLowerEx, system.Commands)
-				return err
-			} else {
-				return errors.New("continue loop")
-			}
-		} else {
-			return errors.New("continue loop")
-		}
+		return cmdRun(cmd,
+			commandEx, commandLowerEx)
 	} else {
 		src.UnknownCommandsCounter = src.UnknownCommandsCounter + 1
 	}
 
 	return nil
+}
+
+func cmdRun(cmd *exec.Cmd,
+	commandEx, commandLowerEx string) (err error) {
+	// Запускаем команду и обрабатываем ошибки
+	err = cmd.Run()
+	if err != nil {
+		isValid := utils.ValidCommand(commandLowerEx, system.AdditionalCommands)
+		if !isValid {
+			handlers.HandleUnknownCommandUtil(commandEx, commandLowerEx, system.Commands)
+			return err
+		} else {
+			return errors.New("continue loop")
+		}
+	} else {
+		return errors.New("continue loop")
+	}
 }
 
 func ExecLtCommand(commandInput string) {

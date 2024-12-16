@@ -55,6 +55,10 @@ func SetVariable(varName string, value string) error {
 		return fmt.Errorf(fmt.Sprintf("the variable %s is nil\n", varName))
 	}
 
+	if strings.TrimSpace(value) == "current_user" || strings.TrimSpace(value) == "$current_user" {
+		value = *system.OrbixUser
+	}
+
 	// Проверяем, есть ли такая переменная в нашем списке
 	if variable, exists := system.EditableVars[varName]; exists {
 		v := reflect.ValueOf(variable).Elem()
@@ -94,6 +98,12 @@ func SetVariable(varName string, value string) error {
 			return fmt.Errorf("the %s variable type is not supported", varName)
 		}
 		return nil
+	}
+
+	if strings.TrimSpace(varName) == "user" {
+		system.User = value
+		fmt.Println(system.User)
+		fmt.Println(value)
 	}
 
 	if strings.TrimSpace(varName) == "*" {
@@ -179,6 +189,7 @@ func GetVariableValueUtil(params *structs.ExecuteCommandFuncParams) {
 	value, err := GetVariableValue(varName)
 	if err != nil {
 		fmt.Println(system.Red(err.Error()))
+		return
 	}
 
 	fmt.Println(system.Green(fmt.Sprintf("%s: %s", varName, value)))

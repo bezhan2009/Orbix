@@ -196,7 +196,6 @@ func main() {
 		time.Sleep(time.Second * 1)
 		if !system.OrbixWorking {
 			user.DeleteUserFromRunningFile(system.UserName)
-
 			os.Exit(1)
 		}
 	}()

@@ -30,7 +30,7 @@ cd Orbix
 
 **На Unix:**
 ```bash
-./build_go.shell
+sh ./build_go.sh
 ```
 
 ## Запуск и проверка наличий обновлений:
@@ -41,7 +41,7 @@ cd Orbix
 
 **На Unix:**
 ```bash
-./build_cpp.shell
+sh ./build_cpp.sh
 ```
 
 **Так же, вы можете сделать это запустив файл main.go из корневой директории**
