@@ -56,7 +56,7 @@ func SetVariable(varName string, value string) error {
 	}
 
 	if strings.TrimSpace(value) == "current_user" || strings.TrimSpace(value) == "$current_user" {
-		value = *system.OrbixUser
+		value = system.User
 	}
 
 	// Проверяем, есть ли такая переменная в нашем списке
@@ -102,8 +102,6 @@ func SetVariable(varName string, value string) error {
 
 	if strings.TrimSpace(varName) == "user" {
 		system.User = value
-		fmt.Println(system.User)
-		fmt.Println(value)
 	}
 
 	if strings.TrimSpace(varName) == "*" {
