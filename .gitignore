@@ -39,6 +39,7 @@ running.env
 *.txt
 *.log
 *.json
+*.tmpl
 orbix
 !CMakeLists.txt
 

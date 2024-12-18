@@ -41,7 +41,10 @@ func silenceOutput() (func(), error) {
 	return func() {
 		os.Stdout = origStdout
 		os.Stderr = origStderr
-		nullFile.Close()
+		err := nullFile.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
 	}, nil
 }
 
@@ -94,8 +97,14 @@ func SaveVars() {
 		}
 	}()
 
-	Remove.File("rem", []string{"user.json"})
-	fcommands.CreateFile("user.json")
+	_, err = Remove.File("rem", []string{"user.json"})
+	if err != nil {
+		fmt.Println("Error while removing file user.json:", err)
+	}
+	_, err = fcommands.CreateFile("user.json")
+	if err != nil {
+		fmt.Println("Error while creating file user.json:", err)
+	}
 
 	values := dereferenceVariables(system.EditableVars)
 
@@ -142,7 +151,12 @@ func LoadUserConfigs() error {
 		fmt.Println("Error opening file:", err)
 		return err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(file)
 
 	data, err := ioutil.ReadAll(file)
 	if err != nil {

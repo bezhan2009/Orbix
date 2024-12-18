@@ -25,23 +25,23 @@ cd Orbix
 ```
 **На Windows:**
 ```bash
-./build_go.bat
+./build.bat
 ```
 
 **На Unix:**
 ```bash
-sh ./build_go.sh
+sh ./build.sh
 ```
 
 ## Запуск и проверка наличий обновлений:
 **На Windows:**
 ```bash
-./build_cpp.bat
+./check_for_updates.bat
 ```
 
 **На Unix:**
 ```bash
-sh ./build_cpp.sh
+sh ./check_for_updates.sh
 ```
 
 **Так же, вы можете сделать это запустив файл main.go из корневой директории**

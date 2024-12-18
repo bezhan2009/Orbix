@@ -379,7 +379,7 @@ func customPrompt(commandInput, prompt *string,
 	colorsMap map[string]func(...interface{}) string) {
 	if strings.TrimSpace(*commandInput) != "" {
 		splitPrompt := strings.Split(*prompt, ", ")
-		fmt.Printf("%s%s", colorsMap[splitPrompt[1]](splitPrompt[0]), system.Green(commandInput))
+		fmt.Printf("%s%s", colorsMap[splitPrompt[1]](splitPrompt[0]), system.Green(*commandInput))
 	} else {
 		splitPrompt := strings.Split(*prompt, ", ")
 		fmt.Print(colorsMap[splitPrompt[1]](splitPrompt[0]))
@@ -603,7 +603,7 @@ func ignoreSI(signalChan chan os.Signal,
 			} else {
 				dir, _ := os.Getwd()
 				if *prompt == "" {
-					fmt.Printf("ORB %s>%s", dir, system.Green(commandInput))
+					fmt.Printf("ORB %s>%s", dir, system.Green(*commandInput))
 				} else {
 					customPrompt(commandInput, prompt,
 						colorsMap)

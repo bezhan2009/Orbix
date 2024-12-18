@@ -36,7 +36,8 @@ var (
 		".env":                    1,
 		"commands.json":           1,
 	}
-	OrbixUser = &User
+	OrbixUser               = &User
+	OrbixTemplatesExtension = "tmpl"
 )
 
 func Init() *AppState {

@@ -12,6 +12,7 @@ func Message(username, message string) {
 		fmt.Printf("Ошибка при отправке сообщения: %v\n", err)
 		return
 	}
+
 	fmt.Println("Сообщение успешно отправлено.")
 	fmt.Println(string(output))
 }

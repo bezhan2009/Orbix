@@ -29,23 +29,23 @@ cd Orbix
 ```
 **On Windows:**
 ```bash
-./build_go.bat
+./build.bat
 ```
 
 **On Unix:**
 ```bash
-sh ./build_go.sh
+sh ./build.sh
 ```
 
 ## Launch and Check for updates:
 **On Windows:**
 ```bash
-./build_cpp.bat
+./check_for_updates.bat
 ```
 
 **On Unix:**
 ```bash
-sh ./build_cpp.sh
+sh ./check_for_updates.sh
 ```
 
 **Also, you can run main.go in root directory**
