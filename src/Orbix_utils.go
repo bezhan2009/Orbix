@@ -446,15 +446,29 @@ func OrbixPrompt(session *system.Session,
 	}
 }
 
-func LoadConfigs() error {
-	fmt.Print(system.Cyan("Loading configs"))
-	utils.AnimatedPrint("...\n", "cyan")
+func printInfo(s interface{}, echo bool) {
+	if !echo {
+		return
+	}
+
+	fmt.Print(s)
+}
+
+func LoadConfigs(echo bool) error {
+	printInfo(system.Cyan("Loading configs"), echo)
+	if echo {
+		utils.AnimatedPrint("...\n", "cyan")
+	}
+
+	_chan.LoadConfigsFn = environment.LoadUserConfigs
 
 	err := environment.LoadUserConfigs()
 	if err != nil {
-		fmt.Println(system.Red("Error Loading configs:", err))
+		printInfo(system.Red("Error Loading configs:", err), echo)
+		println()
 	} else {
-		fmt.Println(system.Green("Successfully Loaded configs"))
+		printInfo(system.Green("Successfully Loaded configs"), echo)
+		println()
 	}
 
 	return err
@@ -463,6 +477,8 @@ func LoadConfigs() error {
 func InitSession(prefix *string,
 	rebooted structs.RebootedData,
 	OrbixLoopData structs.OrbixLoopData) *system.Session {
+	system.CntLaunchedOrbixes++
+
 	dirC = dirInfo.CmdDir(system.UserDir)
 
 	if rebooted.Prefix != "" {
@@ -527,7 +543,7 @@ func DefineUser(commandInput string,
 		if !isSuccess {
 			if _chan.UserStatusAuth {
 				system.Unauthorized = false
-				_chan.UpdateChan()
+				_chan.UpdateChan("system__user")
 			} else {
 				system.Unauthorized = true
 			}
@@ -696,31 +712,24 @@ func InitOrbixFn(RestartAfterInit *bool,
 
 func UsingForLT(commandInput string) bool {
 	if strings.TrimSpace(commandInput) != "" && strings.TrimSpace(commandInput) != "restart" {
-		return false
+		return true
 	}
 
-	return true
+	return false
 }
 
 func OrbixUser(commandInput string,
 	echo bool,
 	rebooted *structs.RebootedData,
 	SD *system.AppState,
-	ExecLtCommand func(commandInput string)) (LoopData structs.OrbixLoopData, LoadUserConfigsFn func() error) {
+	ExecLtCommand func(commandInput string)) (LoopData structs.OrbixLoopData, LoadUserConfigsFn func(echo bool) error) {
 	LoadUserConfigsFn = LoadConfigs
 
-	if !UsingForLT(commandInput) {
+	if UsingForLT(commandInput) {
 
 		// Load User Configs
-		if err := LoadConfigs(); err != nil {
-			fmt.Println(system.Cyan("New attempt"))
-			utils.AnimatedPrintLong("...", "cyan")
-			if err = LoadConfigs(); err != nil {
-				fmt.Println(system.Red("Failed..."))
-			}
-		}
+		_ = LoadConfigs(false)
 
-		system.Prompt = "_>"
 		ExecLtCommand(commandInput)
 
 		isWorking := false
@@ -757,6 +766,7 @@ func OrbixUser(commandInput string,
 		isWorking = false
 		isPermission = false
 		RestartAfterInit = false
+
 		return structs.OrbixLoopData{
 			IsWorking:        &isWorking,
 			IsPermission:     &isPermission,
@@ -767,13 +777,7 @@ func OrbixUser(commandInput string,
 	}
 
 	// Load User Configs
-	if err = LoadConfigs(); err != nil {
-		fmt.Println(system.Cyan("New attempt"))
-		utils.AnimatedPrintLong("...", "cyan")
-		if err = LoadConfigs(); err != nil {
-			fmt.Println(system.Red("Failed..."))
-		}
-	}
+	_ = LoadConfigs(true)
 
 	if username != "" {
 		system.EditableVars["user"] = &username
@@ -788,17 +792,34 @@ func OrbixUser(commandInput string,
 	}, nil
 }
 
-func EdgeCases(session *system.Session,
-	OrbixLoopData structs.OrbixLoopData,
+func EdgeCases(OrbixLoopData structs.OrbixLoopData,
 	rebooted structs.RebootedData,
 	RecoverAndRestore func(rebooted *structs.RebootedData)) {
-	if len(session.CommandHistory) < 10 {
+	if len(OrbixLoopData.Session.CommandHistory) < 10 {
 		go system.InitSession(OrbixLoopData.Username,
-			session)
+			OrbixLoopData.Session)
 	}
 
 	if system.RebootAttempts != 0 {
 		RecoverAndRestore(&rebooted)
 		system.RebootAttempts = 0
 	}
+}
+
+func PrepareOrbix() {
+	_chan.User = system.User
+	_chan.UserName = system.UserName
+	_chan.DirUser, _ = os.Getwd()
+}
+
+func RestoreOrbix() {
+	system.User = _chan.User
+	system.UserName = _chan.UserName
+
+	err := commands.ChangeDirectory(_chan.DirUser)
+	if err != nil {
+		fmt.Println(system.Red("Error changing directory:", err))
+	}
+
+	system.UserDir, _ = os.Getwd()
 }

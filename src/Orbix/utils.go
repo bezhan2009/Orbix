@@ -40,14 +40,12 @@ func RecoverFromThePanic(commandInput string,
 		SD)
 }
 
-func RestartAfterInitFn(SD *system.AppState,
-	sessionData *system.AppState,
+func RestartAfterInitFn(sessionData *system.AppState,
 	rebooted structs.RebootedData,
 	prefix,
 	username string,
 	echo bool) {
-	SD.User = username
-	SD.IsAdmin = sessionData.IsAdmin
+	sessionData.User = username
 	rebooted.Prefix = prefix
 	if len(os.Args) > 1 {
 		return
@@ -56,7 +54,7 @@ func RestartAfterInitFn(SD *system.AppState,
 	Orbix("",
 		echo,
 		rebooted,
-		SD)
+		sessionData)
 }
 
 func handlePanic(commandInput string, echo bool, SD *system.AppState) {

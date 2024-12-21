@@ -2,10 +2,10 @@ package Orbix
 
 import (
 	"fmt"
+	_chan "goCmd/chan"
 	"goCmd/src"
 	"goCmd/structs"
 	"goCmd/system"
-	"goCmd/utils"
 	"time"
 )
 
@@ -28,13 +28,7 @@ func Orbix(commandInput string,
 	if !*LoopData.IsWorking {
 		if LoadUserConfigsFn != nil {
 			// Load User Configs
-			if err := LoadUserConfigsFn(); err != nil {
-				fmt.Println(system.Cyan("New attempt"))
-				utils.AnimatedPrintLong("...", "cyan")
-				if err = LoadUserConfigsFn(); err != nil {
-					fmt.Println(system.Red("Failed..."))
-				}
-			}
+			_ = LoadUserConfigsFn(false)
 		}
 
 		return
@@ -58,17 +52,33 @@ func Orbix(commandInput string,
 
 	if *LoopData.RestartAfterInit {
 		RestartAfterInitFn(
-			SD,
 			LoopData.SessionData,
 			rebooted,
 			prefix,
 			LoopData.Username,
 			echo,
 		)
+
 		return
 	}
 
 	LoopData.Session = session
+
+	if _chan.UseNewPrompt {
+		LoopData.SessionData.IsAdmin = false
+		LoopData.Session.IsAdmin = false
+		_chan.UpdateChan("orbix__src_prompt")
+	} else if _chan.UseOldPrompt {
+		LoopData.SessionData.IsAdmin = true
+		LoopData.Session.IsAdmin = true
+		_chan.UpdateChan("orbix__src_prompt")
+	}
+
+	if _chan.EnableSecure {
+		LoopData.SessionData.IsAdmin = false
+		LoopData.Session.IsAdmin = false
+		_chan.UpdateChan("orbix__src_prompt")
+	}
 
 	var (
 		execCommand          structs.ExecuteCommandFuncParams
@@ -94,13 +104,14 @@ func Orbix(commandInput string,
 		startTimePRCOMARGS time.Time
 	)
 
-	src.EdgeCases(session,
-		LoopData,
+	src.EdgeCases(LoopData,
 		rebooted,
 		RecoverAndRestore)
 
 	for *LoopData.IsWorking {
-		src.OrbixPrompt(session,
+		_chan.LoopData = &LoopData
+
+		src.OrbixPrompt(LoopData.Session,
 			&prompt,
 			&commandInput,
 			LoopData.IsWorking,
@@ -190,13 +201,13 @@ func Orbix(commandInput string,
 			gitBranchUpdate = src.ProcessCommand(commandLower)
 
 			if gitBranchUpdate {
-				session.GitBranch, _ = system.GetCurrentGitBranch()
+				LoopData.Session.GitBranch, _ = system.GetCurrentGitBranch()
 			}
 		}()
 	}
 
 	EndOfSessions(originalStdout, originalStderr,
-		session,
+		LoopData.Session,
 		LoopData.SessionData,
 		prefix)
 }

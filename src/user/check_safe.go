@@ -42,9 +42,15 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error
 	if !system.Unauthorized {
 		_chan.UserStatusAuth = true
 	}
+
 	system.Unauthorized = true
 	currentPath, _ := os.Getwd()
-	defer os.Chdir(currentPath)
+	defer func(dir string) {
+		err := os.Chdir(dir)
+		if err != nil {
+			fmt.Println(system.Red("Error changing directory:", err))
+		}
+	}(currentPath)
 
 	err := commands.ChangeDirectory(system.SourcePath)
 	if err != nil {
@@ -68,6 +74,8 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error
 	if isEmpty {
 		commands.Screen()
 		fmt.Printf("%s\n", system.Green("Welcome,", usernameFromDir))
+		_chan.EnableSecure = true
+
 		sd.IsAdmin = true
 		return usernameFromDir, true, err
 	}
@@ -88,6 +96,8 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error
 
 		if strings.ToLower(strings.TrimSpace(enable)) != "y" {
 			sd.IsAdmin = true
+			_chan.UseOldPrompt = true
+			_chan.EnableSecure = false
 			return usernameFromDir, true, nil
 		} else {
 			break
@@ -162,6 +172,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error
 			fmt.Printf("%s\n", system.Red("User not found or password is incorrect!"))
 			attempts += 1
 			if !(attempts > system.MaxUserAuthAttempts) {
+				fmt.Println(system.Red("Try one more time!"))
 				continue
 			}
 
@@ -171,6 +182,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error
 		commands.Screen()
 		fmt.Printf("%s\n", system.Magenta("Welcome, ", username))
 
+		_chan.EnableSecure = true
 		sd.IsAdmin = false
 		sd.User = username
 		return username, true, nil

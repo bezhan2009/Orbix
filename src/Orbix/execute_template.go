@@ -8,7 +8,7 @@ import (
 )
 
 func TemplateUtil(commandArgs []string, SD *system.AppState) {
-	if len(commandArgs) < 2 {
+	if len(commandArgs) < 1 {
 		fmt.Println(system.Yellow("Usage: template <template_name> echo=on"))
 		fmt.Println(system.Yellow("Or: template <template_name> echo=off if you want without outputting the result"))
 		return

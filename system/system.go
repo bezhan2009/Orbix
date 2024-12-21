@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Version             = "1.10.11"
+	Version             = "1.10.12"
 	License             = "MIT"
 	SystemName          = "Orbix"
 	OperationSystem     = runtime.GOOS
@@ -21,11 +21,13 @@ const (
 )
 
 var (
-	Beta          = false
-	BetaVersion   = ""
-	colors        = SetColorsMap()
-	GlobalSession = Session{}
-	SourcePath, _ = os.Getwd()
+	Beta               = false
+	BetaVersion        = ""
+	colors             = SetColorsMap()
+	GlobalSession      = Session{}
+	SourcePath, _      = os.Getwd()
+	LaunchedOrbixes    = make(map[string]string)
+	CntLaunchedOrbixes = uint(0)
 )
 
 var (

@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"goCmd/system"
+	"goCmd/utils"
 	"regexp"
 	"strings"
 
@@ -12,14 +13,20 @@ import (
 // Print Функция для печати текста с поддержкой шрифтов и цветов
 func Print(commandArgs []string) {
 	var (
-		font       string
-		colorFuncs = system.GetColorsMap()
+		font          string
+		animatedPrint bool
+		colorFuncs    = system.GetColorsMap()
 	)
 
 	// Поиск параметра font
 	for i, arg := range commandArgs {
 		if strings.HasPrefix(arg, "font=") {
 			font = strings.Split(arg, "=")[1]
+			commandArgs = append(commandArgs[:i], commandArgs[i+1:]...)
+		}
+
+		if strings.HasPrefix(arg, "animate") {
+			animatedPrint = true
 			commandArgs = append(commandArgs[:i], commandArgs[i+1:]...)
 		}
 	}
@@ -36,9 +43,9 @@ func Print(commandArgs []string) {
 					text := strings.TrimSpace(colorText[1])
 
 					if colorFunc, ok := colorFuncs[colorName]; ok {
-						printWithFont(text, font, colorFunc)
+						printWithFont(text, font, colorFunc, animatedPrint)
 					} else {
-						printWithFont(text, font, fmt.Sprint)
+						printWithFont(text, font, fmt.Sprint, animatedPrint)
 					}
 				} else {
 					fmt.Println("Ошибка: Неправильный формат для цвета и текста.")
@@ -46,7 +53,7 @@ func Print(commandArgs []string) {
 			} else {
 				// Вывести текст без цвета
 				text := part
-				printWithFont(text, font, fmt.Sprint)
+				printWithFont(text, font, fmt.Sprint, animatedPrint)
 			}
 		}
 	}
@@ -55,7 +62,7 @@ func Print(commandArgs []string) {
 }
 
 // Вспомогательная функция для вывода текста со шрифтом и цветом
-func printWithFont(text, font string, colorFunc func(a ...interface{}) string) {
+func printWithFont(text, font string, colorFunc func(a ...interface{}) string, animate bool) {
 	// Проверка текста, если используется 2D или 3D шрифт
 	if font == "2d" || font == "3d" {
 		// Регулярное выражение для фильтрации: только английские буквы и цифры
@@ -71,12 +78,24 @@ func printWithFont(text, font string, colorFunc func(a ...interface{}) string) {
 
 	if font == "3d" {
 		myFigure := figure.NewFigure(text, "larry3d", true)
-		fmt.Println(colorFunc(myFigure.String())) // Выводим текст в 3D с цветом
+		if !animate {
+			fmt.Println(colorFunc(myFigure.String()))
+		} else {
+			utils.PrintAnim(colorFunc(myFigure.String()))
+		} // Выводим текст в 3D с цветом
 	} else if font == "2d" {
 		myFigure := figure.NewFigure(text, "", true)
-		fmt.Println(colorFunc(myFigure.String())) // Выводим текст в 2D с цветом
+		if !animate {
+			fmt.Println(colorFunc(myFigure.String()))
+		} else {
+			utils.PrintAnim(colorFunc(myFigure.String()))
+		} // Выводим текст в 2D с цветом
 	} else {
 		// Обычный вывод без 3D/2D эффекта
-		fmt.Print(colorFunc(text), " ")
+		if !animate {
+			fmt.Print(colorFunc(text), " ")
+		} else {
+			utils.PrintAnim(colorFunc(text))
+		}
 	}
 }

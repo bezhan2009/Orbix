@@ -1,6 +1,7 @@
 package Orbix
 
 import (
+	_chan "goCmd/chan"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
 	"goCmd/cmd/commands/template"
@@ -13,7 +14,6 @@ import (
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
-	"goCmd/utils"
 	"os"
 	"strings"
 )
@@ -100,11 +100,15 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 			session.Path = dir
 			system.UserDir = dir
 
+			src.PrepareOrbix()
+
 			Orbix("",
 				true,
 				structs.RebootedData{},
 				executeCommand.LoopData.SessionData)
 			system.PreviousSessionPrefix = executeCommand.SessionPrefix
+
+			src.RestoreOrbix()
 		},
 		"newuser": func() { user.NewUser() },
 		"signout": func() {
@@ -118,8 +122,17 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 		"exit": func() {
 			*executeCommand.LoopData.IsWorking = false
 			*executeCommand.LoopData.IsPermission = false
+
 			user.DeleteUserFromRunningFile(executeCommand.LoopData.Username)
-			environment.SaveVars()
+
+			_chan.SaveVarsFn = environment.SaveVars
+
+			if _chan.LoadConfigsFn() != nil &&
+				session.IsAdmin &&
+				!system.Unauthorized &&
+				system.CntLaunchedOrbixes > 1 {
+				_ = _chan.LoadConfigsFn()
+			}
 		},
 	}
 	defer func() {
@@ -139,10 +152,7 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 				handler()
 			}
 		} else {
-			isValid := utils.ValidCommand(executeCommand.CommandLower, system.AdditionalCommands)
-			if !isValid {
-				handlers.HandleUnknownCommandUtil(executeCommand.Command, executeCommand.CommandLower, system.Commands)
-			}
+			handlers.HandleUnknownCommandUtil(executeCommand.Command, executeCommand.CommandLower, system.Commands)
 		}
 	}
 

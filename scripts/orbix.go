@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_chan "goCmd/chan"
 	"goCmd/internal/run"
 	"goCmd/src/Orbix"
 	"goCmd/src/user"
@@ -136,7 +137,7 @@ func main() {
 			time.Sleep(retryDelay)
 			if system.ErrorStartingServer {
 				fmt.Println(green("The server was able to resolve the error, and now server is listening on port " + system.Port))
-				fmt.Print(magenta("> "))
+				fmt.Print(magenta(" >"))
 				break
 			}
 		}
@@ -193,16 +194,17 @@ func main() {
 	}
 
 	go func() {
-		time.Sleep(time.Second * 1)
+		time.Sleep(retryDelay)
 		if !system.OrbixWorking {
 			user.DeleteUserFromRunningFile(system.UserName)
-			os.Exit(1)
+			*_chan.LoopData.IsWorking = false
 		}
 	}()
 
 	defer func() {
 		user.DeleteUserFromRunningFile(system.UserName)
-
+		_chan.SaveVarsFn()
+		_chan.UpdateChan("scripts__orbix_func")
 		os.Exit(1)
 	}()
 }

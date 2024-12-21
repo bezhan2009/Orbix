@@ -41,6 +41,8 @@ func EndOfSessions(originalStdout, originalStderr *os.File,
 	session *system.Session,
 	sessionData *system.AppState,
 	prefix string) {
+	system.CntLaunchedOrbixes--
+
 	// Restore original outputs
 	os.Stdout, os.Stderr = originalStdout, originalStderr
 
