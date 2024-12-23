@@ -28,6 +28,8 @@ type Session struct {
 	GitBranch string
 	// CommandHistory Users command history
 	CommandHistory []string
+	// R previously entered command
+	R string
 }
 
 // AppState представляет структуру для хранения данных системы.

@@ -141,3 +141,6 @@ var EditableVars = map[string]interface{}{
 
 var AvailableEditableVars = []string{"location", "prompt", "user", "empty", "user_dir"}
 var CustomEditableVars []string
+
+// R Previously entered command
+var R string

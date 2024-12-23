@@ -171,6 +171,8 @@ func Orbix(commandInput string,
 			session,
 		)
 
+		session.R = commandLine
+
 		execCommand = structs.ExecuteCommandFuncParams{
 			Prompt:        &prompt,
 			Command:       command,
