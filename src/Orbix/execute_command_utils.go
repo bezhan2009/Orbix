@@ -189,7 +189,7 @@ func ExecCommandPromptLogic(
 	if strings.ToLower(strings.TrimSpace(*commandLine)) == "r" && strings.TrimSpace(session.R) != "" {
 		fmt.Println(session.R)
 
-		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(system.R)
+		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(session.R)
 	}
 
 	if *isComHasFlag && (*echoTime || *runOnNewThread) {
