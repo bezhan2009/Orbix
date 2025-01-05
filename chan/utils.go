@@ -1,6 +1,9 @@
 package _chan
 
-import "strings"
+import (
+	"goCmd/structs"
+	"strings"
+)
 
 func UpdateChan(chanName string) {
 	chanName = strings.ToLower(strings.TrimSpace(chanName))
@@ -26,12 +29,23 @@ func UpdateChan(chanName string) {
 
 	// Scripts -> Orbix(Func)
 	if chanName == "scripts__orbix_func" {
-		SaveVarsFn = nil
-		LoadConfigsFn = nil
+		SaveVarsFn = func() {
+
+		}
+		LoadConfigsFn = func() error {
+			return nil
+		}
 	}
 
 	// Scripts -> Orbix(LoopData)
 	if chanName == "scripts__orbix_loop_data" {
-		LoopData = nil
+		LoopData = &structs.OrbixLoopData{}
+	}
+
+	// Environment -> SRC(nikcame)
+	if chanName == "environment__src_get_user_nickname" {
+		GetUserNikcName = func() string {
+			return ""
+		}
 	}
 }

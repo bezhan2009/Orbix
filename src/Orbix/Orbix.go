@@ -13,24 +13,32 @@ func Orbix(commandInput string,
 	echo bool,
 	rebooted structs.RebootedData,
 	SD *system.AppState) {
+	LoadUserConfigsFn := func(echo bool) error { return nil }
+
+	var LoopData structs.OrbixLoopData
+
+	if rebooted.LoopData != LoopData {
+		LoopData, LoadUserConfigsFn = rebooted.LoopData, rebooted.LoadUserConfigsFn
+	} else {
+		LoopData, LoadUserConfigsFn = src.OrbixUser(commandInput,
+			echo,
+			&rebooted,
+			SD,
+			ExecLtCommand)
+	}
+
 	defer func() {
+		r := recover()
 		handlePanic(commandInput,
 			echo,
-			SD)
+			SD,
+			LoopData,
+			LoadUserConfigsFn,
+			r)
 	}()
 
-	LoopData, LoadUserConfigsFn := src.OrbixUser(commandInput,
-		echo,
-		&rebooted,
-		SD,
-		ExecLtCommand)
-
 	if !*LoopData.IsWorking {
-		if LoadUserConfigsFn != nil {
-			// Load User Configs
-			_ = LoadUserConfigsFn(false)
-		}
-
+		_ = LoadUserConfigsFn(false)
 		return
 	}
 
@@ -104,7 +112,8 @@ func Orbix(commandInput string,
 		startTimePRCOMARGS time.Time
 	)
 
-	src.EdgeCases(LoopData,
+	src.EdgeCases(&LoopData,
+		session,
 		rebooted,
 		RecoverAndRestore)
 
@@ -124,6 +133,8 @@ func Orbix(commandInput string,
 		if commandLine == "" {
 			continue
 		}
+
+		fmt.Println(commandArgs)
 
 		execCommand = structs.ExecuteCommandFuncParams{
 			Prompt:        &prompt,

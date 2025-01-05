@@ -9,7 +9,7 @@ var (
 	Red     func(a ...interface{}) string
 	Green   func(a ...interface{}) string
 	Yellow  func(a ...interface{}) string
-	blue    func(a ...interface{}) string
+	Blue    func(a ...interface{}) string
 	Magenta func(a ...interface{}) string
 	Cyan    func(a ...interface{}) string
 )
@@ -117,7 +117,7 @@ func InitColors() {
 	Cyan = colors["cyan"]
 	Green = colors["green"]
 	Magenta = colors["magenta"]
-	blue = colors["blue"]
+	Blue = colors["blue"]
 }
 
 var (

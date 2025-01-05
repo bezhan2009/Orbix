@@ -34,7 +34,7 @@ cd Orbix
 
 **On Unix:**
 ```bash
-sh ./build.sh
+chmod +x ./build.sh
 ```
 
 ## Launch and Check for updates:

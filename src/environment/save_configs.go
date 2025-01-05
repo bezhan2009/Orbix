@@ -148,7 +148,7 @@ func LoadUserConfigs() error {
 
 	file, err := os.Open("user.json")
 	if err != nil {
-		fmt.Println("Error opening file:", err)
+		fmt.Println(system.Red("Error opening file:", err))
 		return err
 	}
 	defer func(file *os.File) {

@@ -2,6 +2,7 @@ package Orbix
 
 import (
 	"fmt"
+	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
 	"log"
@@ -12,7 +13,9 @@ import (
 func RecoverFromThePanic(commandInput string,
 	r any,
 	echo bool,
-	SD *system.AppState) {
+	SD *system.AppState,
+	OrbixLoopData structs.OrbixLoopData,
+	LoadUserConfigsFn func(echo bool) error) {
 	PanicText := fmt.Sprintf("Panic recovered: %v", r)
 	fmt.Printf("\n%s\n", system.Red(PanicText))
 
@@ -29,9 +32,11 @@ func RecoverFromThePanic(commandInput string,
 	log.Printf("Panic recovered: %v", r)
 
 	var reboot = structs.RebootedData{
-		Username: system.UserName,
-		Recover:  r,
-		Prefix:   system.Prefix,
+		Username:          system.UserName,
+		Recover:           r,
+		Prefix:            system.Prefix,
+		LoopData:          OrbixLoopData,
+		LoadUserConfigsFn: LoadUserConfigsFn,
 	}
 
 	Orbix(strings.TrimSpace(commandInput),
@@ -57,9 +62,24 @@ func RestartAfterInitFn(sessionData *system.AppState,
 		sessionData)
 }
 
-func handlePanic(commandInput string, echo bool, SD *system.AppState) {
-	if r := recover(); r != nil {
-		RecoverFromThePanic(commandInput, r, echo, SD)
+func handlePanic(commandInput string,
+	echo bool,
+	SD *system.AppState,
+	OrbixLoopData structs.OrbixLoopData,
+	LoadUserConfigsFn func(echo bool) error,
+	r any) {
+	system.Unauthorized = true
+	if r != nil {
+		user.DeleteUserFromRunningFile(system.User)
+
+		system.OrbixRecovering = true
+		RecoverFromThePanic(
+			commandInput,
+			r,
+			echo,
+			SD,
+			OrbixLoopData,
+			LoadUserConfigsFn)
 	}
 }
 

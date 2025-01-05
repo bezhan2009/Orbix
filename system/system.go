@@ -40,6 +40,7 @@ var (
 	}
 	OrbixUser               = &User
 	OrbixTemplatesExtension = "tmpl"
+	OrbixRecovering         = false
 )
 
 func Init() *AppState {

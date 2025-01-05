@@ -14,12 +14,14 @@ func TemplateUtil(commandArgs []string, SD *system.AppState) {
 		return
 	}
 
-	if commandArgs[1] != "echo=on" && commandArgs[1] != "echo=off" {
-		commandArgs[1] = "true"
-	} else if commandArgs[1] == "echo=on" {
-		commandArgs[1] = "true"
-	} else if commandArgs[1] == "echo=off" {
-		commandArgs[1] = "false"
+	if len(commandArgs) < 2 {
+		if commandArgs[1] != "echo=on" && commandArgs[1] != "echo=off" {
+			commandArgs[1] = "true"
+		} else if commandArgs[1] == "echo=on" {
+			commandArgs[1] = "true"
+		} else if commandArgs[1] == "echo=off" {
+			commandArgs[1] = "false"
+		}
 	}
 
 	extension := strings.ToLower(filepath.Ext(commandArgs[0]))

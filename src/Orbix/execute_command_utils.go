@@ -185,6 +185,7 @@ func ExecCommandPromptLogic(
 	commandArgs *[]string,
 	command, commandLine, commandInput, commandLower *string,
 	session *system.Session) bool {
+	defer updateGlobalCommVars()
 
 	if strings.ToLower(strings.TrimSpace(*commandLine)) == "r" && strings.TrimSpace(session.R) != "" {
 		fmt.Println(session.R)
@@ -298,9 +299,13 @@ func ExecCommandPromptLogic(
 				}
 			}
 
-			iArgSplit -= 1
-			fullCommandArgs = append(fullCommandArgs[:iArgSplit], append(argSplitTemp, fullCommandArgs[iArgSplit+1:]...)...)
+			sumArgs := ""
+			for _, argCon := range argSplitTemp {
+				sumArgs += argCon
+			}
 
+			fullCommandArgs = *commandArgs
+			fullCommandArgs[iArg] = sumArgs
 			continue
 		}
 
@@ -432,6 +437,8 @@ func RecoverAndRestore(rebooted *structs.RebootedData) {
 		fmt.Printf("\n%s\n", system.Green(RecoverText))
 		rebooted.Recover = nil
 	}
+
+	system.OrbixRecovering = false
 }
 
 // Command execution logic that can be run in a new thread

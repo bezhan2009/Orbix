@@ -1,6 +1,7 @@
 package src
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"github.com/c-bata/go-prompt"
@@ -212,20 +213,25 @@ func watchFile(runningPath string, username string, isWorking *bool, isPermissio
 					return
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write && *isWorking {
-					if !checkUserInRunningFile(username) && *isWorking && system.User == username {
-						fmt.Print(system.Red("\nUser not authorized. to continue, press Enter:"))
-						devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
-						func() {
-							err = devNull.Close()
-							if err != nil {
-								return
-							}
-						}()
+					if !checkUserInRunningFile(username) && *isWorking && system.User == username && !system.OrbixRecovering {
+						time.Sleep(3 * time.Second)
+						if !checkUserInRunningFile(username) && *isWorking && system.User == username && !system.OrbixRecovering {
 
-						os.Stdout, os.Stderr = devNull, devNull
+							fmt.Print(system.Red("\nUser not authorized. to continue, press Enter:"))
+							devNull, _ := os.OpenFile(os.DevNull, os.O_RDWR, 0666)
+							func() {
+								err = devNull.Close()
+								if err != nil {
+									return
+								}
+							}()
 
-						*isWorking = false
-						*isPermission = false
+							os.Stdout, os.Stderr = devNull, devNull
+
+							*isWorking = false
+							*isPermission = false
+							return
+						}
 					}
 				}
 			case err, ok := <-watcher.Errors:
@@ -792,7 +798,8 @@ func OrbixUser(commandInput string,
 	}, nil
 }
 
-func EdgeCases(OrbixLoopData structs.OrbixLoopData,
+func EdgeCases(OrbixLoopData *structs.OrbixLoopData,
+	session *system.Session,
 	rebooted structs.RebootedData,
 	RecoverAndRestore func(rebooted *structs.RebootedData)) {
 	if len(OrbixLoopData.Session.CommandHistory) < 10 {
@@ -803,6 +810,13 @@ func EdgeCases(OrbixLoopData structs.OrbixLoopData,
 	if system.RebootAttempts != 0 {
 		RecoverAndRestore(&rebooted)
 		system.RebootAttempts = 0
+	}
+
+	if strings.TrimSpace(OrbixLoopData.Username) == "" {
+		nickname := GetUserNickname()
+		system.User = nickname
+		session.User = nickname
+		OrbixLoopData.Username = nickname
 	}
 }
 
@@ -822,4 +836,20 @@ func RestoreOrbix() {
 	}
 
 	system.UserDir, _ = os.Getwd()
+}
+
+func GetUserNickname() string {
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print(system.Magenta("\nYour name is Empty!!!\nEnter nickname: "))
+		nickname, _ := reader.ReadString('\n')
+
+		nickname = strings.TrimSpace(nickname)
+
+		if nickname == "" {
+			continue
+		}
+
+		return nickname
+	}
 }
