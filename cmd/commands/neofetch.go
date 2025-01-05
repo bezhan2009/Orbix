@@ -16,6 +16,7 @@ func FetchNeofetch(user string) {
 	if system.Neofetch != "" {
 		fmt.Println(system.Neofetch)
 		fmt.Println()
+		return
 	}
 
 	// Получаем информацию о пользователе
