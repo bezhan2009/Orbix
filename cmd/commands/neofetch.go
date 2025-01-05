@@ -13,6 +13,11 @@ import (
 )
 
 func FetchNeofetch(user string) {
+	if system.Neofetch != "" {
+		fmt.Println(system.Neofetch)
+		fmt.Println()
+	}
+
 	// Получаем информацию о пользователе
 	username := user
 
@@ -66,7 +71,7 @@ func FetchNeofetch(user string) {
 		"                                 ``",
 	}
 
-	neofetch := fmt.Sprintf(`%s
+	system.Neofetch = fmt.Sprintf(`%s
 %s
 %s
 %s
@@ -107,6 +112,6 @@ func FetchNeofetch(user string) {
 		cyan(fmt.Sprintf("       %s   ", title(windows_10[18]))),
 		cyan(fmt.Sprintf("       %s   ", title(windows_10[19]))))
 
-	fmt.Println(neofetch)
+	fmt.Println(system.Neofetch)
 	fmt.Println()
 }

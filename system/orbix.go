@@ -157,6 +157,7 @@ var (
 	Unauthorized          = true
 	RebootAttempts        = uint(0)
 	SessionsStarted       = uint(0)
+	Neofetch              = ""
 )
 
 const (
