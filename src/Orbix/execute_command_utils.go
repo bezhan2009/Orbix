@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"goCmd/cmd/commands"
 	ExOpenedCommReadUtils "goCmd/cmd/commands/Read/utils"
+	"goCmd/cmd/commands/fcommands"
 	"goCmd/cmd/dirInfo"
 	"goCmd/src"
 	"goCmd/src/environment"
@@ -13,6 +14,7 @@ import (
 	ExCommUtils "goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
+	"goCmd/system/errs"
 	"goCmd/utils"
 	"io/ioutil"
 	"os"
@@ -26,6 +28,7 @@ import (
 var (
 	TEXCOM             string
 	commandExLogg      string
+	sumArgs            string
 	commandArgsListStr []string
 	commandList        []string
 	fullCommandArgs    []string
@@ -120,6 +123,9 @@ func ExecExternalLoopCommand(session *system.Session,
 	if runOnNewThread {
 		go func() {
 			err = executeCommandOrbix(fullCommand, command, commandLower, dir)
+			if err != nil {
+				fmt.Println(system.Red("Error executing orbix command:", err))
+			}
 		}()
 
 		if strings.TrimSpace(commandInput) != "" {
@@ -174,6 +180,72 @@ func updateGlobalCommVars() {
 	iArgSplit = 0
 
 	startTime = time.Time{}
+}
+
+func SetCommandVarValues(commandArgs *[]string, autocomplete bool) ([]string, string) {
+	for iArg, arg := range *commandArgs {
+		if !strings.Contains(arg, "$") {
+			continue
+		}
+
+		if strings.Contains(arg, "+") {
+			argSplit = strings.Split(arg, "+")
+
+			var argSplitTemp []string
+			for iArgSplit, arg = range argSplit {
+				if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
+					if string(arg[len(arg)-1]) == "-" {
+						argList = strings.Split(arg, "-")
+						arg = argList[0]
+						fullCommandArgs[iArg] = arg
+						*commandArgs = fullCommandArgs
+						continue
+					}
+
+					customVar, err := getCustomVar(arg[1:])
+					if err != nil && !autocomplete {
+						fmt.Println(system.Red(err))
+						continue
+					}
+
+					if customVar != nil {
+						argSplitTemp = append(argSplitTemp, customVar.(string))
+					}
+				}
+			}
+
+			sumArgs = ""
+			for _, argCon := range argSplitTemp {
+				sumArgs += argCon
+			}
+
+			fullCommandArgs = *commandArgs
+			fullCommandArgs[iArg] = sumArgs
+			continue
+		}
+
+		if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
+			if string(arg[len(arg)-1]) == "-" {
+				argList = strings.Split(arg, "-")
+				arg = argList[0]
+				fullCommandArgs[iArg] = arg
+				*commandArgs = fullCommandArgs
+				continue
+			}
+
+			customVar, err := getCustomVar(arg[1:])
+			if err != nil && !autocomplete {
+				fmt.Println(system.Red(err))
+			}
+
+			if customVar != nil {
+				fullCommandArgs[iArg] = customVar.(string)
+				*commandArgs = fullCommandArgs
+			}
+		}
+	}
+
+	return fullCommandArgs, sumArgs
 }
 
 func ExecCommandPromptLogic(
@@ -268,67 +340,7 @@ func ExecCommandPromptLogic(
 	fullCommandArgs = append(fullCommandArgs, commandArgsListStr...)
 	*commandArgs = fullCommandArgs
 
-	for iArg, arg := range *commandArgs {
-		if !strings.Contains(arg, "$") {
-			continue
-		}
-
-		if strings.Contains(arg, "+") {
-			argSplit = strings.Split(arg, "+")
-
-			var argSplitTemp []string
-			for iArgSplit, arg = range argSplit {
-				if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
-					if string(arg[len(arg)-1]) == "-" {
-						argList = strings.Split(arg, "-")
-						arg = argList[0]
-						fullCommandArgs[iArg] = arg
-						*commandArgs = fullCommandArgs
-						continue
-					}
-
-					customVar, err := getCustomVar(arg[1:])
-					if err != nil {
-						fmt.Println(system.Red(err))
-						continue
-					}
-
-					if customVar != nil {
-						argSplitTemp = append(argSplitTemp, customVar.(string))
-					}
-				}
-			}
-
-			sumArgs := ""
-			for _, argCon := range argSplitTemp {
-				sumArgs += argCon
-			}
-
-			fullCommandArgs = *commandArgs
-			fullCommandArgs[iArg] = sumArgs
-			continue
-		}
-
-		if string(arg[0]) == "$" && len(strings.TrimSpace(arg)) > 1 {
-			if string(arg[len(arg)-1]) == "-" {
-				argList = strings.Split(arg, "-")
-				arg = argList[0]
-				fullCommandArgs[iArg] = arg
-				*commandArgs = fullCommandArgs
-				continue
-			}
-
-			customVar, err := getCustomVar(arg[1:])
-			if err != nil {
-				fmt.Println(system.Red(err))
-			}
-
-			if customVar != nil {
-				fullCommandArgs[iArg] = customVar.(string)
-				*commandArgs = fullCommandArgs
-			}
-		}
-	}
+	SetCommandVarValues(commandArgs, false)
 
 	InQuotes := true
 
@@ -360,7 +372,7 @@ func ExecCommandPromptLogic(
 			// Выполняем команду
 			dataRecord, err := ExecOpenedComms(innerArgs)
 			if err != nil {
-				fmt.Println(fmt.Sprintf("Ошибка выполнения: %s", err))
+				fmt.Println(fmt.Sprintf("Error: %s", err))
 				continue
 			}
 
@@ -415,8 +427,13 @@ func ExecCommandPromptLogic(
 }
 
 func ExecOpenedComms(commandArgs []string) (string, error) {
+	if len(commandArgs) < 1 {
+		return "", errs.CommandArgsNotFound
+	}
+
 	commandMap := map[string]func() ([]byte, error){
-		"read": func() ([]byte, error) { return ExOpenedCommReadUtils.File(commandArgs[1]) },
+		"read":   func() ([]byte, error) { return ExOpenedCommReadUtils.File(commandArgs[1]) },
+		"create": func() ([]byte, error) { return fcommands.CreateFile(commandArgs[1]) },
 	}
 
 	if handler, exists := commandMap[commandArgs[0]]; exists {

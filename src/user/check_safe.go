@@ -7,6 +7,7 @@ import (
 	"goCmd/cmd/commands"
 	"goCmd/pkg/algorithms/PasswordAlgoritm"
 	"goCmd/system"
+	"goCmd/system/errs"
 	"goCmd/utils"
 	"golang.org/x/term"
 	"os"
@@ -130,7 +131,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error
 				if strings.TrimSpace(line) == strings.TrimSpace(username) {
 					system.Unauthorized = true
 					fmt.Println(system.Red("This user already exists!"))
-					return "", false, system.UserAlreadyExists
+					return "", false, errs.UserAlreadyExists
 				}
 			}
 
@@ -138,7 +139,7 @@ func CheckUser(usernameFromDir string, sd *system.AppState) (string, bool, error
 				for _, line := range lines {
 					if strings.Contains(strings.TrimSpace(line), strings.TrimSpace(username)) {
 						fmt.Println(system.Red("Partial match found with: " + line))
-						return "", false, system.ExactMatchNotFound
+						return "", false, errs.ExactMatchNotFound
 					}
 				}
 			}

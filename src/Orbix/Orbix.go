@@ -6,6 +6,7 @@ import (
 	"goCmd/src"
 	"goCmd/structs"
 	"goCmd/system"
+	"strings"
 	"time"
 )
 
@@ -94,23 +95,25 @@ func Orbix(commandInput string,
 
 		TEXCOMARGS string
 
-		commandLine  string
-		command      string
-		commandLower string
-		commandArgs  []string
+		commandLine         string
+		command             string
+		commandLower        string
+		commandArgs         []string
+		SplittedCommandLine []string
 
 		runOnNewThread  bool
 		echoTime        bool
 		firstCharIs     bool
 		lastCharIs      bool
 		isComHasFlag    bool
-		continueLoop    bool
 		gitBranchUpdate bool
 
 		err error
 
 		startTimePRCOMARGS time.Time
 	)
+
+	_chan.SetVarFn = getCustomVar
 
 	src.EdgeCases(&LoopData,
 		session,
@@ -128,93 +131,115 @@ func Orbix(commandInput string,
 			&colorsMap,
 		)
 
+		LoopCommand := func(commandLine, command, commandLower string,
+			commandArgs []string) (continueLoop bool) {
+
+			execCommand = structs.ExecuteCommandFuncParams{
+				Prompt:        &prompt,
+				Command:       command,
+				CommandLower:  commandLower,
+				CommandArgs:   commandArgs,
+				SessionPrefix: prefix,
+				LoopData:      LoopData,
+			}
+
+			processCommandParams = structs.ProcessCommandParams{
+				Command:        command,
+				CommandInput:   commandInput,
+				CommandLower:   commandLower,
+				CommandLine:    commandLine,
+				CommandArgs:    commandArgs,
+				RunOnNewThread: &runOnNewThread,
+				EchoTime:       &echoTime,
+				FirstCharIs:    &firstCharIs,
+				LastCharIs:     &lastCharIs,
+				IsComHasFlag:   &isComHasFlag,
+				ExecCommand:    execCommand,
+				LoopData:       LoopData,
+			}
+
+			startTimePRCOMARGS = time.Now()
+			continueLoop = ProcessCommandArgs(&processCommandParams)
+
+			if continueLoop {
+				if echoTime {
+					TEXCOMARGS = fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
+					fmt.Println(system.Green(TEXCOMARGS))
+				}
+
+				return true
+			}
+
+			ExecCommandPromptLogic(
+				&firstCharIs,
+				&lastCharIs,
+				&isComHasFlag,
+				&echoTime,
+				&runOnNewThread,
+				&commandArgs, &command, &commandLine, &commandInput, &commandLower,
+				session,
+			)
+
+			session.R = commandLine
+
+			execCommand = structs.ExecuteCommandFuncParams{
+				Prompt:        &prompt,
+				Command:       command,
+				CommandLower:  commandLower,
+				CommandArgs:   commandArgs,
+				CommandInput:  commandInput,
+				SessionPrefix: prefix,
+				LoopData:      LoopData,
+			}
+
+			err = ExecLoopCommand(
+				&commandLower,
+				&prefix,
+				&echoTime,
+				&runOnNewThread,
+				&execCommand,
+			)
+
+			updateGlobalCommVars()
+			src.UnknownCommandsCounter = 0
+
+			if err != nil {
+				return true
+			}
+
+			// Process command
+			go func() {
+				gitBranchUpdate = src.ProcessCommand(commandLower)
+
+				if gitBranchUpdate {
+					LoopData.Session.GitBranch, _ = system.GetCurrentGitBranch()
+				}
+			}()
+
+			return false
+		}
+
 		// Command processing
 		commandLine, command, commandArgs, commandLower = src.ReadCommandLine(commandInput) // Refactored input handling
 		if commandLine == "" {
 			continue
 		}
 
-		execCommand = structs.ExecuteCommandFuncParams{
-			Prompt:        &prompt,
-			Command:       command,
-			CommandLower:  commandLower,
-			CommandArgs:   commandArgs,
-			SessionPrefix: prefix,
-			LoopData:      LoopData,
-		}
+		SplittedCommandLine = strings.Split(commandLine, "&&")
+		if len(SplittedCommandLine) > 1 && strings.TrimSpace(commandLine) != "&&" {
+			session.CommandHistory = append(session.CommandHistory, commandLine)
 
-		processCommandParams = structs.ProcessCommandParams{
-			Command:        command,
-			CommandInput:   commandInput,
-			CommandLower:   commandLower,
-			CommandLine:    commandLine,
-			CommandArgs:    commandArgs,
-			RunOnNewThread: &runOnNewThread,
-			EchoTime:       &echoTime,
-			FirstCharIs:    &firstCharIs,
-			LastCharIs:     &lastCharIs,
-			IsComHasFlag:   &isComHasFlag,
-			ExecCommand:    execCommand,
-			LoopData:       LoopData,
-		}
-
-		startTimePRCOMARGS = time.Now()
-		continueLoop = ProcessCommandArgs(&processCommandParams)
-
-		if continueLoop {
-			if echoTime {
-				TEXCOMARGS = fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
-				fmt.Println(system.Green(TEXCOMARGS))
+			for _, commandLineLoop := range SplittedCommandLine {
+				commandLine, command, commandArgs, commandLower = src.ReadCommandLine(commandLineLoop)
+				LoopCommand(commandLine, command, commandLower, commandArgs)
 			}
 
 			continue
 		}
 
-		ExecCommandPromptLogic(
-			&firstCharIs,
-			&lastCharIs,
-			&isComHasFlag,
-			&echoTime,
-			&runOnNewThread,
-			&commandArgs, &command, &commandLine, &commandInput, &commandLower,
-			session,
-		)
-
-		session.R = commandLine
-
-		execCommand = structs.ExecuteCommandFuncParams{
-			Prompt:        &prompt,
-			Command:       command,
-			CommandLower:  commandLower,
-			CommandArgs:   commandArgs,
-			CommandInput:  commandInput,
-			SessionPrefix: prefix,
-			LoopData:      LoopData,
-		}
-
-		err = ExecLoopCommand(
-			&commandLower,
-			&prefix,
-			&echoTime,
-			&runOnNewThread,
-			&execCommand,
-		)
-
-		updateGlobalCommVars()
-		src.UnknownCommandsCounter = 0
-
-		if err != nil {
+		if LoopCommand(commandLine, command, commandLower, commandArgs) {
 			continue
 		}
-
-		// Process command
-		go func() {
-			gitBranchUpdate = src.ProcessCommand(commandLower)
-
-			if gitBranchUpdate {
-				LoopData.Session.GitBranch, _ = system.GetCurrentGitBranch()
-			}
-		}()
 	}
 
 	EndOfSessions(originalStdout, originalStderr,

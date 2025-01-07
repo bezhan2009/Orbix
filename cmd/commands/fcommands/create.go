@@ -30,11 +30,11 @@ func CFile(commandArgs []string) (string, error) {
 		return name, errExisting
 	}
 
-	name, err := CreateFile(name)
+	nameFile, err := CreateFile(name)
 
 	if err != nil {
-		return name, err
+		return string(nameFile), err
 	} else {
-		return name, err
+		return string(nameFile), err
 	}
 }

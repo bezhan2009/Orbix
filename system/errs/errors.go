@@ -1,8 +1,9 @@
-package system
+package errs
 
 import (
 	"errors"
 	"fmt"
+	"goCmd/system"
 )
 
 var (
@@ -13,5 +14,6 @@ var (
 	SessionIsNil           = errors.New("session is Nil")
 	SessionNotExists       = errors.New("session Not Exists")
 	SessionExpired         = errors.New("session Expired")
-	ExactMatchNotFound     = errors.New(fmt.Sprintf("exact match not found in %s", OrbixRunningUsersFileName))
+	CommandArgsNotFound    = errors.New("command args Not Found")
+	ExactMatchNotFound     = errors.New(fmt.Sprintf("exact match not found in %s", system.OrbixRunningUsersFileName))
 )
