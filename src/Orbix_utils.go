@@ -394,9 +394,9 @@ func customPrompt(commandInput, prompt *string,
 
 func printOldPrompt(commandInput, dir *string) {
 	if strings.TrimSpace(*commandInput) != "" {
-		fmt.Printf("ORB %s>%s", *dir, system.Green(*commandInput))
+		fmt.Printf("ORB %s> %s", *dir, system.Green(*commandInput))
 	} else {
-		fmt.Printf("ORB %s>", *dir)
+		fmt.Printf("ORB %s> ", *dir)
 	}
 }
 
@@ -625,7 +625,7 @@ func ignoreSI(signalChan chan os.Signal,
 			} else {
 				dir, _ := os.Getwd()
 				if *prompt == "" {
-					fmt.Printf("ORB %s>%s", dir, system.Green(*commandInput))
+					fmt.Printf("ORB %s> %s", dir, system.Green(*commandInput))
 				} else {
 					customPrompt(commandInput, prompt,
 						colorsMap)

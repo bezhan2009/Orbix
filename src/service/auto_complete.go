@@ -119,6 +119,10 @@ func createUniqueVariableCommandSuggestions(word, prefix string) []prompt.Sugges
 				sumStr = fmt.Sprintf("%s%s", sumStr, value)
 			}
 
+			if len(sumStr) > 10 && strings.Contains(res, "+") {
+				sumStr = fmt.Sprintf("%s%s", "...", sumStr[10:])
+			}
+
 			uniqueCommands[vars] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: word + vars, Description: sumStr})
 		}

@@ -170,7 +170,7 @@ func Orbix(commandInput string,
 				return true
 			}
 
-			ExecCommandPromptLogic(
+			if ExecCommandPromptLogic(
 				&firstCharIs,
 				&lastCharIs,
 				&isComHasFlag,
@@ -178,7 +178,9 @@ func Orbix(commandInput string,
 				&runOnNewThread,
 				&commandArgs, &command, &commandLine, &commandInput, &commandLower,
 				session,
-			)
+			) {
+				return true
+			}
 
 			session.R = commandLine
 

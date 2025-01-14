@@ -6,7 +6,9 @@ import (
 	"goCmd/src/utils"
 	"goCmd/structs"
 	"goCmd/system"
+	"goCmd/system/errs"
 	utils2 "goCmd/utils"
+	utils3 "goCmd/validators/utils"
 	"reflect"
 	"strconv"
 	"strings"
@@ -51,6 +53,10 @@ func SetVariableUtil(args []string) {
 
 // SetVariable изменяет значение переменной по её имени с преобразованием типов
 func SetVariable(varName string, value string) error {
+	if utils2.IsValid(varName, utils3.GetValidateSymbols()) {
+		return errs.ValidationError
+	}
+
 	if strings.TrimSpace(strings.ToLower(varName)) == "empty" {
 		return fmt.Errorf(fmt.Sprintf("the variable %s is nil\n", varName))
 	}

@@ -348,20 +348,31 @@ func ExecCommandPromptLogic(
 		arg := fullCommandArgs[iArg]
 
 		if strings.HasPrefix(arg, "(") && InQuotes {
+
 			// Ищем конец команды в скобках
 			endIdx := -1
+			cntSpaces := 0
 			for j := iArg; j < len(fullCommandArgs); j++ {
-				if strings.HasSuffix(fullCommandArgs[j], ")") {
-					endIdx = j
-					continue
+				if fullCommandArgs[j] == " " || fullCommandArgs[j] == "" {
+					cntSpaces++
 				}
+
+				if strings.HasSuffix(fullCommandArgs[j], ")") {
+					endIdx = j - cntSpaces
+					break
+				}
+			}
+
+			if endIdx != 2 && endIdx != -1 {
+				fmt.Println(system.Red(fmt.Sprintf("Syntax Error in '%s'\nNot enough arguments to call func", fullCommandArgs[iArg])))
+				return true
 			}
 
 			// Если нет закрывающей скобки
 			if endIdx == -1 {
 				fmt.Println(system.Red(fmt.Sprintf("Syntax Error in '%s'\nPlease Close the '('", fullCommandArgs[iArg])))
-				fmt.Println(fmt.Sprintf(" %s\n%s", fmt.Sprintf("%s%s", system.Red(fmt.Sprintf("%s", fullCommandArgs[iArg])), system.Yellow(")")), strings.Repeat(system.Red("-"), (len(arg)-1)+2)+system.Yellow("^")))
-				continue
+				fmt.Println(fmt.Sprintf(" %s\n%s", fmt.Sprintf("%s%s", system.Red(fmt.Sprintf("%s %s", fullCommandArgs[iArg], fullCommandArgs[iArg+1])), system.Yellow(")")), strings.Repeat(system.Red("─"), (len(fmt.Sprintf("%s %s", fullCommandArgs[iArg], fullCommandArgs[iArg+1]))-1)+2)+system.Yellow("ꜛ")))
+				return true
 			}
 
 			// Объединяем команду внутри скобок
@@ -372,12 +383,13 @@ func ExecCommandPromptLogic(
 			// Выполняем команду
 			dataRecord, err := ExecOpenedComms(innerArgs)
 			if err != nil {
-				fmt.Println(fmt.Sprintf("Error: %s", err))
-				continue
+				fmt.Println(system.Red(fmt.Sprintf("Error: %s", err)))
+				return true
 			}
 
 			// Заменяем в основном массиве команду на результат выполнения
 			fullCommandArgs[iArg] = dataRecord
+
 			// Удаляем оставшиеся элементы команды из аргументов
 			fullCommandArgs = append(fullCommandArgs[:iArg+1], fullCommandArgs[endIdx+1:]...)
 			continue
@@ -398,7 +410,7 @@ func ExecCommandPromptLogic(
 	if !isValid {
 		system.ExecutingCommand = true
 
-		err := ExecExternalLoopCommand(
+		_ = ExecExternalLoopCommand(
 			session,
 			system.UserDir,
 			*command,
@@ -412,15 +424,15 @@ func ExecCommandPromptLogic(
 
 		system.ExecutingCommand = false
 
-		if err != nil {
-			return true
-		}
-
-		if strings.TrimSpace(*commandInput) != "" {
-			return true
-		}
-
-		return true
+		//if err != nil {
+		//	return true
+		//}
+		//
+		//if strings.TrimSpace(*commandInput) != "" {
+		//	return true
+		//}
+		//
+		//return true
 	}
 
 	return false
