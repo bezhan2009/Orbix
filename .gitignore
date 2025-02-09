@@ -31,6 +31,7 @@ activeUser.txt
 scripts/GUI_test.py
 
 # Build Files
+scripts/bin
 scripts/dump.rdb
 scripts/dist
 userName.env
@@ -40,6 +41,7 @@ running.env
 *.log
 *.json
 *.tmpl
+*.prof
 orbix
 !CMakeLists.txt
 

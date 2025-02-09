@@ -186,10 +186,5 @@ func LoadUserConfigs() error {
 		SetVariableUtil(utils.SplitCommandLine(saveToEnv))
 	}
 
-	err = commands.ChangeDirectory(system.UserDir)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

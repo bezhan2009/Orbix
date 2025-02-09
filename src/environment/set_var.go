@@ -23,6 +23,7 @@ func SetVariableUtil(args []string) {
 	colors = system.GetColorsMap()
 
 	if len(args) < 2 {
+		fmt.Println(args)
 		fmt.Println(colors["yellow"]("Usage: setvar <variable_name> <value>"))
 		return
 	}

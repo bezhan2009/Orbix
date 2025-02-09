@@ -17,6 +17,7 @@ func Orbix(commandInput string,
 	LoadUserConfigsFn := func(echo bool) error { return nil }
 
 	var LoopData structs.OrbixLoopData
+	originalStdout, originalStderr := setupOutputRedirect(echo)
 
 	if rebooted.LoopData != LoopData {
 		LoopData, LoadUserConfigsFn = rebooted.LoopData, rebooted.LoadUserConfigsFn
@@ -56,8 +57,6 @@ func Orbix(commandInput string,
 		rebooted,
 		LoopData,
 	)
-
-	originalStdout, originalStderr := setupOutputRedirect(echo)
 
 	if *LoopData.RestartAfterInit {
 		RestartAfterInitFn(

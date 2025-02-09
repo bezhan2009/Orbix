@@ -52,8 +52,10 @@ func EndOfSessions(originalStdout, originalStderr *os.File,
 	system.PreviousSessionPath = session.Path
 	session, _ = sessionData.GetSession(system.PreviousSessionPrefix)
 
-	if err := commands.ChangeDirectory(session.Path); err != nil {
-		fmt.Println(system.Red("Error changing directory:", err))
+	if strings.TrimSpace(session.Path) != "" {
+		if err := commands.ChangeDirectory(session.Path); err != nil {
+			fmt.Println(system.Red("Error changing directory:", err))
+		}
 	}
 
 	sessionData.DeleteSession(prefix)
