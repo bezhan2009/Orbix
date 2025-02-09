@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Version             = "1.10.15"
+	Version             = "1.10.16"
 	License             = "MIT"
 	SystemName          = "Orbix"
 	OperationSystem     = runtime.GOOS
@@ -96,13 +96,26 @@ func SetColorsMap() map[string]func(...interface{}) string {
 	magenta := color.New(color.FgMagenta).SprintFunc()
 	blue := color.New(color.FgBlue).SprintFunc()
 
+	redBold := color.New(color.FgRed, color.Bold).SprintFunc()
+	yellowBold := color.New(color.FgYellow, color.Bold).SprintFunc()
+	cyanBold := color.New(color.FgCyan).SprintFunc()
+	greenBold := color.New(color.FgGreen, color.Bold).SprintFunc()
+	magentaBold := color.New(color.FgMagenta, color.Bold).SprintFunc()
+	blueBold := color.New(color.FgBlue, color.Bold).SprintFunc()
+
 	colors := map[string]func(...interface{}) string{
-		"green":   green,
-		"red":     red,
-		"blue":    blue,
-		"yellow":  yellow,
-		"cyan":    cyan,
-		"magenta": magenta,
+		"green":       green,
+		"red":         red,
+		"blue":        blue,
+		"yellow":      yellow,
+		"cyan":        cyan,
+		"magenta":     magenta,
+		"redBold":     redBold,
+		"yellowBold":  yellowBold,
+		"cyanBold":    cyanBold,
+		"magentaBold": magentaBold,
+		"blueBold":    blueBold,
+		"greenBold":   greenBold,
 	}
 
 	return colors

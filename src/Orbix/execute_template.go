@@ -8,7 +8,7 @@ import (
 )
 
 func TemplateUtil(commandArgs []string, SD *system.AppState) {
-	if len(commandArgs) < 1 {
+	if len(commandArgs) < 2 {
 		fmt.Println(system.Yellow("Usage: template <template_name> echo=on"))
 		fmt.Println(system.Yellow("Or: template <template_name> echo=off if you want without outputting the result"))
 		return
@@ -22,6 +22,8 @@ func TemplateUtil(commandArgs []string, SD *system.AppState) {
 		} else if commandArgs[1] == "echo=off" {
 			commandArgs[1] = "false"
 		}
+	} else {
+		commandArgs = append(commandArgs, "echo=on")
 	}
 
 	extension := strings.ToLower(filepath.Ext(commandArgs[0]))

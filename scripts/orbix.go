@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime/pprof"
 	"strconv"
 	"time"
 )
@@ -47,6 +48,17 @@ func OrbixLoop(panicChan chan any,
 	colorsMap := system.GetColorsMap()
 	red := colorsMap["red"]
 
+	go func() {
+		for {
+			time.Sleep(retryDelay)
+			if _chan.IsVarsFnUpd {
+				time.Sleep(retryDelay)
+				_chan.SaveVarsFn()
+				_chan.IsVarsFnUpd = false
+			}
+		}
+	}()
+
 	defer func() {
 		if r := recover(); r != nil {
 			user.DeleteUserFromRunningFile(system.UserName)
@@ -68,6 +80,18 @@ func OrbixLoop(panicChan chan any,
 }
 
 func main() {
+	f, err := os.Create("cpu.prof")
+	if err != nil {
+		fmt.Printf("Error creating CPU profile: %v", err)
+	}
+	defer f.Close()
+
+	// Запуск профилирования CPU.
+	if err := pprof.StartCPUProfile(f); err != nil {
+		fmt.Printf("Error starting CPU profile: %v", err)
+	}
+	defer pprof.StopCPUProfile()
+
 	// Initialization Orbix
 	run.Init()
 
@@ -137,7 +161,7 @@ func main() {
 			time.Sleep(retryDelay)
 			if system.ErrorStartingServer {
 				fmt.Println(green("The server was able to resolve the error, and now server is listening on port " + system.Port))
-				fmt.Print(magenta(" >"))
+				fmt.Print(green(" >"))
 				break
 			}
 		}

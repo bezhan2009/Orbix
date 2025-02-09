@@ -53,7 +53,7 @@ func SetVariableUtil(args []string) {
 
 // SetVariable изменяет значение переменной по её имени с преобразованием типов
 func SetVariable(varName string, value string) error {
-	if utils2.IsValid(varName, utils3.GetValidateSymbols()) {
+	if utils2.ValidCommandFast(varName, utils3.ValidateSymbols) {
 		return errs.ValidationError
 	}
 

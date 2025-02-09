@@ -147,9 +147,12 @@ func PrintPromptInfoWithoutGit(location, user, dirC, commandInput *string) {
 }
 
 func commandVar(commandLower string) bool {
+	// Если набор команд будет расширяться, можно использовать map для O(1) поиска.
 	return commandLower == "setvar" ||
 		commandLower == "delvar" ||
-		commandLower == "getvar"
+		commandLower == "getvar" ||
+		commandLower == "cd" ||
+		commandLower == "cd.."
 }
 
 func ReadCommandLine(commandInput string) (string, string, []string, string) {
@@ -161,21 +164,34 @@ func ReadCommandLine(commandInput string) (string, string, []string, string) {
 		commandLine = strings.TrimSpace(prompt.Input("", service.AutoComplete))
 	}
 
-	commandLineSplit := strings.Split(commandLine, " ")
-	if commandVar(strings.ToLower(commandLineSplit[0])) {
-		command := commandLineSplit[:1]
-
-		return commandLine, command[0], commandLineSplit[1:], strings.ToLower(commandLineSplit[0])
+	// Если ввода нет, сразу возвращаем пустые значения
+	if commandLine == "" {
+		return "", "", nil, ""
 	}
 
+	// Используем Fields для разбиения по любым пробельным символам
+	tokens := strings.Fields(commandLine)
+	if len(tokens) == 0 {
+		return "", "", nil, ""
+	}
+
+	// Вычисляем нижний регистр первого токена один раз
+	firstTokenLower := strings.ToLower(tokens[0])
+	if commandVar(firstTokenLower) {
+		_chan.IsVarsFnUpd = true
+		// Возвращаем: исходную строку, первый токен, оставшиеся токены и первый токен в нижнем регистре
+		return commandLine, tokens[0], tokens[1:], firstTokenLower
+	}
+
+	// Если команда не является setvar/delvar/getvar, используем разбиение по более сложной логике
 	commandParts := utils.SplitCommandLine(commandLine)
 	if len(commandParts) == 0 {
 		return "", "", nil, ""
 	}
 
-	command := commandParts[:1]
-
-	return commandLine, command[0], commandParts[1:], strings.ToLower(commandParts[0])
+	// Вычисляем нижний регистр первого элемента и возвращаем результат
+	firstPartLower := strings.ToLower(commandParts[0])
+	return commandLine, commandParts[0], commandParts[1:], firstPartLower
 }
 
 func ProcessCommand(commandLower string) bool {
@@ -214,7 +230,7 @@ func watchFile(runningPath string, username string, isWorking *bool, isPermissio
 				}
 				if event.Op&fsnotify.Write == fsnotify.Write && *isWorking {
 					if !checkUserInRunningFile(username) && *isWorking && system.User == username && !system.OrbixRecovering {
-						time.Sleep(3 * time.Second)
+						time.Sleep(system.RetryDelay)
 						if !checkUserInRunningFile(username) && *isWorking && system.User == username && !system.OrbixRecovering {
 
 							fmt.Print(system.Red("\nUser not authorized. to continue, press Enter:"))
@@ -345,7 +361,7 @@ func CommandFile(command string) bool {
 		command == "edit" ||
 		command == "create" ||
 		command == "rem" ||
-		command == "del_var" ||
+		command == "delvar" ||
 		command == "format" ||
 		command == "del" ||
 		command == "gocode" ||

@@ -32,6 +32,7 @@ func UpdateChan(chanName string) {
 		SaveVarsFn = func() {
 
 		}
+		IsVarsFnUpd = false
 		LoadConfigsFn = func() error {
 			return nil
 		}

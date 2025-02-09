@@ -68,7 +68,7 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 		"api_request":  func() { commands.ApiRequest() },
 		"print":        func() { commands.Print(executeCommand.CommandArgs) },
 		"kill":         func() { ExCommUtils.KillProcessUtil(executeCommand.CommandArgs) },
-		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, system.User, system.Commands) },
+		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, system.User, system.CmdMap) },
 		"setvar":       func() { environment.SetVariableUtil(executeCommand.CommandArgs) },
 		"stusenv":      func() { commands.SetUserFromENV(system.Path) },
 		"set_user_env": func() { commands.SetUserFromENV(system.Path) },
@@ -125,8 +125,6 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 
 			user.DeleteUserFromRunningFile(executeCommand.LoopData.Username)
 
-			_chan.SaveVarsFn = environment.SaveVars
-
 			if _chan.LoadConfigsFn() != nil &&
 				session.IsAdmin &&
 				!system.Unauthorized &&
@@ -152,7 +150,7 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 				handler()
 			}
 		} else {
-			handlers.HandleUnknownCommandUtil(executeCommand.Command, executeCommand.CommandLower, system.Commands)
+			handlers.HandleUnknownCommandUtil(executeCommand.Command, executeCommand.CommandLower, system.CmdMap)
 		}
 	}
 

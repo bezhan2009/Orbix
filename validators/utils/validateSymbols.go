@@ -1,5 +1,9 @@
 package utils
 
+import "goCmd/system"
+
+var ValidateSymbols map[string]struct{} = system.BuildStringCommandMap(GetValidateSymbols()) // for []string
+
 func GetValidateSymbols() []string {
 	// Добавляем символы, которые не разрешены
 	return []string{"/", "*", "-", "+", "=", "_", "{", "}", "'", "\"", "[", "]", ";", ":", "#", "@", "!", "№", ",", ".", "$", "%", "^", "&", "?", "(", ")", "`"}

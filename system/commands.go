@@ -6,12 +6,18 @@ type Command struct {
 }
 
 var (
-	Red     func(a ...interface{}) string
-	Green   func(a ...interface{}) string
-	Yellow  func(a ...interface{}) string
-	Blue    func(a ...interface{}) string
-	Magenta func(a ...interface{}) string
-	Cyan    func(a ...interface{}) string
+	Red         func(a ...interface{}) string
+	Green       func(a ...interface{}) string
+	Yellow      func(a ...interface{}) string
+	Blue        func(a ...interface{}) string
+	Magenta     func(a ...interface{}) string
+	Cyan        func(a ...interface{}) string
+	RedBold     func(a ...interface{}) string
+	GreenBold   func(a ...interface{}) string
+	YellowBold  func(a ...interface{}) string
+	BlueBold    func(a ...interface{}) string
+	MagentaBold func(a ...interface{}) string
+	CyanBold    func(a ...interface{}) string
 )
 
 func InitSession(username string,
@@ -118,6 +124,29 @@ func InitColors() {
 	Green = colors["green"]
 	Magenta = colors["magenta"]
 	Blue = colors["blue"]
+	RedBold = colors["redBold"]
+	YellowBold = colors["yellowBold"]
+	CyanBold = colors["cyanBold"]
+	MagentaBold = colors["magentaBold"]
+	BlueBold = colors["blueBold"]
+}
+
+// BuildCommandMap создаёт карту команд для быстрого поиска.
+func BuildCommandMap(commands []Command) map[string]struct{} {
+	m := make(map[string]struct{}, len(commands))
+	for _, cmd := range commands {
+		m[cmd.Name] = struct{}{}
+	}
+	return m
+}
+
+// BuildStringCommandMap создаёт карту строковых команд для быстрого поиска.
+func BuildStringCommandMap(commands []string) map[string]struct{} {
+	m := make(map[string]struct{}, len(commands))
+	for _, cmd := range commands {
+		m[cmd] = struct{}{}
+	}
+	return m
 }
 
 var (
@@ -138,6 +167,9 @@ var EditableVars = map[string]interface{}{
 	"empty":    &Empty,
 	"user_dir": &UserDir,
 }
+
+var CmdMap map[string]struct{} = BuildCommandMap(Commands)                     // for system.Command
+var AdditionalCmdMap map[string]struct{} = BuildCommandMap(AdditionalCommands) // for system.Command
 
 var AvailableEditableVars = []string{"location", "prompt", "user", "empty", "user_dir"}
 var CustomEditableVars []string

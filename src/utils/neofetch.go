@@ -8,11 +8,12 @@ import (
 	"path/filepath"
 )
 
-func NeofetchUtil(executeCommand *structs.ExecuteCommandFuncParams, user string, Commands []system.Command) {
+func NeofetchUtil(executeCommand *structs.ExecuteCommandFuncParams, user string,
+	Commands map[string]struct{}) {
 	if system.OperationSystem == "windows" {
 		commands.FetchNeofetch(user)
 	} else {
-		isValid := utils.ValidCommand(executeCommand.CommandLower, Commands)
+		isValid := utils.ValidCommandFast(executeCommand.CommandLower, Commands)
 
 		if !isValid {
 			fullCommand := append([]string{executeCommand.Command}, executeCommand.CommandArgs...)

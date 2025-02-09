@@ -120,6 +120,96 @@ func Orbix(commandInput string,
 		rebooted,
 		RecoverAndRestore)
 
+	LoopCommand := func(commandLine, command, commandLower string,
+		commandArgs []string) (continueLoop bool) {
+
+		execCommand = structs.ExecuteCommandFuncParams{
+			Prompt:        &prompt,
+			Command:       command,
+			CommandLower:  commandLower,
+			CommandArgs:   commandArgs,
+			SessionPrefix: prefix,
+			LoopData:      LoopData,
+		}
+
+		processCommandParams = structs.ProcessCommandParams{
+			Command:        command,
+			CommandInput:   commandInput,
+			CommandLower:   commandLower,
+			CommandLine:    commandLine,
+			CommandArgs:    commandArgs,
+			RunOnNewThread: &runOnNewThread,
+			EchoTime:       &echoTime,
+			FirstCharIs:    &firstCharIs,
+			LastCharIs:     &lastCharIs,
+			IsComHasFlag:   &isComHasFlag,
+			ExecCommand:    execCommand,
+			LoopData:       LoopData,
+		}
+
+		startTimePRCOMARGS = time.Now()
+		continueLoop = ProcessCommandArgs(&processCommandParams)
+
+		if continueLoop {
+			if echoTime {
+				TEXCOMARGS = fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
+				fmt.Println(system.Green(TEXCOMARGS))
+			}
+
+			return true
+		}
+
+		if ExecCommandPromptLogic(
+			&firstCharIs,
+			&lastCharIs,
+			&isComHasFlag,
+			&echoTime,
+			&runOnNewThread,
+			&commandArgs, &command, &commandLine, &commandInput, &commandLower,
+			session,
+		) {
+			return true
+		}
+
+		session.R = commandLine
+
+		execCommand = structs.ExecuteCommandFuncParams{
+			Prompt:        &prompt,
+			Command:       command,
+			CommandLower:  commandLower,
+			CommandArgs:   commandArgs,
+			CommandInput:  commandInput,
+			SessionPrefix: prefix,
+			LoopData:      LoopData,
+		}
+
+		err = ExecLoopCommand(
+			&commandLower,
+			&prefix,
+			&echoTime,
+			&runOnNewThread,
+			&execCommand,
+		)
+
+		updateGlobalCommVars()
+		src.UnknownCommandsCounter = 0
+
+		if err != nil {
+			return true
+		}
+
+		// Process command
+		go func() {
+			gitBranchUpdate = src.ProcessCommand(commandLower)
+
+			if gitBranchUpdate {
+				LoopData.Session.GitBranch, _ = system.GetCurrentGitBranch()
+			}
+		}()
+
+		return false
+	}
+
 	for *LoopData.IsWorking {
 		_chan.LoopData = &LoopData
 
@@ -130,96 +220,6 @@ func Orbix(commandInput string,
 			LoopData.IsPermission,
 			&colorsMap,
 		)
-
-		LoopCommand := func(commandLine, command, commandLower string,
-			commandArgs []string) (continueLoop bool) {
-
-			execCommand = structs.ExecuteCommandFuncParams{
-				Prompt:        &prompt,
-				Command:       command,
-				CommandLower:  commandLower,
-				CommandArgs:   commandArgs,
-				SessionPrefix: prefix,
-				LoopData:      LoopData,
-			}
-
-			processCommandParams = structs.ProcessCommandParams{
-				Command:        command,
-				CommandInput:   commandInput,
-				CommandLower:   commandLower,
-				CommandLine:    commandLine,
-				CommandArgs:    commandArgs,
-				RunOnNewThread: &runOnNewThread,
-				EchoTime:       &echoTime,
-				FirstCharIs:    &firstCharIs,
-				LastCharIs:     &lastCharIs,
-				IsComHasFlag:   &isComHasFlag,
-				ExecCommand:    execCommand,
-				LoopData:       LoopData,
-			}
-
-			startTimePRCOMARGS = time.Now()
-			continueLoop = ProcessCommandArgs(&processCommandParams)
-
-			if continueLoop {
-				if echoTime {
-					TEXCOMARGS = fmt.Sprintf("Command executed in: %s\n", time.Since(startTimePRCOMARGS))
-					fmt.Println(system.Green(TEXCOMARGS))
-				}
-
-				return true
-			}
-
-			if ExecCommandPromptLogic(
-				&firstCharIs,
-				&lastCharIs,
-				&isComHasFlag,
-				&echoTime,
-				&runOnNewThread,
-				&commandArgs, &command, &commandLine, &commandInput, &commandLower,
-				session,
-			) {
-				return true
-			}
-
-			session.R = commandLine
-
-			execCommand = structs.ExecuteCommandFuncParams{
-				Prompt:        &prompt,
-				Command:       command,
-				CommandLower:  commandLower,
-				CommandArgs:   commandArgs,
-				CommandInput:  commandInput,
-				SessionPrefix: prefix,
-				LoopData:      LoopData,
-			}
-
-			err = ExecLoopCommand(
-				&commandLower,
-				&prefix,
-				&echoTime,
-				&runOnNewThread,
-				&execCommand,
-			)
-
-			updateGlobalCommVars()
-			src.UnknownCommandsCounter = 0
-
-			if err != nil {
-				return true
-			}
-
-			// Process command
-			go func() {
-				gitBranchUpdate = src.ProcessCommand(commandLower)
-
-				if gitBranchUpdate {
-					LoopData.Session.GitBranch, _ = system.GetCurrentGitBranch()
-				}
-			}()
-
-			return false
-		}
 
 		// Command processing
 		commandLine, command, commandArgs, commandLower = src.ReadCommandLine(commandInput) // Refactored input handling

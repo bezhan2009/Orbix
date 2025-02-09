@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
+	_chan "goCmd/chan"
+	"goCmd/src/environment"
 	"goCmd/system"
 	"goCmd/utils"
 	"log"
@@ -72,4 +74,6 @@ PROMPT: _>`
 			os.Exit(1)
 		}
 	}
+
+	_chan.SaveVarsFn = environment.SaveVars
 }

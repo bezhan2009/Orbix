@@ -23,3 +23,9 @@ func IsValid(command string, commands []string) bool {
 
 	return false
 }
+
+// ValidCommandFast проверяет наличие команды в карте.
+func ValidCommandFast(command string, commandsMap map[string]struct{}) bool {
+	_, ok := commandsMap[command]
+	return ok
+}

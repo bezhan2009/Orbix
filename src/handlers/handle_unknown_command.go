@@ -8,8 +8,9 @@ import (
 	"goCmd/utils"
 )
 
-func HandleUnknownCommandUtil(command, commandLower string, commands []utils2.Command) {
-	if !utils.ValidCommand(commandLower, commands) && src.UnknownCommandsCounter == 0 && !utils2.CheckPackageExists(command) {
+func HandleUnknownCommandUtil(command, commandLower string,
+	commands map[string]struct{}) {
+	if !utils.ValidCommandFast(commandLower, commands) && src.UnknownCommandsCounter == 0 && !utils2.CheckPackageExists(command) {
 		printUnknown := fmt.Sprintf("'%s' is not recognized as an internal or external command,\noperable program or batch file.\n", command)
 		fmt.Printf(utils2.Red(printUnknown))
 		if suggestedCommand := service.SuggestCommand(commandLower); suggestedCommand != "" {
