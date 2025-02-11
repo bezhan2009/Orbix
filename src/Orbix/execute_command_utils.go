@@ -268,6 +268,11 @@ func ExecCommandPromptLogic(
 		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(session.R)
 	}
 
+	if *commandLine == "cd.." {
+		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine("cd ..")
+		return false
+	}
+
 	if *isComHasFlag && (*echoTime || *runOnNewThread) {
 		*commandLine = src.RemoveFlags(*commandLine)
 		*commandInput = src.RemoveFlags(*commandInput)
