@@ -161,7 +161,7 @@ func main() {
 			time.Sleep(retryDelay)
 			if system.ErrorStartingServer {
 				fmt.Println(green("The server was able to resolve the error, and now server is listening on port " + system.Port))
-				fmt.Print(green(" >"))
+				fmt.Print(green(" > "))
 				break
 			}
 		}

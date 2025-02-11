@@ -268,11 +268,6 @@ func ExecCommandPromptLogic(
 		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(session.R)
 	}
 
-	if *commandLine == "cd.." {
-		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine("cd ..")
-		return false
-	}
-
 	if *isComHasFlag && (*echoTime || *runOnNewThread) {
 		*commandLine = src.RemoveFlags(*commandLine)
 		*commandInput = src.RemoveFlags(*commandInput)
@@ -345,15 +340,70 @@ func ExecCommandPromptLogic(
 		}
 	}
 
-	if len(*commandArgs) > 0 {
-		AdvancedPromptLogic(commandArgs,
-			session)
-	}
-
 	fullCommandArgs = append(fullCommandArgs, commandArgsListStr...)
 	*commandArgs = fullCommandArgs
 
-	isValid := utils.ValidCommandFast(*commandLower, system.CmdMap)
+	SetCommandVarValues(commandArgs, false)
+
+	InQuotes := true
+
+	for iArg := 0; iArg < len(fullCommandArgs); iArg++ {
+		arg := fullCommandArgs[iArg]
+
+		if strings.HasPrefix(arg, "(") && InQuotes {
+
+			// Ищем конец команды в скобках
+			endIdx := -1
+			cntSpaces := 0
+			for j := iArg; j < len(fullCommandArgs); j++ {
+				if fullCommandArgs[j] == " " || fullCommandArgs[j] == "" {
+					cntSpaces++
+				}
+
+				if strings.HasSuffix(fullCommandArgs[j], ")") {
+					endIdx = j - cntSpaces
+					break
+				}
+			}
+
+			if endIdx != 2 && endIdx != -1 {
+				fmt.Println(system.Red(fmt.Sprintf("Syntax Error in '%s'\nNot enough arguments to call func", fullCommandArgs[iArg])))
+				return true
+			}
+
+			// Если нет закрывающей скобки
+			if endIdx == -1 {
+				fmt.Println(system.Red(fmt.Sprintf("Syntax Error in '%s'\nPlease Close the '('", fullCommandArgs[iArg])))
+				fmt.Println(fmt.Sprintf(" %s\n%s", fmt.Sprintf("%s%s", system.Red(fmt.Sprintf("%s %s", fullCommandArgs[iArg], fullCommandArgs[iArg+1])), system.Yellow(")")), strings.Repeat(system.Red("─"), (len(fmt.Sprintf("%s %s", fullCommandArgs[iArg], fullCommandArgs[iArg+1]))-1)+2)+system.Yellow("ꜛ")))
+				return true
+			}
+
+			// Объединяем команду внутри скобок
+			innerCommand := strings.Join(fullCommandArgs[iArg:endIdx+1], " ")
+			innerCommand = strings.TrimSuffix(strings.TrimPrefix(innerCommand, "("), ")")
+			innerArgs := strings.Fields(innerCommand)
+
+			// Выполняем команду
+			dataRecord, err := ExecOpenedComms(innerArgs)
+			if err != nil {
+				fmt.Println(system.Red(fmt.Sprintf("Error: %s", err)))
+				return true
+			}
+
+			// Заменяем в основном массиве команду на результат выполнения
+			fullCommandArgs[iArg] = dataRecord
+
+			// Удаляем оставшиеся элементы команды из аргументов
+			fullCommandArgs = append(fullCommandArgs[:iArg+1], fullCommandArgs[endIdx+1:]...)
+			continue
+		}
+	}
+
+	*commandArgs = fullCommandArgs
+
+	session.Path = system.UserDir
+
+	isValid := utils.ValidCommand(*commandLower, system.Commands)
 
 	if len(strings.TrimSpace(*commandLower)) != len(strings.TrimSpace(*commandLine)) && isValid {
 		session.CommandHistory = append(session.CommandHistory, *commandLine)
@@ -387,73 +437,6 @@ func ExecCommandPromptLogic(
 		//
 		//return true
 	}
-
-	return false
-}
-
-func AdvancedPromptLogic(commandArgs *[]string,
-	session *system.Session) bool {
-	SetCommandVarValues(commandArgs, false)
-
-	InQuotes := true
-
-	sumOfArgs := ""
-
-	for iArg := 0; iArg < len(fullCommandArgs); iArg++ {
-		arg := fullCommandArgs[iArg]
-
-		// Ищем конец команды в скобках
-		if strings.HasPrefix(arg, "(") && InQuotes {
-
-			endIdx := -1
-			cntSpaces := 0
-			for j := iArg; j < len(fullCommandArgs); j++ {
-				sumOfArgs += " " + string(fullCommandArgs[j])
-				if fullCommandArgs[j] == " " || fullCommandArgs[j] == "" {
-					cntSpaces++
-				}
-
-				if strings.HasSuffix(fullCommandArgs[j], ")") && endIdx == -1 {
-					endIdx = j - cntSpaces
-				}
-			}
-
-			if endIdx != 2 && endIdx != -1 {
-				fmt.Println(system.RedBold(fmt.Sprintf("Syntax Error in '%s'\nNot enough arguments to call func", fullCommandArgs[iArg])))
-				return true
-			}
-
-			// Если нет закрывающей скобки
-			if endIdx == -1 {
-				fmt.Println(system.RedBold(fmt.Sprintf("Syntax Error in '%s'\nPlease Close the '('", fullCommandArgs[iArg])))
-				fmt.Println(fmt.Sprintf(" %s\n%s", fmt.Sprintf("%s%s", system.RedBold(fmt.Sprintf("%s", sumOfArgs)), system.YellowBold(")")), strings.Repeat(system.RedBold("─"), (len(fmt.Sprintf("%s", sumOfArgs)))+2)+system.YellowBold("ꜛ")))
-				return true
-			}
-
-			// Объединяем команду внутри скобок
-			innerCommand := strings.Join(fullCommandArgs[iArg:endIdx+1], " ")
-			innerCommand = strings.TrimSuffix(strings.TrimPrefix(innerCommand, "("), ")")
-			innerArgs := strings.Fields(innerCommand)
-
-			// Выполняем команду
-			dataRecord, err := ExecOpenedComms(innerArgs)
-			if err != nil {
-				fmt.Println(system.Red(fmt.Sprintf("Error: %s", err)))
-				return true
-			}
-
-			// Заменяем в основном массиве команду на результат выполнения
-			fullCommandArgs[iArg] = dataRecord
-
-			// Удаляем оставшиеся элементы команды из аргументов
-			fullCommandArgs = append(fullCommandArgs[:iArg+1], fullCommandArgs[endIdx+1:]...)
-			continue
-		}
-	}
-
-	*commandArgs = fullCommandArgs
-
-	session.Path = system.UserDir
 
 	return false
 }
