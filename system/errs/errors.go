@@ -6,6 +6,10 @@ import (
 	"goCmd/system"
 )
 
+func TypeError(necessaryType string, gettedType string) (err error) {
+	return errors.New(fmt.Sprintf("Type error: mismatched types %s and %s", necessaryType, gettedType))
+}
+
 var (
 	UserAlreadyExists      = errors.New("user Already Exists")
 	UserNotFound           = errors.New("user not found")

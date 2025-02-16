@@ -58,6 +58,20 @@ func SetVariable(varName string, value string) error {
 		return errs.ValidationError
 	}
 
+	if strings.TrimSpace(strings.ToLower(varName)) == "debug" {
+		var parsedValue interface{}
+		if strings.TrimSpace(strings.ToLower(value)) == "true" {
+			parsedValue = true
+		} else if strings.TrimSpace(strings.ToLower(value)) == "false" {
+			parsedValue = false
+		} else {
+			return errs.TypeError("bool", utils2.GetType(value))
+		}
+
+		*(system.EditableVars["debug"].(*bool)) = parsedValue.(bool)
+		return nil
+	}
+
 	if strings.TrimSpace(strings.ToLower(varName)) == "empty" {
 		return fmt.Errorf(fmt.Sprintf("the variable %s is nil\n", varName))
 	}

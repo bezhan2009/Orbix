@@ -135,11 +135,27 @@ func createCommandHistorySuggestions(prefix string) []prompt.Suggest {
 	uniqueCommands := make(map[string]struct{})
 	var suggestions []prompt.Suggest
 
-	// Предполагается, что CommandHistory - это слайс строк с историей команд
+	// Проверяем, что GlobalSession и CommandHistory не равны nil
+	if system.GlobalSession.CommandHistory == nil {
+		system.GlobalSession.CommandHistory = []string{}
+		system.InitSession(system.UserName, &system.GlobalSession)
+		return suggestions
+	}
+
 	for _, cmd := range system.GlobalSession.CommandHistory {
-		if _, exists := uniqueCommands[strings.ToLower(cmd)]; !exists && strings.HasPrefix(strings.ToLower(cmd), prefix) {
+		if system.GlobalSession.CommandHistory == nil {
+			break
+		}
+
+		if cmd != "" && !strings.HasPrefix(strings.ToLower(cmd), prefix) {
+			continue
+		}
+		if _, exists := uniqueCommands[strings.ToLower(cmd)]; !exists {
 			uniqueCommands[cmd] = struct{}{}
-			suggestions = append(suggestions, prompt.Suggest{Text: cmd, Description: "previously entered command"})
+			suggestions = append(suggestions, prompt.Suggest{
+				Text:        cmd,
+				Description: "previously entered command",
+			})
 		}
 	}
 

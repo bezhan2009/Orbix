@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	Version             = "1.10.17"
+	Version             = "1.10.18"
 	License             = "MIT"
 	SystemName          = "Orbix"
 	OperationSystem     = runtime.GOOS
@@ -28,6 +28,7 @@ var (
 	SourcePath, _      = os.Getwd()
 	LaunchedOrbixes    = make(map[string]string)
 	CntLaunchedOrbixes = uint(0)
+	Debug              = true
 )
 
 var (

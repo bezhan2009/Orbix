@@ -60,6 +60,10 @@ func OrbixLoop(panicChan chan any,
 	}()
 
 	defer func() {
+		if system.Debug {
+			return
+		}
+
 		if r := recover(); r != nil {
 			user.DeleteUserFromRunningFile(system.UserName)
 			PanicText := fmt.Sprintf("Panic recovered: %v", r)

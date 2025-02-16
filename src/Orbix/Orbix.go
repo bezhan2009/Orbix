@@ -6,6 +6,7 @@ import (
 	"goCmd/src"
 	"goCmd/structs"
 	"goCmd/system"
+	"goCmd/utils"
 	"strings"
 	"time"
 )
@@ -30,6 +31,10 @@ func Orbix(commandInput string,
 	}
 
 	defer func() {
+		if system.Debug {
+			return
+		}
+
 		r := recover()
 		handlePanic(commandInput,
 			echo,
@@ -199,10 +204,30 @@ func Orbix(commandInput string,
 
 		// Process command
 		go func() {
-			gitBranchUpdate = src.ProcessCommand(commandLower)
+			updGitBranch := func() {
+				gitBranchUpdate = src.ProcessCommand(commandLower)
 
-			if gitBranchUpdate {
-				LoopData.Session.GitBranch, _ = system.GetCurrentGitBranch()
+				if gitBranchUpdate {
+					LoopData.Session.GitBranch, _ = system.GetCurrentGitBranch()
+				}
+			}
+
+			cleanHistoryDuplicates := func() {
+				if system.GlobalSession.CommandHistory != nil {
+					utils.CleanSliceDuplicates(system.GlobalSession.CommandHistory)
+				}
+
+				if session.CommandHistory != nil {
+					utils.CleanSliceDuplicates(session.CommandHistory)
+				}
+			}
+
+			updGitBranch()
+			for {
+				time.Sleep(10 * time.Second)
+
+				updGitBranch()
+				cleanHistoryDuplicates()
 			}
 		}()
 
