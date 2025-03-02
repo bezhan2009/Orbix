@@ -5,6 +5,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	_chan "goCmd/chan"
+	"goCmd/pkg/cache"
 	"goCmd/src/environment"
 	"goCmd/system"
 	"goCmd/utils"
@@ -76,4 +77,11 @@ PROMPT: _>`
 	}
 
 	_chan.SaveVarsFn = environment.SaveVars
+}
+
+func CacheInit() {
+	// Первичная инициализация кеша (будет выполнена только один раз).
+	cache.CacheOnce.Do(cache.InitCommandCache)
+	// Запускаем наблюдателей – кеш будет обновляться, только если в одной из директорий произошли изменения.
+	cache.StartWatchers()
 }

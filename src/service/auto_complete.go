@@ -6,6 +6,7 @@ import (
 	_chan "goCmd/chan"
 	"goCmd/system"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -178,12 +179,13 @@ func createFileSuggestions(dir string, prefix string) []prompt.Suggest {
 	return suggestions
 }
 
+// SuggestCommand выполняет бинарный поиск по отсортированному списку команд
 func SuggestCommand(input string) string {
-	for _, cmd := range system.AdditionalCommands {
-		if strings.HasPrefix(cmd.Name, input) {
-			return cmd.Name
-		}
+	idx := sort.Search(len(system.AdditionalCommands), func(i int) bool {
+		return system.AdditionalCommands[i].Name >= input
+	})
+	if idx < len(system.AdditionalCommands) && strings.HasPrefix(system.AdditionalCommands[idx].Name, input) {
+		return system.AdditionalCommands[idx].Name
 	}
-
 	return ""
 }

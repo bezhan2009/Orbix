@@ -2,6 +2,8 @@ package Orbix
 
 import (
 	"fmt"
+	"goCmd/cmd/commands"
+	"goCmd/src"
 	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
@@ -100,4 +102,38 @@ func setupOutputRedirect(echo bool) (originalStdout, originalStderr *os.File) {
 	}
 
 	return
+}
+
+func EndOfSessions(originalStdout, originalStderr *os.File,
+	session *system.Session,
+	sessionData *system.AppState,
+	prefix string) {
+	system.CntLaunchedOrbixes--
+
+	// Restore original outputs
+	os.Stdout, os.Stderr = originalStdout, originalStderr
+
+	system.PreviousSessionPath = session.Path
+	session, _ = sessionData.GetSession(system.PreviousSessionPrefix)
+
+	if strings.TrimSpace(session.Path) != "" {
+		if err := commands.ChangeDirectory(session.Path); err != nil {
+			fmt.Println(system.Red("Error changing directory:", err))
+		}
+	}
+
+	sessionData.DeleteSession(prefix)
+
+	system.OrbixWorking = false
+	src.UnknownCommandsCounter = 0
+}
+
+func RecoverAndRestore(rebooted *structs.RebootedData) {
+	if rebooted.Recover != nil {
+		RecoverText := fmt.Sprintf("Successfully recovered from the panic: %v", rebooted.Recover)
+		fmt.Printf("\n%s\n", system.Green(RecoverText))
+		rebooted.Recover = nil
+	}
+
+	system.OrbixRecovering = false
 }

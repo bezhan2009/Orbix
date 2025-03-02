@@ -1,6 +1,7 @@
 package Orbix
 
 import (
+	"fmt"
 	_chan "goCmd/chan"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/commands/resourceIntensive/MatrixMultiplication"
@@ -130,6 +131,21 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 				!system.Unauthorized &&
 				system.CntLaunchedOrbixes > 1 {
 				_ = _chan.LoadConfigsFn()
+			}
+
+			if len(executeCommand.CommandArgs) > 0 && executeCommand.CommandArgs[0] == "\\k" {
+				pid := os.Getpid()
+				process, err := os.FindProcess(pid)
+				if err != nil {
+					fmt.Println(system.Red("Error finding Orbix process:", err))
+					return
+				}
+
+				err = process.Kill()
+				if err != nil {
+					fmt.Println(system.Red("Error killing Orbix:", err))
+					return
+				}
 			}
 		},
 	}

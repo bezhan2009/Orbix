@@ -23,6 +23,9 @@ func Orbix(commandInput string,
 	if rebooted.LoopData != LoopData {
 		LoopData, LoadUserConfigsFn = rebooted.LoopData, rebooted.LoadUserConfigsFn
 	} else {
+		// Initialize colors
+		system.InitColors()
+
 		LoopData, LoadUserConfigsFn = src.OrbixUser(commandInput,
 			echo,
 			&rebooted,

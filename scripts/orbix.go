@@ -126,6 +126,9 @@ func main() {
 		return
 	}
 
+	// Initialization cache files
+	run.CacheInit()
+
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
