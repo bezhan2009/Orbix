@@ -18,11 +18,15 @@ func Print(commandArgs []string) {
 		colorFuncs    = system.GetColorsMap()
 	)
 
+	realIArg := 0
+
 	// Поиск параметра font
 	for i, arg := range commandArgs {
+		i -= realIArg
 		if strings.HasPrefix(arg, "font=") {
 			font = strings.Split(arg, "=")[1]
 			commandArgs = append(commandArgs[:i], commandArgs[i+1:]...)
+			realIArg++
 		}
 
 		if strings.HasPrefix(arg, "animate") {

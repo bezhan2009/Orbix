@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	Version    = "1.11.0"
+	Version    = "1.11.1"
 	License    = "MIT"
 	SystemName = "Orbix"
 

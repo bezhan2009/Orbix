@@ -58,5 +58,8 @@ func OpenLinkUtil(commandArgs []string) {
 		parsedUrl.Host += ".com"
 	}
 
-	Network.OpenBrowser(parsedUrl.String())
+	err = Network.OpenBrowser(parsedUrl.String())
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Error opening browser: %s", err))
+	}
 }
