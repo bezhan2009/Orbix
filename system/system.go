@@ -3,7 +3,6 @@ package system
 import (
 	"os"
 	"runtime"
-	"strings"
 )
 
 const (
@@ -46,16 +45,3 @@ var (
 	OrbixUser       = &User
 	OrbixRecovering = false
 )
-
-func Init() *AppState {
-	BetaVersion = string(strings.TrimSpace(strings.ToLower(os.Getenv("BETA"))))
-
-	Beta = SetBetaVersion(colors)
-
-	if UserDir == "" {
-		UserDir, _ = os.Getwd()
-	}
-
-	// Initialization AppState
-	return NewSystemData()
-}

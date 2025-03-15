@@ -79,9 +79,15 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 		"new_window":   func() { src.OpenNewWindowForCommand(executeCommand) },
 		"prompt":       func() { handlers.HandlePromptCommand(executeCommand.CommandArgs, executeCommand.Prompt) },
 
-		"help":         handlers.DisplayHelp,
-		"systemorbix":  environment.SystemInformation,
-		"save":         environment.SaveVars,
+		"help":        handlers.DisplayHelp,
+		"systemorbix": environment.SystemInformation,
+		"save":        environment.SaveVars,
+		"load": func() {
+			err := environment.LoadUserConfigs()
+			if err != nil {
+				fmt.Println(system.Red("Error loading user configs:\n" + err.Error()))
+			}
+		},
 		"clean":        commands.Screen,
 		"cls":          commands.Screen,
 		"clear":        commands.Screen,

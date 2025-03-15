@@ -1,6 +1,10 @@
 package system
 
-import "sync"
+import (
+	"os"
+	"strings"
+	"sync"
+)
 
 // AppState представляет структуру для хранения данных системы.
 type AppState struct {
@@ -17,4 +21,17 @@ func NewSystemData() *AppState {
 	return &AppState{
 		Session: make(map[string]Session),
 	}
+}
+
+func Init() *AppState {
+	BetaVersion = string(strings.TrimSpace(strings.ToLower(os.Getenv("BETA"))))
+
+	Beta = SetBetaVersion(colors)
+
+	if UserDir == "" {
+		UserDir, _ = os.Getwd()
+	}
+
+	// Initialization AppState
+	return NewSystemData()
 }
