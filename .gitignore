@@ -34,8 +34,6 @@ scripts/GUI_test.py
 scripts/bin
 scripts/dump.rdb
 scripts/dist
-userName.env
-running.env
 *.exe
 *.txt
 *.log
@@ -47,3 +45,4 @@ orbix
 
 # Other Scripts
 *.py
+*.env
