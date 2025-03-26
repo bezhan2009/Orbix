@@ -78,6 +78,10 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 		"delvar":       func() { environment.DeleteVariable(executeCommand.CommandArgs) },
 		"new_window":   func() { src.OpenNewWindowForCommand(executeCommand) },
 		"prompt":       func() { handlers.HandlePromptCommand(executeCommand.CommandArgs, executeCommand.Prompt) },
+		"getenv":       func() { ExCommUtils.GetEnvVarUtil(executeCommand.CommandArgs) },
+		"setenv":       func() { commands.SetEnvVar(executeCommand.CommandArgs) },
+		"chport":       func() { commands.IsPortOpen(executeCommand.CommandArgs) },
+		"fileinfo":     func() { commands.GetFileInfo(executeCommand.CommandArgs) },
 
 		"help":        handlers.DisplayHelp,
 		"systemorbix": environment.SystemInformation,

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	_chan "goCmd/chan"
 	"goCmd/internal/run"
+	"goCmd/scripts/handlers"
 	"goCmd/src/Orbix"
 	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -19,29 +19,6 @@ import (
 
 const maxRetryAttempts = system.MaxRetryAttempts // Maximum number of restart attempts
 const retryDelay = system.RetryDelay             // Delay before restart
-
-func setHeaders(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-}
-
-// Handler for rendering index.html
-func indexHandler(w http.ResponseWriter,
-	r *http.Request) {
-	setHeaders(w)
-	tmpl, err := template.ParseFiles("templates/index.html")
-	if err != nil {
-		http.Error(w, "Unable to load template", http.StatusInternalServerError)
-		log.Printf("Template error: %v", err)
-		return
-	}
-
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		return
-	}
-}
 
 func OrbixLoop(panicChan chan any,
 	appState *system.AppState) {
@@ -132,7 +109,7 @@ func main() {
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/", handlers.IndexHandler)
 	go func() {
 		var err error
 		var portInt int

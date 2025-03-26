@@ -62,6 +62,10 @@ var Commands = []Command{
 	{"load", "Loads your custom vars from .json file"},
 	{"delvar", "Deletes your custom variable"},
 	{"gocode", "Executes go code"},
+	{"getenv", "Shows environment variable value"},
+	{"setenv", "Sets new environment variable value"},
+	{"chport", "Checks if port is open"},
+	{"fileinfo", "Shows file information about the file system"},
 	{"sc", ""},
 }
 
@@ -143,5 +147,9 @@ var AdditionalCommands = []Command{
 	{"load", "Loads your custom vars from .json file"},
 	{"delvar", "Deletes your custom variable"},
 	{"gocode", "Executes go code"},
+	{"getenv", "Shows environment variable value"},
+	{"setenv", "Sets new environment variable value"},
+	{"chport", "Checks if port is open"},
+	{"fileinfo", "Shows file information about the file system"},
 	{"sc", ""},
 }

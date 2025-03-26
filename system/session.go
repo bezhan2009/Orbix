@@ -32,6 +32,8 @@ func InitSession(username string,
 	session.CommandHistory = append(session.CommandHistory, "add README.md")
 	session.CommandHistory = append(session.CommandHistory, "tasklist")
 	session.CommandHistory = append(session.CommandHistory, "--version")
+	session.CommandHistory = append(session.CommandHistory, "-v")
+	session.CommandHistory = append(session.CommandHistory, "--without-host")
 	session.CommandHistory = append(session.CommandHistory, "install")
 	session.CommandHistory = append(session.CommandHistory, "django")
 	session.CommandHistory = append(session.CommandHistory, "flask")
