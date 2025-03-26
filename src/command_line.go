@@ -127,11 +127,7 @@ func CommandFile(command string) bool {
 }
 
 func FullFileName(commandArgs *[]string) {
-	if len(*commandArgs) == 0 {
-		return
-	}
-
-	if len(*commandArgs) == 1 {
+	if len(*commandArgs) <= 1 {
 		return
 	}
 

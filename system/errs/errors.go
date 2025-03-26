@@ -21,4 +21,5 @@ var (
 	CommandArgsNotFound    = errors.New("command args Not Found")
 	ExactMatchNotFound     = errors.New(fmt.Sprintf("exact match not found in %s", system.OrbixRunningUsersFileName))
 	ValidationError        = errors.New("validation error: do not use special symbols")
+	VariableDoesNotExist   = errors.New("variable Does Not Exist")
 )

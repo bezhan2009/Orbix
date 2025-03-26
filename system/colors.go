@@ -64,6 +64,7 @@ func InitColors() {
 	Magenta = colors["magenta"]
 	Blue = colors["blue"]
 	RedBold = colors["redBold"]
+	GreenBold = colors["greenBold"]
 	YellowBold = colors["yellowBold"]
 	CyanBold = colors["cyanBold"]
 	MagentaBold = colors["magentaBold"]

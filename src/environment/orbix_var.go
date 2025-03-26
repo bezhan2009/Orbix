@@ -177,21 +177,21 @@ func GetVariableValueUtil(params *structs.ExecuteCommandFuncParams) {
 
 	if strings.TrimSpace(varName) == "user" {
 		if strings.TrimSpace(system.User) == "" {
-			fmt.Println(system.Green("user:"), system.Green(params.LoopData.Username))
+			fmt.Println(system.GreenBold("user:"), system.Green(params.LoopData.Username))
 			return
 		} else {
-			fmt.Println(system.Green("user:"), system.User)
+			fmt.Println(system.GreenBold("user:"), system.User)
 			return
 		}
 	}
 
 	if strings.TrimSpace(varName) == "current_user" {
-		fmt.Println(system.Green("current_user:"), system.Green(params.LoopData.Username))
+		fmt.Println(system.GreenBold("current_user:"), system.Green(params.LoopData.Username))
 		return
 	}
 
 	if strings.TrimSpace(varName) == "*" {
-		fmt.Println(system.Green("current_user:"), system.Green(params.LoopData.Username))
+		fmt.Println(system.GreenBold("current_user:"), system.Green(params.LoopData.Username))
 
 		for _, v := range system.AvailableEditableVars {
 			value, err := GetVariableValue(v)
@@ -199,7 +199,7 @@ func GetVariableValueUtil(params *structs.ExecuteCommandFuncParams) {
 				continue
 			}
 
-			fmt.Println(system.Green(fmt.Sprintf("%s: %s", v, value)))
+			fmt.Println(system.GreenBold(fmt.Sprintf("%s: %s", v, value)))
 		}
 
 		return
@@ -211,7 +211,7 @@ func GetVariableValueUtil(params *structs.ExecuteCommandFuncParams) {
 		return
 	}
 
-	fmt.Println(system.Green(fmt.Sprintf("%s: %s", varName, value)))
+	fmt.Println(system.GreenBold(fmt.Sprintf("%s: %s", varName, value)))
 }
 
 func GetVariableValue(varName string) (interface{}, error) {
