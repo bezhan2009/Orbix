@@ -74,6 +74,40 @@ func updatePointers(vars map[string]interface{}, data map[string]interface{}) {
 	}
 }
 
+// Вспомогательная функция для обновления значений по строкам
+func updateStrings(vars map[string]interface{}, data map[string]string) {
+	for key, newValue := range data {
+		if oldValue, exists := vars[key]; exists {
+			// Убедимся, что oldValue может быть приведено к строке.
+			if strPtr, ok := oldValue.(*string); ok {
+				*strPtr = newValue // Обновляем значение по указателю
+			} else {
+				// Если значение не указатель, просто обновляем его как строку
+				vars[key] = newValue
+			}
+		}
+	}
+}
+
+// SaveShortcutsToJSON сохраняет карту в JSON файл
+func SaveShortcutsToJSON(shortcuts map[string]string, filename string) error {
+	// Открываем файл для записи. Создаем файл, если он не существует, или перезаписываем его, если он существует.
+	file, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("ошибка при создании файла: %v", err)
+	}
+	defer file.Close() // Закрываем файл после завершения работы с ним.
+
+	// Кодируем карту в JSON и записываем в файл
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ") // Форматируем вывод с отступами.
+	if err := encoder.Encode(shortcuts); err != nil {
+		return fmt.Errorf("ошибка при записи в файл: %v", err)
+	}
+
+	return nil
+}
+
 // SaveVars Сохранение переменных в формате JSON
 func SaveVars() {
 	restoreOutput, err := silenceOutput() // Отключаем вывод
@@ -123,6 +157,63 @@ func SaveVars() {
 	if err != nil {
 		fmt.Println("Error writing file:", err)
 	}
+
+	err = SaveShortcutsToJSON(system.Shortcuts, system.ShortcutsJSONName)
+	if err != nil {
+		fmt.Println("Error while saving shortcuts:", err)
+	}
+}
+
+func load(nameJsonFile string, shortcuts bool) error {
+	_, err := Remove.File("rem", []string{nameJsonFile})
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Error while removing file %s: %v", nameJsonFile, err))
+	}
+	_, err = fcommands.CreateFile(nameJsonFile)
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Error while creating file %s: %v", nameJsonFile, err))
+	}
+
+	file, err := os.Open(nameJsonFile)
+	if err != nil {
+		fmt.Println(system.Red("Error opening file:", err))
+		return err
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(file)
+
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return err
+	}
+
+	loadedValues := map[string]interface{}{}
+
+	err = json.Unmarshal(data, &loadedValues)
+	if err != nil {
+		fmt.Println("Error deserializing JSON:", err)
+		return err
+	}
+
+	if shortcuts {
+		updateStrings(loadedValues, system.Shortcuts)
+		return nil
+	}
+
+	updatePointers(loadedValues, system.EditableVars)
+
+	// Установка переменных в окружение
+	for key, value := range loadedValues {
+		valueStr := fmt.Sprintf("%v", value)
+		saveToEnv := fmt.Sprintf("%s %v", PasswordAlgoritm.Usage(key, false), PasswordAlgoritm.Usage(valueStr, false))
+		SetVariableUtil(utils.SplitCommandLine(saveToEnv))
+	}
+	return nil
 }
 
 // LoadUserConfigs Загрузка переменных из JSON и обновление указателей
@@ -146,44 +237,14 @@ func LoadUserConfigs() error {
 		}
 	}()
 
-	file, err := os.Open("user.json")
+	err = load("user.json", false)
 	if err != nil {
-		fmt.Println(system.Red("Error opening file:", err))
-		return err
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(file)
-
-	data, err := ioutil.ReadAll(file)
-	if err != nil {
-		fmt.Println("Error reading file:", err)
 		return err
 	}
 
-	loadedValues := map[string]interface{}{
-		"location": &system.Location,
-		"prompt":   &system.Prompt,
-		"user":     &system.User,
-		"empty":    &system.Empty,
-	}
-
-	err = json.Unmarshal(data, &loadedValues)
+	err = load(system.ShortcutsJSONName, true)
 	if err != nil {
-		fmt.Println("Error deserializing JSON:", err)
 		return err
-	}
-
-	updatePointers(loadedValues, system.EditableVars)
-
-	// Установка переменных в окружение
-	for key, value := range loadedValues {
-		valueStr := fmt.Sprintf("%v", value)
-		saveToEnv := fmt.Sprintf("%s %v", PasswordAlgoritm.Usage(key, false), PasswordAlgoritm.Usage(valueStr, false))
-		SetVariableUtil(utils.SplitCommandLine(saveToEnv))
 	}
 
 	return nil

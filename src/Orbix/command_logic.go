@@ -95,6 +95,16 @@ func SetCommandVarValues(commandArgs *[]string, autocomplete bool) ([]string, st
 	return fullCommandArgs, sumArgs
 }
 
+// replaceShortcuts заменяет строки в массиве на значения из карты shortcuts.
+func replaceShortcuts(strings []string, shortcuts map[string]string) []string {
+	for i, str := range strings {
+		if shortcut, exists := shortcuts[str]; exists {
+			strings[i] = shortcut // Замена строки на соответствующий shortcut
+		}
+	}
+	return strings
+}
+
 func ExecCommandPromptLogic(
 	firstCharIs,
 	lastCharIs,
@@ -105,6 +115,12 @@ func ExecCommandPromptLogic(
 	command, commandLine, commandInput, commandLower *string,
 	session *system.Session) bool {
 	defer updateGlobalCommVars()
+
+	res := replaceShortcuts(strings.Fields(*commandLine), system.Shortcuts)
+
+	shCmdLine := strings.Join(res, " ")
+
+	*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(shCmdLine)
 
 	if strings.ToLower(strings.TrimSpace(*commandLine)) == "r" && strings.TrimSpace(session.R) != "" {
 		fmt.Println(session.R)

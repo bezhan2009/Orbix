@@ -7,11 +7,11 @@
 }
 
 html, body {
-    background-image: image("template/images/background.jpg"); /* Путь к изображению может отличаться */
-    background-attachment: fixed;
+    /* Путь к изображению может отличаться */
     background-size: cover; /* Опционально, чтобы изображение занимало всю площадь */
-    background-position: center; /* Опционально, чтобы центрировать изображение */
+    /* Опционально, чтобы центрировать изображение */
     color: aliceblue;
+    background: #666666 image("template/images/background.jpg") fixed center;
 }
 
 
@@ -219,4 +219,151 @@ html, body {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+
+a {
+    color: #fff;
+    font-family: sans-serif;
+    transition: 0.2s;
+}
+
+a:hover {
+    opacity: 0.7;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-image: url('https://th.bing.com/th/id/R.46f7ae9eae25894a8a1dae27b983b3d1?rik=VJgEvW1bz8719w&pid=ImgRaw&r=0');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.header-logo img {
+    height: 40px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links li {
+    margin: 0;
+}
+
+.nav-links a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #ff9800;
+}
+
+.header-nav-menu {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.5s ease-in-out;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.header-nav-menu.show {
+    display: flex;
+    max-height: 300px;
+    opacity: 1;
+}
+
+.header-nav-menu {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (min-width: 768px) {
+    .header-nav-menu {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        opacity: 1;
+        max-height: none;
+    }
+}
+
+.code-block {
+    position: relative;
+    margin: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    padding: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.code-block pre {
+    margin: 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    font-family: monospace;
+    color: aliceblue;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 5px 10px;
+    background: rgba(255, 255, 255, 0.0);
+    border: 1px solid #3d40c6;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+
+.copy-btn:hover {
+    background: #2528b1;
+    color: #fff;
+}
+
+.copy-icon::before {
+    content: '';
+    display: inline-block;
+    background-image: url('../static/images/copy_icon.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+
+.copied-icon::before {
+    content: '\2714'; /* Галочка для "Скопировано" */
+    font-size: 16px;
+}
+
+.my-tasks {
+    padding: 10px 10px 10px 10px;
+}
+
+div, nav, ul {
+    padding: 20px 20px 20px 20px;
 }

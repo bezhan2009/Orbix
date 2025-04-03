@@ -110,6 +110,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	http.HandleFunc("/", handlers.IndexHandler)
+	http.HandleFunc("/web-cmd", handlers.HandlerWebOrbix)
 	go func() {
 		var err error
 		var portInt int
