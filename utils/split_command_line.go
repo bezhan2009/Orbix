@@ -16,6 +16,12 @@ func SplitCommandLine(input string) []string {
 				result = append(result, current.String())
 				current.Reset()
 			}
+		case r == '=' && !inDoubleQuotes && !inSingleQuotes:
+			// Разделяем по пробелу, если не внутри кавычек
+			if current.Len() > 0 {
+				result = append(result, current.String())
+				current.Reset()
+			}
 		case r == '"':
 			// Если встречена двойная кавычка, переключаем состояние
 			if !inSingleQuotes {
@@ -24,14 +30,14 @@ func SplitCommandLine(input string) []string {
 				current.WriteRune(r) // Если внутри одинарных кавычек, добавляем символ
 			}
 		case r == '(':
-			// Если встречена двойная кавычка, переключаем состояние
+			// Если встречена скобка, переключаем состояние
 			if !inSingleQuotes {
 				inDoubleQuotes = !inDoubleQuotes
 			} else {
 				current.WriteRune(r) // Если внутри одинарных кавычек, добавляем символ
 			}
 		case r == '\'':
-			// Если встречена одинарная кавычка, переключаем состояние
+			// Если встречена вот такая палка \, переключаем состояние
 			if !inDoubleQuotes {
 				inSingleQuotes = !inSingleQuotes
 			} else {

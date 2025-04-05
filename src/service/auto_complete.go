@@ -66,15 +66,17 @@ func AutoComplete(d prompt.Document) []prompt.Suggest {
 		commandSuggestions := createUniqueCommandSuggestions(words[0])
 		fileSuggestions := createFileSuggestions(".", words[0])
 		commandHistorySuggestions := createCommandHistorySuggestions(words[0])
-		return removeDuplicateSuggestions(append(append(commandSuggestions, fileSuggestions...), commandHistorySuggestions...))
+		commandShortcuts := createUniqueShortcutsSuggestions(words[0])
+		return removeDuplicateSuggestions(append(append(commandSuggestions, fileSuggestions...), append(commandShortcuts, commandHistorySuggestions...)...))
 	}
 
 	// После первого пробела предлагать только файлы и историю команд
 	lastWord := words[len(words)-1]
 	fileSuggestions := createFileSuggestions(".", lastWord)
 	commandHistorySuggestions := createCommandHistorySuggestions(lastWord)
+	commandShortcuts := createUniqueShortcutsSuggestions(words[0])
 
-	return removeDuplicateSuggestions(append(fileSuggestions, commandHistorySuggestions...))
+	return removeDuplicateSuggestions(append(append(fileSuggestions, commandHistorySuggestions...), commandShortcuts...))
 }
 
 // Функция для удаления дубликатов из списка подсказок
@@ -101,6 +103,20 @@ func createUniqueCommandSuggestions(prefix string) []prompt.Suggest {
 		if _, exists := uniqueCommands[strings.ToLower(cmd.Name)]; !exists && strings.HasPrefix(strings.ToLower(cmd.Name), prefix) {
 			uniqueCommands[cmd.Name] = struct{}{}
 			suggestions = append(suggestions, prompt.Suggest{Text: cmd.Name, Description: cmd.Description})
+		}
+	}
+
+	return suggestions
+}
+
+func createUniqueShortcutsSuggestions(prefix string) []prompt.Suggest {
+	uniqueCommands := make(map[string]struct{})
+	var suggestions []prompt.Suggest
+
+	for _, shortcut := range system.AvailableShortcuts {
+		if _, exists := uniqueCommands[strings.ToLower(shortcut)]; !exists && strings.HasPrefix(strings.ToLower(shortcut), prefix) {
+			uniqueCommands[shortcut] = struct{}{}
+			suggestions = append(suggestions, prompt.Suggest{Text: shortcut, Description: fmt.Sprintf("Shortcut: %s", system.Shortcuts[shortcut])})
 		}
 	}
 

@@ -23,8 +23,7 @@ func SetVariableUtil(args []string) {
 	colors = system.GetColorsMap()
 
 	if len(args) < 2 {
-		fmt.Println(args)
-		fmt.Println(colors["yellow"]("Usage: setvar <variable_name> <value>"))
+		fmt.Println(colors["yellow"]("Usage: setvar <variable_name> <value>\nOr instead of this you can Use: $variable = value"))
 		return
 	}
 
@@ -55,7 +54,7 @@ func SetVariableUtil(args []string) {
 // SetVariable изменяет значение переменной по её имени с преобразованием типов
 func SetVariable(varName string, value string) error {
 	if utils2.ValidCommandFast(varName, utils3.ValidateSymbols) {
-		return errs.ValidationError
+		return errs.ValidationSpecialSymbolsError
 	}
 
 	if strings.TrimSpace(strings.ToLower(varName)) == "debug" {

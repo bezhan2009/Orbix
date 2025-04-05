@@ -35,6 +35,9 @@ var (
 
 	startTime      time.Time
 	printed_timing string
+
+	commandLineFr *string
+	isFormated    bool
 )
 
 func ExecLoopCommand(commandLower,

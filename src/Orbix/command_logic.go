@@ -8,6 +8,7 @@ import (
 	"goCmd/src"
 	"goCmd/system"
 	"goCmd/system/errs"
+	"goCmd/system/formats"
 	"goCmd/utils"
 	"strings"
 	"time"
@@ -31,7 +32,7 @@ func updateGlobalCommVars() {
 
 func SetCommandVarValues(commandArgs *[]string, autocomplete bool) ([]string, string) {
 	for iArg, arg := range *commandArgs {
-		if !strings.Contains(arg, "$") {
+		if !strings.Contains(arg, "$") && !isFormated {
 			continue
 		}
 
@@ -102,7 +103,17 @@ func replaceShortcuts(strings []string, shortcuts map[string]string) []string {
 			strings[i] = shortcut // Замена строки на соответствующий shortcut
 		}
 	}
+
 	return strings
+}
+
+func FormatCommands(commandLine *string) (*string, bool) {
+	convertedCmd := formats.UnconvertSV(*commandLine)
+	if convertedCmd == *commandLine {
+		return commandLine, false
+	}
+
+	return &convertedCmd, true
 }
 
 func ExecCommandPromptLogic(
@@ -116,6 +127,12 @@ func ExecCommandPromptLogic(
 	session *system.Session) bool {
 	defer updateGlobalCommVars()
 
+	commandLineFr, isFormated = FormatCommands(commandLine)
+	if isFormated {
+		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(*commandLineFr)
+		return false
+	}
+
 	res := replaceShortcuts(strings.Fields(*commandLine), system.Shortcuts)
 
 	shCmdLine := strings.Join(res, " ")
@@ -126,11 +143,6 @@ func ExecCommandPromptLogic(
 		fmt.Println(session.R)
 
 		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine(session.R)
-	}
-
-	if *commandLine == "cd.." {
-		*commandLine, *command, *commandArgs, *commandLower = src.ReadCommandLine("cd ..")
-		return false
 	}
 
 	if *isComHasFlag && (*echoTime || *runOnNewThread) {
@@ -149,7 +161,7 @@ func ExecCommandPromptLogic(
 	commandExLogg = *command
 
 	for _ = range *commandLine {
-		if !strings.Contains(commandExLogg, "$") {
+		if !strings.Contains(commandExLogg, "$") && !isFormated {
 			break
 		}
 

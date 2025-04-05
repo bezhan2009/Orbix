@@ -7,6 +7,7 @@ import (
 	"goCmd/system/errs"
 	utils2 "goCmd/utils"
 	utils3 "goCmd/validators/utils"
+	"log"
 	"strings"
 )
 
@@ -15,19 +16,18 @@ func SetShortCutUtil(args []string) {
 	colors = system.GetColorsMap()
 
 	if len(args) < 2 {
-		fmt.Println(args)
-		fmt.Println(colors["yellow"]("Usage: shortcut <shortcut_name> <value>"))
+		fmt.Println(colors["yellow"]("Usage: shortcut <shortcut_name> <value>\nOr instead of this you can Use: #shortcut = cut"))
 		return
 	}
 
 	var (
-		varName string
-		value   string
+		shortName string
+		value     string
 	)
 
 	for iArg, arg := range args {
 		if iArg == 0 {
-			varName = args[0]
+			shortName = args[0]
 			continue
 		}
 
@@ -36,21 +36,26 @@ func SetShortCutUtil(args []string) {
 
 	value = strings.TrimSpace(value)
 
-	err := SetShortcut(strings.ToLower(strings.TrimSpace(varName)), value)
+	err := SetShortcut(strings.ToLower(strings.TrimSpace(shortName)), value)
 	if err != nil {
 		fmt.Printf(colors["red"](fmt.Sprintf("Error: %s\n", err.Error())))
 	} else {
-		fmt.Printf(colors["green"](fmt.Sprintf("the values of the shortcut %s have been changed to %s successfully\n", varName, value)))
+		fmt.Printf(colors["green"](fmt.Sprintf("the values of the shortcut %s have been changed to %s successfully\n", shortName, value)))
 	}
 }
 
 // SetShortcut изменяет значение переменной по её имени с преобразованием типов
-func SetShortcut(varName string, value string) error {
-	if utils2.ValidCommandFast(varName, utils3.ValidateSymbols) {
-		return errs.ValidationError
+func SetShortcut(shortName string, value string) error {
+	if utils2.ValidCommandFast(shortName, utils3.ValidateSymbols) {
+		return errs.ValidationSpecialSymbolsError
+	}
+	if utils2.ValidCommand(shortName, system.AdditionalCommands) {
+		log.Println(shortName)
+		return errs.ValidationCantBeCommand
 	}
 
-	system.Shortcuts[varName] = value
+	system.Shortcuts[shortName] = value
+	system.AvailableShortcuts = append(system.AvailableShortcuts, shortName)
 	return nil
 }
 

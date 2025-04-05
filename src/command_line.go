@@ -16,6 +16,9 @@ func commandVar(commandLower string) bool {
 	return commandLower == "setvar" ||
 		commandLower == "delvar" ||
 		commandLower == "getvar" ||
+		commandLower == "shortcut" ||
+		commandLower == "getshort" ||
+		commandLower == "delshort" ||
 		commandLower == "cd" ||
 		commandLower == "cd.."
 }

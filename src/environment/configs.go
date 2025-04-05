@@ -10,11 +10,13 @@ import (
 	"goCmd/system"
 	"goCmd/utils"
 	"io/ioutil"
+	"log"
 	"os"
 	"reflect"
 )
 
 func silenceOutput() (func(), error) {
+	const op = "environment.silenceOutput"
 	// Определяем путь для "черной дыры" в зависимости от ОС
 	var nullDevice string
 	if system.OperationSystem == "windows" {
@@ -26,6 +28,7 @@ func silenceOutput() (func(), error) {
 	// Открываем файл nullDevice для перенаправления вывода
 	nullFile, err := os.OpenFile(nullDevice, os.O_WRONLY, 0644)
 	if err != nil {
+		log.Printf("[%s] Error while opening null device file: %s", op, err)
 		return nil, err
 	}
 
@@ -44,6 +47,7 @@ func silenceOutput() (func(), error) {
 		err := nullFile.Close()
 		if err != nil {
 			fmt.Println(err)
+			log.Printf("[%s] Error while closing null device file: %s", op, err)
 		}
 	}, nil
 }
@@ -110,6 +114,7 @@ func SaveShortcutsToJSON(shortcuts map[string]string, filename string) error {
 
 // SaveVars Сохранение переменных в формате JSON
 func SaveVars() {
+	const op = "environment.SaveVars"
 	restoreOutput, err := silenceOutput() // Отключаем вывод
 	if err != nil {
 		fmt.Println("Error while disabling output:", err)
@@ -160,16 +165,13 @@ func SaveVars() {
 
 	err = SaveShortcutsToJSON(system.Shortcuts, system.ShortcutsJSONName)
 	if err != nil {
-		fmt.Println("Error while saving shortcuts:", err)
+		fmt.Println(system.Red("Error while saving shortcuts:", err))
 	}
 }
 
 func load(nameJsonFile string, shortcuts bool) error {
-	_, err := Remove.File("rem", []string{nameJsonFile})
-	if err != nil {
-		fmt.Println(fmt.Sprintf("Error while removing file %s: %v", nameJsonFile, err))
-	}
-	_, err = fcommands.CreateFile(nameJsonFile)
+	const op = "environment.load"
+	_, err := fcommands.CreateFile(nameJsonFile)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("Error while creating file %s: %v", nameJsonFile, err))
 	}
@@ -177,6 +179,7 @@ func load(nameJsonFile string, shortcuts bool) error {
 	file, err := os.Open(nameJsonFile)
 	if err != nil {
 		fmt.Println(system.Red("Error opening file:", err))
+		log.Printf("[%s] Error while opening file %s: %v", op, nameJsonFile, err)
 		return err
 	}
 	defer func(file *os.File) {
@@ -186,9 +189,10 @@ func load(nameJsonFile string, shortcuts bool) error {
 		}
 	}(file)
 
-	data, err := ioutil.ReadAll(file)
+	data, err := ioutil.ReadFile(nameJsonFile)
 	if err != nil {
-		fmt.Println("Error reading file:", err)
+		fmt.Println(system.Red("Error reading file:", err))
+		log.Printf("[%s] Error reading file %s: %v", op, nameJsonFile, err)
 		return err
 	}
 
@@ -197,11 +201,17 @@ func load(nameJsonFile string, shortcuts bool) error {
 	err = json.Unmarshal(data, &loadedValues)
 	if err != nil {
 		fmt.Println("Error deserializing JSON:", err)
+		log.Printf("[%s] Error while deserializing %s: %v", op, nameJsonFile, err)
 		return err
 	}
 
 	if shortcuts {
 		updateStrings(loadedValues, system.Shortcuts)
+		for k, v := range loadedValues {
+			saveToShortcuts := fmt.Sprintf("%s %s", k, v)
+			SetShortCutUtil(utils.SplitCommandLine(saveToShortcuts))
+		}
+
 		return nil
 	}
 
@@ -218,6 +228,7 @@ func load(nameJsonFile string, shortcuts bool) error {
 
 // LoadUserConfigs Загрузка переменных из JSON и обновление указателей
 func LoadUserConfigs() error {
+	const op = "environment.LoadUserConfigs"
 	restoreOutput, err := silenceOutput() // Отключаем вывод
 	if err != nil {
 		fmt.Println(system.Red("Error while disabling output:", err))
@@ -228,12 +239,14 @@ func LoadUserConfigs() error {
 	err = commands.ChangeDirectory(system.Absdir)
 	if err != nil {
 		fmt.Println(system.Red(err))
+		log.Printf("[%s] Error changing directory: %v", op, err)
 		return err
 	}
 	defer func() {
 		err = commands.ChangeDirectory(system.UserDir)
 		if err != nil {
 			fmt.Println(system.Red(err))
+			log.Printf("[%s|Anonim func] Error changing directory: %v", op, err)
 		}
 	}()
 

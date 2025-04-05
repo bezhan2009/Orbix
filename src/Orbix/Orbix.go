@@ -255,7 +255,7 @@ func Orbix(commandInput string,
 		}
 
 		SplittedCommandLine = strings.Split(commandLine, "&&")
-		if len(SplittedCommandLine) > 1 && strings.TrimSpace(commandLine) != "&&" {
+		if len(SplittedCommandLine) > 1 && strings.TrimSpace(commandLine) != "&&" && commandLine[len(commandLine)-1] != '"' {
 			session.CommandHistory = append(session.CommandHistory, commandLine)
 
 			for _, commandLineLoop := range SplittedCommandLine {

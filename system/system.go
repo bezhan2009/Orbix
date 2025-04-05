@@ -39,6 +39,7 @@ var (
 	OrbixFileNames = map[string]uint{
 		OrbixRunningUsersFileName: 1,
 		"user.json":               1,
+		ShortcutsJSONName:         1,
 		".env":                    1,
 		"commands.json":           1,
 	}

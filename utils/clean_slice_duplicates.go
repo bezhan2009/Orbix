@@ -1,8 +1,19 @@
 package utils
 
+import (
+	"log"
+	"reflect"
+)
+
 func CleanSliceDuplicates(slice []string) []string {
-	// Проверяем, что входной слайс не nil
+	// Проверяем, что входной слайс корректный
 	if slice == nil {
+		return []string{}
+	}
+
+	// Проверяем, что переданный параметр действительно является слайсом строк
+	if reflect.TypeOf(slice).Kind() != reflect.Slice {
+		log.Println("CleanSliceDuplicates: received non-slice value")
 		return []string{}
 	}
 
@@ -10,7 +21,7 @@ func CleanSliceDuplicates(slice []string) []string {
 	mapSlice := make(map[string]struct{})
 	for _, obj := range slice {
 		if obj != "" { // Проверка на пустую строку (если необходимо)
-			mapSlice[obj] = struct{}{}
+			return []string{}
 		}
 	}
 
