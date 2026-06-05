@@ -170,7 +170,6 @@ func SaveVars() {
 }
 
 func load(nameJsonFile string, shortcuts bool) error {
-	fmt.Println("HELLO")
 	const op = "environment.load"
 	_, err := fcommands.CreateFile(nameJsonFile)
 	if err != nil {
@@ -217,8 +216,6 @@ func load(nameJsonFile string, shortcuts bool) error {
 	}
 
 	updatePointers(loadedValues, system.EditableVars)
-
-	fmt.Println(loadedValues)
 
 	// Установка переменных в окружение
 	for key, value := range loadedValues {

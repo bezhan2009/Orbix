@@ -104,6 +104,7 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 		"redisserver":  commands.StartRedisServer,
 		"ubuntu_redis": commands.StartRedisServer,
 		"redis_server": commands.StartRedisServer,
+		"encrypt":      func() { commands.Encrypt(executeCommand.CommandArgs) },
 	}
 
 	permissionRequiredCommands := map[string]func(){

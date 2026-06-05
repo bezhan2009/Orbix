@@ -39,4 +39,5 @@ var Commands = []system.Command{
 	{"dnslookup", "DNS queries"},
 	{"ipinfo", "IP address information"},
 	{"geoip", "IP address geolocation"},
+	{"encrypt", "Encrypts data"},
 }

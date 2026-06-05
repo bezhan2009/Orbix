@@ -107,3 +107,8 @@ If you want to extend the functionality of Orbix, you can contact the developer 
 
 If you have any questions, suggestions, or issues, please create a new [issue](https://github.com/bezhan2009/Orbix/issues/new) in our GitHub repository.
 
+
+
+So and hint:
+- xor is algorithm
+- for getting secret message you must use the 2 last numbers from the year we had meet(for 2020 - 20)

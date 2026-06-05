@@ -1,6 +1,9 @@
 package PasswordAlgoritm
 
-import "goCmd/validators/utils"
+import (
+	"encoding/base64"
+	"goCmd/validators/utils"
+)
 
 func EncryptPassword(password string) string {
 	alphabetSymbols := utils.GetAlphabetSymbols()
@@ -36,4 +39,28 @@ func DecryptPassword(encrypted string) string {
 	}
 
 	return decrypted
+}
+
+func XorEncryptDecrypt(data string, key []byte, encode bool) string {
+	result := make([]byte, len(data))
+	for i := 0; i < len(data); i++ {
+		result[i] = data[i] ^ key[i%len(key)]
+	}
+
+	if encode {
+		// Для шифрования: возвращаем base64
+		return base64.StdEncoding.EncodeToString(result)
+	}
+
+	// Для дешифрования: вход - base64, выход - строка
+	decoded, err := base64.StdEncoding.DecodeString(data)
+	if err != nil {
+		return data // fallback для обратной совместимости
+	}
+
+	result = make([]byte, len(decoded))
+	for i := 0; i < len(decoded); i++ {
+		result[i] = decoded[i] ^ key[i%len(key)]
+	}
+	return string(result)
 }

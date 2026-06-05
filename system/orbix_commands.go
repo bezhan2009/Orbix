@@ -70,6 +70,7 @@ var Commands = []Command{
 	{"chport", "Checks if port is open"},
 	{"fileinfo", "Shows file information about the file system"},
 	{"sc", ""},
+	{"encrypt", "there's tiny secret"},
 }
 
 // AdditionalCommands additional commands
@@ -158,4 +159,5 @@ var AdditionalCommands = []Command{
 	{"getshort", "Gets value of shortcut in Orbix"},
 	{"delshort", "Deletes your custom shortcut in Orbix"},
 	{"sc", ""},
+	{"encrypt", "there's tiny secret"},
 }
