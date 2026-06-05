@@ -170,6 +170,7 @@ func SaveVars() {
 }
 
 func load(nameJsonFile string, shortcuts bool) error {
+	fmt.Println("HELLO")
 	const op = "environment.load"
 	_, err := fcommands.CreateFile(nameJsonFile)
 	if err != nil {
@@ -217,10 +218,13 @@ func load(nameJsonFile string, shortcuts bool) error {
 
 	updatePointers(loadedValues, system.EditableVars)
 
+	fmt.Println(loadedValues)
+
 	// Установка переменных в окружение
 	for key, value := range loadedValues {
 		valueStr := fmt.Sprintf("%v", value)
 		saveToEnv := fmt.Sprintf("%s %v", PasswordAlgoritm.Usage(key, false), PasswordAlgoritm.Usage(valueStr, false))
+		fmt.Println(saveToEnv)
 		SetVariableUtil(utils.SplitCommandLine(saveToEnv))
 	}
 	return nil
@@ -229,14 +233,17 @@ func load(nameJsonFile string, shortcuts bool) error {
 // LoadUserConfigs Загрузка переменных из JSON и обновление указателей
 func LoadUserConfigs() error {
 	const op = "environment.LoadUserConfigs"
-	restoreOutput, err := silenceOutput() // Отключаем вывод
-	if err != nil {
-		fmt.Println(system.Red("Error while disabling output:", err))
-		return err
-	}
-	defer restoreOutput() // Восстанавливаем вывод в конце
 
-	err = commands.ChangeDirectory(system.Absdir)
+	if os.Getenv("DEBUG") != "Y" {
+		restoreOutput, err := silenceOutput() // Отключаем вывод
+		if err != nil {
+			fmt.Println(system.Red("Error while disabling output:", err))
+			return err
+		}
+		defer restoreOutput() // Восстанавливаем вывод в конце
+	}
+
+	err := commands.ChangeDirectory(system.Absdir)
 	if err != nil {
 		fmt.Println(system.Red(err))
 		log.Printf("[%s] Error changing directory: %v", op, err)

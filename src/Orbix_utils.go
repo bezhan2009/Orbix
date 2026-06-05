@@ -2,7 +2,6 @@ package src
 
 import (
 	"fmt"
-	"github.com/fsnotify/fsnotify"
 	_chan "goCmd/chan"
 	"goCmd/cmd/commands"
 	"goCmd/cmd/dirInfo"
@@ -15,6 +14,8 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 var UnknownCommandsCounter uint
@@ -237,10 +238,15 @@ func EdgeCases(OrbixLoopData *structs.OrbixLoopData,
 	}
 
 	if strings.TrimSpace(OrbixLoopData.Username) == "" {
-		nickname := GetUserNickname()
-		system.User = nickname
-		session.User = nickname
-		OrbixLoopData.Username = nickname
+		if system.EditableVars["user"] != "" {
+			username := fmt.Sprintf("%v", system.EditableVars["user"])
+			OrbixLoopData.Username = username
+		} else {
+			nickname := GetUserNickname()
+			system.User = nickname
+			session.User = nickname
+			OrbixLoopData.Username = nickname
+		}
 	}
 }
 

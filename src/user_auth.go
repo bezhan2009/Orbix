@@ -120,12 +120,14 @@ func OrbixUser(commandInput string,
 		}, LoadUserConfigsFn
 	}
 
-	// Load User Configs
 	_ = LoadConfigs(true)
 
 	if username != "" {
 		system.EditableVars["user"] = &username
 	}
+
+	// Load User Configs
+	rebooted.Username = username
 
 	return structs.OrbixLoopData{
 		IsWorking:        &isWorking,
@@ -146,6 +148,10 @@ func GetUserNickname() string {
 
 		if nickname == "" {
 			continue
+		}
+
+		if nickname == "exit" {
+			os.Exit(0)
 		}
 
 		return nickname

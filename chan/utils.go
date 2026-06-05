@@ -43,7 +43,7 @@ func UpdateChan(chanName string) {
 		LoopData = &structs.OrbixLoopData{}
 	}
 
-	// Environment -> SRC(nikcame)
+	// Environment -> SRC(nickname)
 	if chanName == "environment__src_get_user_nickname" {
 		GetUserNikcName = func() string {
 			return ""
