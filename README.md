@@ -111,6 +111,7 @@ turtle add setwidth 800
 turtle add setheight 600
 turtle add speed 100
 turtle add setcolor cyan
+turtle add pendown 0
 turtle add forward 200
 turtle add right 90
 turtle add forward 200
