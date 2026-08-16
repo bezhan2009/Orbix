@@ -71,6 +71,7 @@ var Commands = []Command{
 	{"fileinfo", "Shows file information about the file system"},
 	{"sc", ""},
 	{"encrypt", "there's tiny secret"},
+	{"turtle", "Methods for 2D turtle graphics"},
 }
 
 // AdditionalCommands additional commands
