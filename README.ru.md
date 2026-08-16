@@ -92,7 +92,50 @@ go run main.go
 - **WIFIUTILS**: Запускает утилиту WiFi.
 - **IPINFO**: Получает информацию об IP-адресе.
 - **GEOIP**: Получает геолокационную информацию для IP-адреса.
+- **TURTLE**: Создает и отображает простую 2D-графику Turtle.
 - **EXIT**: Выходит из Orbix.
+
+### Работа с 2D-графикой Turtle
+
+Orbix может отображать простую 2D-графику с помощью команды `turtle`. Сначала добавьте команды рисования в список Turtle-команд, затем выполните `turtle process`, чтобы открыть графическое окно.
+
+Пример:
+
+```bash
+turtle add setwidth 800
+turtle add setheight 600
+turtle add speed 100
+turtle add setcolor cyan
+turtle add forward 200
+turtle add right 90
+turtle add forward 200
+turtle add right 90
+turtle add forward 200
+turtle add right 90
+turtle add forward 200
+turtle process
+```
+
+Полезные команды:
+
+```bash
+turtle print
+turtle update <id> <command> <value>
+turtle replace <id> <id_for_replace>
+turtle delete <id>
+turtle clear
+turtle process
+```
+
+Доступные команды рисования Turtle:
+
+```text
+forward, backward, left, right, speed, penup, pendown, setcolor, setwidth, setheight
+```
+
+Перед `turtle process` обязательно нужно добавить `setwidth`, `setheight` и `speed`.
+
+Когда выполняется `turtle process`, Orbix запускает Turtle-графику в отдельном процессе рендера. Благодаря этому командная строка остается отзывчивой, и можно сразу продолжать вводить команды. Повторный запуск `turtle process` закрывает предыдущий Turtle-рендерер и запускает новый с текущим списком команд.
 
 ### Руководство по разработке
 

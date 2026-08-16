@@ -21,16 +21,20 @@ import (
 const maxRetryAttempts = system.MaxRetryAttempts // Maximum number of restart attempts
 const retryDelay = system.RetryDelay             // Delay before restart
 
-func OrbixLoop(panicChan chan any,
-	appState *system.AppState) {
+func OrbixLoop(
+	panicChan chan any,
+	appState *system.AppState,
+) {
 	colorsMap := system.GetColorsMap()
 	red := colorsMap["red"]
 
 	go func() {
 		for {
 			time.Sleep(retryDelay)
+
 			if _chan.IsVarsFnUpd {
 				time.Sleep(retryDelay)
+
 				_chan.SaveVarsFn()
 				_chan.IsVarsFnUpd = false
 			}
@@ -38,30 +42,64 @@ func OrbixLoop(panicChan chan any,
 	}()
 
 	defer func() {
-		if system.Debug {
+		r := recover()
+
+		if r != nil {
+			if system.Debug {
+				panic(r)
+			}
+
+			user.DeleteUserFromRunningFile(
+				system.UserName,
+			)
+
+			panicText := fmt.Sprintf(
+				"Panic recovered: %v",
+				r,
+			)
+
+			fmt.Printf(
+				"\n%s\n",
+				red(panicText),
+			)
+
+			log.Printf(
+				"Panic recovered: %v",
+				r,
+			)
+
+			panicChan <- r
 			return
 		}
 
-		if r := recover(); r != nil {
-			user.DeleteUserFromRunningFile(system.UserName)
-			PanicText := fmt.Sprintf("Panic recovered: %v", r)
-			fmt.Printf("\n%s\n", red(PanicText))
-			log.Printf("Panic recovered: %v", r)
-			panicChan <- r
-		} else {
-			panicChan <- nil
-		}
+		panicChan <- nil
 	}()
 
-	Orbix.Orbix("",
+	Orbix.Orbix(
+		"",
 		true,
 		structs.RebootedData{},
-		appState)
-
-	panicChan <- nil
+		appState,
+	)
 }
 
 func main() {
+	if len(os.Args) > 1 &&
+		os.Args[1] == "--turtle-renderer" {
+
+		if err := service.RunTurtleRendererFromStdin(); err != nil {
+			fmt.Fprintln(
+				os.Stderr,
+				"Turtle renderer error:",
+				err,
+			)
+
+			os.Exit(1)
+		}
+
+		return
+	}
+
 	f, err := os.Create("cpu.prof")
 	if err != nil {
 		fmt.Printf("Error creating CPU profile: %v", err)
@@ -176,23 +214,7 @@ func main() {
 
 		go OrbixLoop(panicChan, appState)
 
-		var orbixErr any
-		orbixRunning := true
-
-		for orbixRunning {
-			select {
-			case request := <-system.TurtleStartChan:
-				service.StartTurtleWindow(request)
-
-				// If we reach here, the user CLOSED the Turtle window.
-				//
-				// Ebiten cannot be started again in this process.
-				system.TurtleWindowState.Store(2)
-
-			case orbixErr = <-panicChan:
-				orbixRunning = false
-			}
-		}
+		orbixErr := <-panicChan
 
 		if orbixErr != nil {
 			errorText := fmt.Sprintf(
@@ -256,9 +278,14 @@ func main() {
 	}()
 
 	defer func() {
-		user.DeleteUserFromRunningFile(system.UserName)
+		user.DeleteUserFromRunningFile(
+			system.UserName,
+		)
+
 		_chan.SaveVarsFn()
-		_chan.UpdateChan("scripts__orbix_func")
-		os.Exit(1)
+
+		_chan.UpdateChan(
+			"scripts__orbix_func",
+		)
 	}()
 }

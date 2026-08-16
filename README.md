@@ -97,7 +97,50 @@ go run main.go
 - **WIFIUTILS**: Launches the WiFi utility.
 - **IPINFO**: Retrieves information about an IP address.
 - **GEOIP**: Retrieves geolocation information for an IP address.
+- **TURTLE**: Creates and renders simple 2D Turtle graphics.
 - **AND OTHERS**
+
+### Working with 2D Turtle Graphics
+
+Orbix can render simple 2D graphics with the `turtle` command. Add drawing commands to the Turtle command list, then run `turtle process` to open the graphics window.
+
+Example:
+
+```bash
+turtle add setwidth 800
+turtle add setheight 600
+turtle add speed 100
+turtle add setcolor cyan
+turtle add forward 200
+turtle add right 90
+turtle add forward 200
+turtle add right 90
+turtle add forward 200
+turtle add right 90
+turtle add forward 200
+turtle process
+```
+
+Useful commands:
+
+```bash
+turtle print
+turtle update <id> <command> <value>
+turtle replace <id> <id_for_replace>
+turtle delete <id>
+turtle clear
+turtle process
+```
+
+Available Turtle drawing commands:
+
+```text
+forward, backward, left, right, speed, penup, pendown, setcolor, setwidth, setheight
+```
+
+`setwidth`, `setheight`, and `speed` are required before `turtle process`.
+
+When `turtle process` runs, Orbix starts Turtle graphics in a separate renderer process. This keeps the command line responsive, so you can immediately continue typing commands. Running `turtle process` again closes the previous Turtle renderer and starts a fresh one with the current command list.
 
 ### Development Guide
 

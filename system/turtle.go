@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gary23b/turtle"
 	"image/color"
-	"sync/atomic"
 )
 
 type Turtle struct {
@@ -19,24 +18,6 @@ type TurtleWindowRequest struct {
 	Speed  float64
 	Draw   []Turtle
 }
-
-var TurtleWindowChan = make(chan TurtleWindowRequest)
-
-var (
-	// TurtleStartChan Only used to START Ebiten once.
-	TurtleStartChan = make(chan TurtleWindowRequest, 1)
-
-	// TurtleDrawChan Used for every subsequent `turtle process`.
-	TurtleDrawChan = make(chan TurtleWindowRequest, 32)
-
-	// TurtleWindowState 0 = not started
-	// 1 = running
-	// 2 = closed permanently for this Orbix process
-	TurtleWindowState atomic.Int32
-
-	TurtleWindowWidth  int
-	TurtleWindowHeight int
-)
 
 var (
 	// TurtleCommands Orbix turtle commands

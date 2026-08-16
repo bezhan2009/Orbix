@@ -1,15 +1,23 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"goCmd/system"
 	"goCmd/utils"
+	"os"
+	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/gary23b/turtle"
-	"github.com/gary23b/turtle/turtlemodel"
-	"github.com/hajimehoshi/ebiten/v2"
+)
+
+var (
+	turtleProcessMu sync.Mutex
+	turtleProcess   *exec.Cmd
 )
 
 func checkAndValidateIndexTurtle(index string) (int, error) {
@@ -160,124 +168,125 @@ func ProcessTurtle() error {
 		Draw:   draw,
 	}
 
-	switch system.TurtleWindowState.Load() {
+	return startTurtleRendererProcess(request)
+}
 
-	case 0:
-		// First ever turtle process.
-		if system.TurtleWindowState.CompareAndSwap(0, 1) {
-			system.TurtleWindowWidth = request.Width
-			system.TurtleWindowHeight = request.Height
-
-			system.TurtleStartChan <- request
-			return nil
-		}
-
-		// Another call managed to initialize it first.
-		system.TurtleDrawChan <- request
-		return nil
-
-	case 1:
-		// Turtle window already exists.
-
-		if request.Width != system.TurtleWindowWidth ||
-			request.Height != system.TurtleWindowHeight {
-
-			return fmt.Errorf(
-				"cannot change turtle window size while it is running; current size is %dx%d",
-				system.TurtleWindowWidth,
-				system.TurtleWindowHeight,
-			)
-		}
-
-		system.TurtleDrawChan <- request
-		return nil
-
-	case 2:
+func startTurtleRendererProcess(
+	request system.TurtleWindowRequest,
+) error {
+	payload, err := json.Marshal(request)
+	if err != nil {
 		return fmt.Errorf(
-			"turtle window was closed; Ebitengine cannot be started twice in the same Orbix process, restart Orbix to open it again",
+			"failed to encode turtle commands: %w",
+			err,
 		)
 	}
 
-	return fmt.Errorf("invalid turtle window state")
+	executable, err := os.Executable()
+	if err != nil {
+		return fmt.Errorf(
+			"failed to locate Orbix executable: %w",
+			err,
+		)
+	}
+
+	cmd := exec.Command(
+		executable,
+		"--turtle-renderer",
+	)
+
+	cmd.Stdin = bytes.NewReader(payload)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	turtleProcessMu.Lock()
+
+	if turtleProcess != nil &&
+		turtleProcess.Process != nil {
+
+		_ = turtleProcess.Process.Kill()
+	}
+
+	if err := cmd.Start(); err != nil {
+		turtleProcessMu.Unlock()
+
+		return fmt.Errorf(
+			"failed to start turtle renderer: %w",
+			err,
+		)
+	}
+
+	turtleProcess = cmd
+
+	turtleProcessMu.Unlock()
+
+	go func(current *exec.Cmd) {
+		_ = current.Wait()
+
+		turtleProcessMu.Lock()
+		defer turtleProcessMu.Unlock()
+
+		if turtleProcess == current {
+			turtleProcess = nil
+		}
+	}(cmd)
+
+	return nil
 }
 
-func StartTurtleWindow(initial system.TurtleWindowRequest) {
-	// Optional but useful for Orbix:
-	// keep Turtle above the terminal so the animation is immediately visible.
-	ebiten.SetWindowFloating(true)
+func RunTurtleRendererFromStdin() error {
+	var request system.TurtleWindowRequest
+
+	if err := json.NewDecoder(os.Stdin).Decode(&request); err != nil {
+		return fmt.Errorf(
+			"failed to decode turtle render request: %w",
+			err,
+		)
+	}
+
+	if request.Width <= 0 {
+		return fmt.Errorf("invalid turtle window width")
+	}
+
+	if request.Height <= 0 {
+		return fmt.Errorf("invalid turtle window height")
+	}
+
+	if request.Speed <= 0 {
+		return fmt.Errorf("invalid turtle speed")
+	}
+
+	system.Speed = request.Speed
 
 	turtle.Start(
 		turtle.Params{
-			Width:  initial.Width,
-			Height: initial.Height,
+			Width:  request.Width,
+			Height: request.Height,
 		},
 		func(window turtle.Window) {
-			runTurtleWindow(window, initial)
+			drawTurtleRequest(
+				window,
+				request,
+			)
 		},
 	)
+
+	return nil
 }
 
-func runTurtleWindow(
-	window turtle.Window,
-	initial system.TurtleWindowRequest,
-) {
-	t := window.NewTurtle()
-
-	t.ShowTurtle()
-	t.PenDown()
-
-	// Draw the first request.
-	drawTurtleRequest(window, t, initial)
-
-	// Now KEEP this goroutine alive.
-	//
-	// Every future `turtle process`
-	// sends another drawing here.
-	for request := range system.TurtleDrawChan {
-		drawTurtleRequest(window, t, request)
-	}
-}
 func drawTurtleRequest(
 	window turtle.Window,
-	t turtlemodel.Turtle,
 	request system.TurtleWindowRequest,
-) {
-	// Clear previous drawing.
-	window.GetCanvas().ClearScreen(turtle.Black)
-
-	// Reset turtle to starting position.
-	t.PenUp()
-
-	t.Teleport(0, 0)
-	t.Angle(0)
-
-	t.Color(turtle.White)
-	t.Speed(request.Speed)
-
-	t.PenDown()
-	t.ShowTurtle()
-
-	// Draw animation.
-	for _, command := range request.Draw {
-		if fn, exists := CommandMap[command.Command]; exists {
-			fn(t, command)
-		}
-	}
-}
-
-func drawTurtleCommands(
-	window turtle.Window,
-	commands []system.Turtle,
-	speed float64,
 ) {
 	window.GetCanvas().ClearScreen(turtle.Black)
 
 	t := window.NewTurtle()
+
 	t.ShowTurtle()
 	t.PenDown()
-	t.Speed(speed)
+	t.Speed(request.Speed)
 
-	for _, command := range commands {
+	for _, command := range request.Draw {
 		if fn, exists := CommandMap[command.Command]; exists {
 			fn(t, command)
 		}
