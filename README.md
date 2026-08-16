@@ -55,9 +55,8 @@ example/path/Orbix
 go run main.go
 ```
 
-![image](https://github.com/user-attachments/assets/acab7584-39ef-43ae-82a9-d022bbfc9359)
-![image](https://github.com/user-attachments/assets/7c4c019a-2372-4f0f-9303-fb368fe3bd83)
-![image](https://github.com/user-attachments/assets/cdf47169-2cb7-4f51-b729-9bc0dd0b3344)
+<img width="1906" height="1059" alt="image" src="https://github.com/user-attachments/assets/6de7257d-8f43-4cc9-89c0-295d25fcba5b" />
+
 
 ### On http://localhost:6060
 ![image](https://github.com/user-attachments/assets/dc2d0b92-0c81-4658-873d-b1b39fcbdd5b)
