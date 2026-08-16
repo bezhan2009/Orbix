@@ -51,9 +51,7 @@ cd
 go run main.go
 ```
 
-![image](https://github.com/user-attachments/assets/2b540539-45d5-4aee-acfe-236682cbb3ea)
-![image](https://github.com/user-attachments/assets/c2a23ac9-e6d3-45a6-bde7-d9301202f637)
-![image](https://github.com/user-attachments/assets/20216f61-7171-44e9-aa8c-0b9ccf57bf2c)
+<img width="1906" height="1059" alt="image" src="https://github.com/user-attachments/assets/6de7257d-8f43-4cc9-89c0-295d25fcba5b" />
 
 ### По ссылке http://localhost:6060
 ![image](https://github.com/user-attachments/assets/dc2d0b92-0c81-4658-873d-b1b39fcbdd5b)
