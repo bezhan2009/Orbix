@@ -153,15 +153,16 @@ If `setwidth`, `setheight`, or `speed` are not provided, Orbix uses defaults: `8
 You can also put Turtle commands in a `.tmpl` file and run them with `template`:
 
 ```text
-turtle clear
 turtle add forward 20.5
 turtle add right 18.4
 turtle add forward 8.1
 turtle process
 ```
 
+Orbix includes a ready-made heart demo in `scripts/heart.tmpl`. Run it to load the Turtle commands, print a short message, and start `turtle process` automatically:
+
 ```bash
-template heart.tmpl
+template scripts/heart.tmpl
 ```
 
 When `turtle process` runs, Orbix starts Turtle graphics in a separate renderer process. This keeps the command line responsive, so you can immediately continue typing commands. Running `turtle process` again closes the previous Turtle renderer and starts a fresh one with the current command list.

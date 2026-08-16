@@ -147,15 +147,16 @@ forward, backward, left, right, speed, penup, pendown, setcolor, setwidth, sethe
 Команды Turtle также можно записать в `.tmpl` файл и запустить через `template`:
 
 ```text
-turtle clear
 turtle add forward 20.5
 turtle add right 18.4
 turtle add forward 8.1
 turtle process
 ```
 
+В Orbix есть готовый пример сердца в `scripts/heart.tmpl`. Запустите его, чтобы загрузить Turtle-команды, вывести короткое сообщение и автоматически выполнить `turtle process`:
+
 ```bash
-template heart.tmpl
+template scripts/heart.tmpl
 ```
 
 Когда выполняется `turtle process`, Orbix запускает Turtle-графику в отдельном процессе рендера. Благодаря этому командная строка остается отзывчивой, и можно сразу продолжать вводить команды. Повторный запуск `turtle process` закрывает предыдущий Turtle-рендерер и запускает новый с текущим списком команд.

@@ -49,7 +49,8 @@ func Print(commandArgs []string) {
 		slice during range, which caused skipped and incorrectly
 		indexed arguments.
 	*/
-	for _, rawArg := range commandArgs {
+	for i := 0; i < len(commandArgs); i++ {
+		rawArg := commandArgs[i]
 		arg := strings.TrimSpace(rawArg)
 
 		if arg == "" {
@@ -90,6 +91,39 @@ func Print(commandArgs []string) {
 				}
 
 				continue
+			}
+		}
+
+		if strings.EqualFold(arg, "font") {
+			if i+1 >= len(commandArgs) {
+				fmt.Println(
+					system.Yellow(
+						"Font value cannot be empty. Available fonts: 2d, 3d",
+					),
+				)
+				return
+			}
+
+			value := strings.TrimSpace(
+				strings.ToLower(commandArgs[i+1]),
+			)
+
+			switch value {
+			case "2d", "3d":
+				font = value
+				i++
+				continue
+
+			default:
+				fmt.Println(
+					system.Yellow(
+						fmt.Sprintf(
+							"Invalid font %q. Available fonts: 2d, 3d",
+							value,
+						),
+					),
+				)
+				return
 			}
 		}
 
