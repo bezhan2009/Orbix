@@ -122,10 +122,13 @@ func Orbix(commandInput string,
 
 	_chan.SetVarFn = getCustomVar
 
-	src.EdgeCases(&LoopData,
+	i := src.EdgeCases(&LoopData,
 		session,
 		rebooted,
 		RecoverAndRestore)
+	if i == 0x0 {
+		return
+	}
 
 	LoopCommand := func(commandLine, command, commandLower string,
 		commandArgs []string) (continueLoop bool) {

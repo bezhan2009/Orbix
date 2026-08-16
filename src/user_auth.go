@@ -138,7 +138,7 @@ func OrbixUser(commandInput string,
 	}, nil
 }
 
-func GetUserNickname() string {
+func GetUserNickname() (string, int) {
 	for {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print(system.Magenta("\nYour name is Empty!!!\nEnter nickname: "))
@@ -151,9 +151,9 @@ func GetUserNickname() string {
 		}
 
 		if nickname == "exit" {
-			os.Exit(0)
+			return "", 0x0
 		}
 
-		return nickname
+		return nickname, 0x1
 	}
 }

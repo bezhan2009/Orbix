@@ -10,96 +10,277 @@ import (
 	"github.com/common-nighthawk/go-figure"
 )
 
-// Print Функция для печати текста с поддержкой шрифтов и цветов
+// Print prints text with support for:
+//
+//   - colors
+//   - 2D fonts
+//   - 3D fonts
+//   - animated output
+//
+// Examples:
+//
+//	print Hello world
+//	print red:Hello world
+//	print red:Hello world; blue:Goodbye
+//	print red:Hello font=2d
+//	print green:Orbix font=3d
+//	print red:Hello world animate
+//	print animate green:Orbix font=3d
 func Print(commandArgs []string) {
 	var (
 		font          string
 		animatedPrint bool
 		colorFuncs    = system.GetColorsMap()
+
+		textArgs []string
 	)
 
-	realIArg := 0
-
-	// Поиск параметра font
-	for i, arg := range commandArgs {
-		i -= realIArg
-		if strings.HasPrefix(arg, "font=") {
-			font = strings.Split(arg, "=")[1]
-			commandArgs = append(commandArgs[:i], commandArgs[i+1:]...)
-			realIArg++
-		}
-
-		if strings.HasPrefix(arg, "animate") {
-			animatedPrint = true
-			commandArgs = append(commandArgs[:i], commandArgs[i+1:]...)
-		}
+	if len(commandArgs) == 0 {
+		fmt.Println(system.Yellow("Usage: print <text> [font=2d|3d] [animate]"))
+		return
 	}
 
-	// Вывод текста в зависимости от шрифта и цвета
-	for _, arg := range commandArgs {
-		parts := strings.Split(arg, ";")
-		for _, part := range parts {
-			part = strings.TrimSpace(part)
-			if strings.Contains(part, ":") {
-				colorText := strings.SplitN(part, ":", 2)
-				if len(colorText) == 2 {
-					colorName := strings.TrimSpace(colorText[0])
-					text := strings.TrimSpace(colorText[1])
+	/*
+		Extract special arguments first.
 
-					if colorFunc, ok := colorFuncs[colorName]; ok {
-						printWithFont(text, font, colorFunc, animatedPrint)
-					} else {
-						printWithFont(text, font, fmt.Sprint, animatedPrint)
-					}
-				} else {
-					fmt.Println("Ошибка: Неправильный формат для цвета и текста.")
+		IMPORTANT:
+		Do not modify commandArgs while iterating over it.
+		The previous implementation removed elements from the
+		slice during range, which caused skipped and incorrectly
+		indexed arguments.
+	*/
+	for _, rawArg := range commandArgs {
+		arg := strings.TrimSpace(rawArg)
+
+		if arg == "" {
+			continue
+		}
+
+		// Detect:
+		// font=2d
+		// font=3d
+		if key, value, found := strings.Cut(arg, "="); found {
+			key = strings.TrimSpace(strings.ToLower(key))
+
+			if key == "font" {
+				font = strings.TrimSpace(strings.ToLower(value))
+
+				switch font {
+				case "":
+					fmt.Println(
+						system.Yellow(
+							"Font value cannot be empty. Available fonts: 2d, 3d",
+						),
+					)
+					return
+
+				case "2d", "3d":
+					// Valid font.
+
+				default:
+					fmt.Println(
+						system.Yellow(
+							fmt.Sprintf(
+								"Invalid font %q. Available fonts: 2d, 3d",
+								font,
+							),
+						),
+					)
+					return
 				}
-			} else {
-				// Вывести текст без цвета
-				text := part
-				printWithFont(text, font, fmt.Sprint, animatedPrint)
+
+				continue
 			}
 		}
+
+		// Detect:
+		// animate
+		if strings.EqualFold(arg, "animate") {
+			animatedPrint = true
+			continue
+		}
+
+		// Everything else belongs to the actual text.
+		textArgs = append(textArgs, rawArg)
 	}
 
-	fmt.Println()
+	if len(textArgs) == 0 {
+		fmt.Println(system.Yellow("Nothing to print."))
+		return
+	}
+
+	/*
+		Orbix may split:
+
+		    red:Hello my friend
+
+		into:
+
+		    []string{
+		        "red:Hello",
+		        "my",
+		        "friend",
+		    }
+
+		So we join everything back together before parsing
+		colors and semicolon-separated sections.
+	*/
+	fullText := strings.Join(textArgs, " ")
+
+	/*
+		A semicolon separates independently styled sections.
+
+		Example:
+
+		    red:Hello world; blue:Orbix
+
+		becomes:
+
+		    red:Hello world
+		    blue:Orbix
+	*/
+	parts := strings.Split(fullText, ";")
+
+	printedSomething := false
+
+	for _, rawPart := range parts {
+		part := strings.TrimSpace(rawPart)
+
+		if part == "" {
+			continue
+		}
+
+		text := part
+
+		// Default means no terminal color.
+		colorFunc := fmt.Sprint
+
+		/*
+			Try to interpret:
+
+			    red:Hello
+
+			as:
+
+			    color = red
+			    text  = Hello
+
+			BUT only if "red" is actually a known Orbix color.
+
+			This means ordinary strings such as:
+
+			    Time: 12:30
+			    https://example.com
+
+			are not accidentally interpreted as color syntax.
+		*/
+		if possibleColor, possibleText, found := strings.Cut(part, ":"); found {
+			colorName := strings.TrimSpace(
+				strings.ToLower(possibleColor),
+			)
+
+			if foundColorFunc, exists := colorFuncs[colorName]; exists {
+				colorFunc = foundColorFunc
+				text = strings.TrimSpace(possibleText)
+			}
+		}
+
+		if text == "" {
+			continue
+		}
+
+		printWithFont(
+			text,
+			font,
+			colorFunc,
+			animatedPrint,
+		)
+
+		printedSomething = true
+	}
+
+	if printedSomething {
+		fmt.Println()
+	}
 }
 
-// Вспомогательная функция для вывода текста со шрифтом и цветом
-func printWithFont(text, font string, colorFunc func(a ...interface{}) string, animate bool) {
-	// Проверка текста, если используется 2D или 3D шрифт
-	if font == "2d" || font == "3d" {
-		// Регулярное выражение для фильтрации: только английские буквы и цифры
-		re := regexp.MustCompile(`[^a-zA-Z0-9 !@#+$%^&*()_]`)
-		text = re.ReplaceAllString(text, "")
+// printWithFont prints a single text section using the requested font,
+// color function and animation mode.
+func printWithFont(
+	text string,
+	font string,
+	colorFunc func(a ...interface{}) string,
+	animate bool,
+) {
+	font = strings.TrimSpace(strings.ToLower(font))
 
-		// Если текст пустой после фильтрации
-		if text == "" {
-			fmt.Println("Недопустимые символы для выбранного шрифта.")
+	/*
+		ASCII-art fonts do not properly support arbitrary Unicode
+		characters, so keep only characters that are safe for
+		go-figure.
+	*/
+	if font == "2d" || font == "3d" {
+		re := regexp.MustCompile(`[^a-zA-Z0-9 !@#+$%^&*()_]`)
+
+		filteredText := re.ReplaceAllString(text, "")
+
+		if strings.TrimSpace(filteredText) == "" {
+			fmt.Println(
+				system.Yellow(
+					"Invalid characters for the selected font.",
+				),
+			)
 			return
 		}
+
+		text = filteredText
 	}
 
-	if font == "3d" {
-		myFigure := figure.NewFigure(text, "larry3d", true)
-		if !animate {
-			fmt.Println(colorFunc(myFigure.String()))
+	switch font {
+
+	// 3D ASCII-art output.
+	case "3d":
+		myFigure := figure.NewFigure(
+			text,
+			"larry3d",
+			true,
+		)
+
+		output := colorFunc(myFigure.String())
+
+		if animate {
+			utils.PrintAnim(output)
 		} else {
-			utils.PrintAnim(colorFunc(myFigure.String()))
-		} // Выводим текст в 3D с цветом
-	} else if font == "2d" {
-		myFigure := figure.NewFigure(text, "", true)
-		if !animate {
-			fmt.Println(colorFunc(myFigure.String()))
-		} else {
-			utils.PrintAnim(colorFunc(myFigure.String()))
-		} // Выводим текст в 2D с цветом
-	} else {
-		// Обычный вывод без 3D/2D эффекта
-		if !animate {
-			fmt.Print(colorFunc(text), " ")
-		} else {
-			utils.PrintAnim(colorFunc(text))
+			fmt.Print(output)
 		}
+
+	// 2D ASCII-art output.
+	case "2d":
+		myFigure := figure.NewFigure(
+			text,
+			"",
+			true,
+		)
+
+		output := colorFunc(myFigure.String())
+
+		if animate {
+			utils.PrintAnim(output)
+		} else {
+			fmt.Print(output)
+		}
+
+	// Normal text.
+	default:
+		output := colorFunc(text)
+
+		if animate {
+			utils.PrintAnim(output)
+		} else {
+			fmt.Print(output)
+		}
+
+		// Separate multiple styled sections.
+		fmt.Print(" ")
 	}
 }

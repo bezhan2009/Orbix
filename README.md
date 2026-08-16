@@ -111,4 +111,4 @@ If you have any questions, suggestions, or issues, please create a new [issue](h
 
 So and hint:
 - xor is algorithm
-- for getting secret message you must use the 2 last numbers from the year we had meet(for 2020 - 20)
+- for getting secret message you must use the 2 last numbers from the year we had meet(for example: 2020 - 20)

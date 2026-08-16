@@ -6,6 +6,7 @@ import (
 	"goCmd/internal/run"
 	"goCmd/scripts/handlers"
 	"goCmd/src/Orbix"
+	"goCmd/src/service"
 	"goCmd/src/user"
 	"goCmd/structs"
 	"goCmd/system"
@@ -173,29 +174,73 @@ func main() {
 	for {
 		isPanic := false
 
-		// Launching OrbixLoop in a separate goroutine
 		go OrbixLoop(panicChan, appState)
 
-		// We are waiting for the result of OrbixLoop's work
-		err := <-panicChan
-		if err != nil {
-			ErrorText := fmt.Sprintf("Error occurred: %v", err)
-			fmt.Println(red(ErrorText))
-			log.Printf("Error occurred: %v", err)
+		var orbixErr any
+		orbixRunning := true
+
+		for orbixRunning {
+			select {
+			case request := <-system.TurtleStartChan:
+				service.StartTurtleWindow(request)
+
+				// If we reach here, the user CLOSED the Turtle window.
+				//
+				// Ebiten cannot be started again in this process.
+				system.TurtleWindowState.Store(2)
+
+			case orbixErr = <-panicChan:
+				orbixRunning = false
+			}
+		}
+
+		if orbixErr != nil {
+			errorText := fmt.Sprintf(
+				"Error occurred: %v",
+				orbixErr,
+			)
+
+			fmt.Println(red(errorText))
+			log.Printf(
+				"Error occurred: %v",
+				orbixErr,
+			)
+
 			isPanic = true
 		}
 
 		system.Attempts++
+
 		if system.Attempts > maxRetryAttempts {
-			fmt.Println(red("Max retry attempts reached. Exiting..."))
-			log.Println("Max retry attempts reached. Exiting...")
+			fmt.Println(
+				red(
+					"Max retry attempts reached. Exiting...",
+				),
+			)
+
+			log.Println(
+				"Max retry attempts reached. Exiting...",
+			)
+
 			break
 		}
 
 		if isPanic {
-			RestartText := fmt.Sprintf("Restarting Orbix in %v", magenta(retryDelay.Seconds()))
-			fmt.Println(green(RestartText), green("seconds..."))
-			log.Printf("Restarting Orbix in %v seconds...", retryDelay.Seconds())
+			restartText := fmt.Sprintf(
+				"Restarting Orbix in %v",
+				magenta(retryDelay.Seconds()),
+			)
+
+			fmt.Println(
+				green(restartText),
+				green("seconds..."),
+			)
+
+			log.Printf(
+				"Restarting Orbix in %v seconds...",
+				retryDelay.Seconds(),
+			)
+
 			time.Sleep(retryDelay)
 		} else {
 			break

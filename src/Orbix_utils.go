@@ -226,7 +226,7 @@ func UsingForLT(commandInput string) bool {
 func EdgeCases(OrbixLoopData *structs.OrbixLoopData,
 	session *system.Session,
 	rebooted structs.RebootedData,
-	RecoverAndRestore func(rebooted *structs.RebootedData)) {
+	RecoverAndRestore func(rebooted *structs.RebootedData)) int {
 	if len(OrbixLoopData.Session.CommandHistory) < 10 {
 		go system.InitSession(OrbixLoopData.Username,
 			OrbixLoopData.Session)
@@ -242,12 +242,18 @@ func EdgeCases(OrbixLoopData *structs.OrbixLoopData,
 			username := fmt.Sprintf("%v", system.EditableVars["user"])
 			OrbixLoopData.Username = username
 		} else {
-			nickname := GetUserNickname()
+			nickname, i := GetUserNickname()
+			if i == 0x0 {
+				return i
+			}
+
 			system.User = nickname
 			session.User = nickname
 			OrbixLoopData.Username = nickname
 		}
 	}
+
+	return 0x1
 }
 
 func PrepareOrbix() {

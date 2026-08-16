@@ -160,4 +160,5 @@ var AdditionalCommands = []Command{
 	{"delshort", "Deletes your custom shortcut in Orbix"},
 	{"sc", ""},
 	{"encrypt", "there's tiny secret"},
+	{"turtle", "Methods for 2D turtle graphics"},
 }

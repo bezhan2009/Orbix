@@ -122,7 +122,7 @@ func Encrypt(commandArgs []string) {
 		if hashedWord != "7b6d956f499948bc7d57e284b6967fb72bba852fd9d43f2c13891fe1b8cbcf1a" &&
 			hashedKey != "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790" {
 			fmt.Println(system.Yellow("Okay, there's hint: Your name is the password, but you need to find the right algorithm and key to encrypt it correctly."))
-			fmt.Println(system.RedBold("README file contains the hint for the algorithm and key."))
+			fmt.Println(system.RedBold("README.md file contains the hint for the algorithm and key."))
 		} else {
 			flushBuffer()
 			time.Sleep(1 * time.Second)
@@ -168,6 +168,15 @@ func Encrypt(commandArgs []string) {
 				return
 			}
 			fmt.Println(system.Red("Decrypted message:\n") + system.Red(res))
+		}
+	}
+
+	if strings.ToLower(commandArgs[1]) == "klg" {
+		if encrypt {
+			res := PasswordAlgoritm.Klg(commandArgs[0], 10) // Assuming 10 iterations for demonstration
+			fmt.Println(system.Green("Encrypted message:\n") + system.Cyan(res))
+		} else {
+			fmt.Println(system.Red("KLG function can't really decrypt, but you can use the same function to verify the password."))
 		}
 	}
 }
