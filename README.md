@@ -104,6 +104,15 @@ go run main.go
 
 Orbix can render simple 2D graphics with the `turtle` command. Add drawing commands to the Turtle command list, then run `turtle process` to open the graphics window.
 
+Minimal example:
+
+```bash
+turtle add forward 20.5
+turtle add right 18.4
+turtle add forward 8.1
+turtle process
+```
+
 Example:
 
 ```bash
@@ -139,7 +148,21 @@ Available Turtle drawing commands:
 forward, backward, left, right, speed, penup, pendown, setcolor, setwidth, setheight
 ```
 
-`setwidth`, `setheight`, and `speed` are required before `turtle process`.
+If `setwidth`, `setheight`, or `speed` are not provided, Orbix uses defaults: `800x600` and speed `100`.
+
+You can also put Turtle commands in a `.tmpl` file and run them with `template`:
+
+```text
+turtle clear
+turtle add forward 20.5
+turtle add right 18.4
+turtle add forward 8.1
+turtle process
+```
+
+```bash
+template heart.tmpl
+```
 
 When `turtle process` runs, Orbix starts Turtle graphics in a separate renderer process. This keeps the command line responsive, so you can immediately continue typing commands. Running `turtle process` again closes the previous Turtle renderer and starts a fresh one with the current command list.
 

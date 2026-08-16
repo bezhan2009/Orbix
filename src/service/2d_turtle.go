@@ -20,6 +20,12 @@ var (
 	turtleProcess   *exec.Cmd
 )
 
+const (
+	defaultTurtleWindowWidth  = 800
+	defaultTurtleWindowHeight = 600
+	defaultTurtleSpeed        = 100.0
+)
+
 func checkAndValidateIndexTurtle(index string) (int, error) {
 	id, err := strconv.Atoi(index)
 	if err != nil {
@@ -145,17 +151,29 @@ func TranslateToTurtle(
 func ProcessTurtle() error {
 	height, ok := utils.InTurtle("setheight", system.TurtleDraw)
 	if !ok {
-		return fmt.Errorf("setheight required")
+		height = defaultTurtleWindowHeight
 	}
 
 	width, ok := utils.InTurtle("setwidth", system.TurtleDraw)
 	if !ok {
-		return fmt.Errorf("setwidth required")
+		width = defaultTurtleWindowWidth
 	}
 
 	speed, ok := utils.InTurtle("speed", system.TurtleDraw)
 	if !ok {
-		return fmt.Errorf("speed required")
+		speed = defaultTurtleSpeed
+	}
+
+	if width <= 0 {
+		return fmt.Errorf("invalid turtle window width")
+	}
+
+	if height <= 0 {
+		return fmt.Errorf("invalid turtle window height")
+	}
+
+	if speed <= 0 {
+		return fmt.Errorf("invalid turtle speed")
 	}
 
 	draw := make([]system.Turtle, len(system.TurtleDraw))
