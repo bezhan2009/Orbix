@@ -11,7 +11,7 @@
 
 Read in [Русский](README.ru.md)
 
-**Orbix** is an alternative command line interface written in the Go programming language. It provides the same basic Commands as the standard CMD, but also includes additional Commands specific to this tool.
+**Orbix** is an alternative command line interface written in the Go programming language. It provides the same basic Commands as the standard CMD, but also includes additional Commands specific to this tool
 
 ### Features
 
