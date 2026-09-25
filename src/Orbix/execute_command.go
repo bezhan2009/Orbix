@@ -66,7 +66,7 @@ func Command(executeCommand *structs.ExecuteCommandFuncParams) {
 		},
 		"edit":         func() { ExCommUtils.EditFileUtil(executeCommand.CommandArgs) },
 		"open_link":    func() { ExCommUtils.OpenLinkUtil(executeCommand.CommandArgs) },
-		"api_request":  func() { commands.ApiRequest() },
+		"api_request":  func() { commands.ApiRequest(executeCommand.CommandArgs) },
 		"print":        func() { commands.Print(executeCommand.CommandArgs) },
 		"kill":         func() { ExCommUtils.KillProcessUtil(executeCommand.CommandArgs) },
 		"neofetch":     func() { ExCommUtils.NeofetchUtil(executeCommand, system.User, system.CmdMap) },

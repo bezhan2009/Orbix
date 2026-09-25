@@ -119,7 +119,7 @@ func Encrypt(commandArgs []string) {
 		encryptKey := PasswordAlgoritm.Usage(strings.ToLower(commandArgs[2]), true)
 		hashedKey := utils.HashPasswordFromUser(encryptKey)
 
-		if hashedWord != "7b6d956f499948bc7d57e284b6967fb72bba852fd9d43f2c13891fe1b8cbcf1a" &&
+		if hashedWord != "7b6d956f499948bc7d57e284b6967fb72bba852fd9d43f2c13891fe1b8cbcf1a" ||
 			hashedKey != "535fa30d7e25dd8a49f1536779734ec8286108d115da5045d77f3b4185d8f790" {
 			fmt.Println(system.Yellow("Okay, there's hint: Your name is the password, but you need to find the right algorithm and key to encrypt it correctly."))
 			fmt.Println(system.RedBold("README.md file contains the hint for the algorithm and key."))
